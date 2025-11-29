@@ -1,4 +1,124 @@
+:root {
+  /* Brand Colors */
+  --primary: #2f80ed; /* Send button, Active icons */
+  --primary-hover: #1f7ae0; /* Darker blue for hover states */
+  --secondary: #e3f2ff; /* Selected chat, My messages */
+
+  /* Backgrounds */
+  --bg-main: #f5f7fb; /* The large gray background */
+  --bg-surface: #ffffff; /* White panels (Sidebar, Headers) */
+  --border: #e5e7eb; /* Thin gray borders */
+
+  /* Text */
+  --text-main: #1c1f26; /* Names, Message text */
+  --text-dim: #6b7280; /* Timestamps */
+  --text-muted: #9ca3af; /* Placeholders */
+
+  /* Add this specific one for text inside buttons/badges */
+  --text-inverse: #ffffff;
+
+  /* Typography Weights */
+  --fw-regular: 400; /* Body text, timestamps, read messages */
+  --fw-medium: 500; /* Optional: often used for buttons or highlights */
+  --fw-semibold: 600; /* Names, Unread messages, Headings */
+  --border-color: #e5e7eb; /* The Light Gray Divider */
+}
+
 #App {
-  background-color: red;
+  font-family: "Inter", system-ui, sans-serif;
+  background-color: var(--bg-main); /* Uses variable defined above */
+  color: var(--text-main); /* Uses variable defined above */
+  font-weight: var(--fw-regular); /* Uses variable defined above */
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
   height: 100%;
+}
+
+/* Border for the Menu, ChatList, and ChatWindow components */
+.menu,
+.chat-list,
+.chat-window {
+  border: 1px solid var(--border-color);
+}
+
+/* Home Layout */
+.home {
+  height: 100%;
+  background-color: var(--bg-main);
+
+  display: grid;
+  grid-template-columns: 4rem 20rem 1fr;
+  grid-template-rows: 1fr;
+}
+
+/* =========================
+   DESKTOP (Default)
+   ========================= */
+.home {
+  height: 100%;
+  width: 100%;
+  background-color: var(--bg-main);
+
+  /* 3 Columns: Menu | List | Window */
+  display: grid;
+  grid-template-columns: 4rem 20rem 1fr;
+  grid-template-rows: 1fr; /* Full height */
+}
+
+/* Set color of direct child of home */
+.home > div {
+  background-color: var(--bg-surface);
+}
+
+/* =========================
+   MOBILE STYLES
+   ========================= */
+@media (max-width: 768px) {
+  .home {
+    /* Change Grid: 1 Column, 2 Rows */
+    /* Row 1: Content (1fr - takes all space) */
+    /* Row 2: Bottom Menu (60px - fixed height) */
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 60px;
+  }
+
+  /* 1. TRANSFORM THE MENU (Sidebar -> Bottom Bar) */
+  .menu {
+    /* Move to the 2nd row (Bottom) */
+    grid-row-start: 2;
+    grid-row-end: 3;
+    grid-column: 1;
+    width: 100%;
+    border-top: 1px solid var(--border-color); /* Add top border */
+    background-color: var(--bg-surface);
+    z-index: 10; /* Ensure it sits on top if needed */
+  }
+
+  /* 2. ADJUST THE CHAT LIST */
+  .chat-list {
+    /* Move to the 1st row (Top) */
+    grid-row-start: 1;
+    grid-row-end: 2;
+    grid-column: 1;
+
+    width: 100%; /* Take full width */
+    overflow-y: auto; /* Allow scrolling */
+  }
+
+  /* 3. HIDE CHAT WINDOW (Initially) */
+  /* On mobile, you pick a person first, then the window appears */
+  .chat-window {
+    display: none;
+  }
+}
+
+/* Tablet (Max-width: 1024px) 
+   ---------------------------
+   Action: We reduce the Chat List width slightly to save space for messages.
+*/
+@media (min-width: 769px) and (max-width: 1024px) {
+  .home {
+    /* Shrink the middle column (ChatList) from 20rem to 16rem */
+    grid-template-columns: 4rem 16rem 1fr;
+  }
 }
