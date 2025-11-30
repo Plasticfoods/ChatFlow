@@ -47,7 +47,7 @@
   background-color: var(--bg-main);
 
   display: grid;
-  grid-template-columns: 4rem 25rem 1fr;
+  grid-template-columns: 4rem 28rem 1fr;
   grid-template-rows: 1fr;
 }
 
@@ -58,9 +58,10 @@
 
 #chatflow {
   color: var(--text-main);
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 600;
   padding: .5rem 1.2rem;
+  padding-top: 1rem;
 }
 
 
