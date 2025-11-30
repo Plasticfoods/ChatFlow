@@ -3,6 +3,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useState } from 'react';
 import { chatData } from './tempData.js';
 import { Tabs, Tab } from '@mui/material';
+import ChatListItems from './ChatListItems.jsx';
 
 
 export default function ChatList() {
@@ -32,55 +33,50 @@ export default function ChatList() {
     });
 
     return (
-        <div className="chat-list">
+        <div className="chat-list" style={{
+            display: 'flex',
+            flexDirection: 'column',
+        }}>
             <header>
                 <h2 id='chatflow'>ChatFlow</h2>
                 <ChatListSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             </header>
-            <div>
-                <Tabs
-                    value={filterType}
-                    onChange={handleTabChange}
-                    sx={{
-                        paddingTop: '.5rem',
-                        minHeight: '40px',
-                        borderBottom: '1px solid var(--border-color)', // Adds a subtle grey line across the whole width
+            <Tabs
+                value={filterType}
+                onChange={handleTabChange}
+                sx={{
+                    paddingTop: '.5rem',
+                    minHeight: '40px',
+                    borderBottom: '1px solid var(--border-color)', // Adds a subtle grey line across the whole width
 
-                        // Customize the Sliding Indicator (The Blue Line)
-                        '& .MuiTabs-indicator': {
-                            backgroundColor: 'var(--primary)',
-                            height: '3px', // Slightly thicker for modern look
-                            borderRadius: '3px 3px 0 0' // Rounded top corners on the line
-                        }
-                    }}
-                >
-                    <Tab
-                        label="All"
-                        value="all"
-                        disableRipple
-                        sx={tabStyle}
-                    />
-                    <Tab
-                        label="Unread"
-                        value="unread"
-                        disableRipple
-                        sx={tabStyle}
-                    />
-                    <Tab
-                        label="Groups"
-                        value="groupchat"
-                        disableRipple
-                        sx={tabStyle}
-                    />
-                </Tabs>
-            </div>
-            <div className="chat-list-items">
-                {filteredChats.map((contact, index) => {
-                    return (
-                        <div key={index}>{contact.name}</div>
-                    )
-                })}
-            </div>
+                    // Customize the Sliding Indicator (The Blue Line)
+                    '& .MuiTabs-indicator': {
+                        backgroundColor: 'var(--primary)',
+                        height: '3px', // Slightly thicker for modern look
+                        borderRadius: '3px 3px 0 0' // Rounded top corners on the line
+                    }
+                }}
+            >
+                <Tab
+                    label="All"
+                    value="all"
+                    disableRipple
+                    sx={tabStyle}
+                />
+                <Tab
+                    label="Unread"
+                    value="unread"
+                    disableRipple
+                    sx={tabStyle}
+                />
+                <Tab
+                    label="Groups"
+                    value="groupchat"
+                    disableRipple
+                    sx={tabStyle}
+                />
+            </Tabs>
+            <ChatListItems chats={filteredChats} activeChatId={activeChatId} setActiveChatId={setActiveChatId} />
         </div>
     )
 }
@@ -141,24 +137,24 @@ const ChatListSearch = ({ searchTerm, setSearchTerm }) => {
 
 // 5. CUSTOM STYLES FOR THE TABS
 const tabStyle = {
-  textTransform: 'none',     // Stop ALL CAPS default
-  fontWeight: 600,
-  fontSize: '14px',          // Slightly larger for readability
-  minHeight: '40px',
-  padding: '0 16px',
-  color: 'var(--text-dim)',  // Default text color (Gray)
-  transition: 'all 0.2s',
+    textTransform: 'none',     // Stop ALL CAPS default
+    fontWeight: 600,
+    fontSize: '14px',          // Slightly larger for readability
+    minHeight: '40px',
+    padding: '0 16px',
+    color: 'var(--text-dim)',  // Default text color (Gray)
+    transition: 'all 0.2s',
 
-  // Active State Styling
-  '&.Mui-selected': {
-    color: 'var(--primary)', // Blue Text
-    // Note: No background color here anymore, just text color
-  },
+    // Active State Styling
+    '&.Mui-selected': {
+        color: 'var(--primary)', // Blue Text
+        // Note: No background color here anymore, just text color
+    },
 
-  // Hover State
-  '&:hover': {
-    color: 'var(--text-main)',
-    backgroundColor: 'transparent', 
-  }
+    // Hover State
+    '&:hover': {
+        color: 'var(--text-main)',
+        backgroundColor: 'transparent',
+    }
 };
 
