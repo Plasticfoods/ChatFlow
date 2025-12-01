@@ -6,7 +6,8 @@ import {
   Smile, 
   Paperclip, 
   Mic, 
-  Send 
+  Send,
+  ArrowLeft  
 } from 'lucide-react';
 import MessageBubble from './MessageBubble'; 
 import './ChatWindow.css';
@@ -72,11 +73,15 @@ const ChatWindow = () => {
   };
 
   return (
-    <div className="chat-window">
+    <div className="chat-window hidden-on-mobile">
       
       {/* HEADER */}
       <header className="chat-header">
         <div className="chat-header-info">
+          {/* Clickable back arrow button for mobile view */}
+          <div type="button" className="back-button hidden-on-desktop">
+            <ArrowLeft /> 
+          </div>
           <img 
             src="https://i.pravatar.cc/150?u=1" 
             alt="Sarah" 

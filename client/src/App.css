@@ -24,6 +24,25 @@
   --border-color: #e5e7eb; /* The Light Gray Divider */
 }
 
+:root {
+  /* Make primary slightly lighter so it glows on dark bg */
+  --primary: #60A5FA;       
+  --primary-hover: #3B82F6;
+  
+  /* "My Message" bubble becomes a dark blue */
+  --secondary: #1E3A8A;     
+  
+  /* Backgrounds: Dark Slate */
+  --bg-main: #0F172A;       /* Very dark blue-gray */
+  --bg-surface: #1E293B;    /* Slightly lighter for panels */
+  --border-color: #334155;  
+  
+  /* Text: White & Light Gray */
+  --text-main: #F1F5F9;     
+  --text-dim: #94A3B8;      
+  --text-muted: #64748B;
+}
+
 #App {
   font-family: "Inter", system-ui, sans-serif;
   background-color: var(--bg-main); /* Uses variable defined above */
@@ -36,9 +55,8 @@
 
 /* Border for the Menu, ChatList, and ChatWindow components */
 .menu,
-.chat-list,
-.chat-window {
-  border: 1px solid var(--border-color);
+.chat-list {
+  border-right: 1px solid var(--border-color);
 }
 
 /* Home Layout */
@@ -56,11 +74,16 @@
 .home > div {
   background-color: var(--bg-surface);
   /* CRITICAL: This stops the 1fr from "surrendering" to large content */
-  min-height: 0; 
+  min-height: 0;
   /* Also ensures they try to fill the height */
   /* height: 100%; */
 }
 
+@media (min-width: 769px) {
+  .hidden-on-desktop {
+    display: none;
+  }
+}
 
 /* =========================
    MOBILE STYLES
@@ -68,6 +91,15 @@
 @media (max-width: 768px) {
   .hidden-on-mobile {
     display: none;
+  }
+
+  .menu,
+  .chat-list {
+    border-right: none;
+  }
+
+  .menu {
+    border-top: 1px solid var(--border-color);
   }
 
   .home {

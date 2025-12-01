@@ -21,6 +21,11 @@
   flex-shrink: 0; /* Never shrink */
 }
 
+.back-button:hover {
+  color: var(--primary);
+  cursor: pointer;
+}
+
 .chat-header-info {
   display: flex;
   align-items: center;
@@ -70,11 +75,12 @@
 .chat-messages {
   flex: 1;             /* Takes all available space */
   overflow-y: auto;    /* Enables scrolling */
-  padding: 20px 40px;  /* Generous padding for readability */
+  padding: 2rem 1.8rem;  /* Generous padding for readability */
   display: flex;
   flex-direction: column;
   gap: 4px;            /* Gap between bubbles */
   min-height: 0;       /* Fix for flex scrolling bug */
+  background-color: var(--bg-main);
 }
 
 /* Date Divider (e.g., "Today") */
