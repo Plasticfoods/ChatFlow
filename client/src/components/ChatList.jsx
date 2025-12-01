@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { chatData } from './tempData.js';
 import { Tabs, Tab } from '@mui/material';
 import ChatListItems from './ChatListItems.jsx';
+import { MessageCircleCode, MessageSquareDot  } from 'lucide-react';
 
 
 export default function ChatList() {
@@ -38,7 +39,10 @@ export default function ChatList() {
             flexDirection: 'column',
         }}>
             <header>
-                <h2 id='chatflow'>ChatFlow</h2>
+                <div className='hidden-on-mobile' style={{ display: 'flex', justifyContent: 'start', padding: '1rem 1.4rem', gap: '15px', alignItems: 'center' }}>
+                    <MessageCircleCode color='var(--primary)' size={35} />
+                    <h2 id='chatflow' style={{ fontSize: '2rem', fontWeight: '600', color: 'var(--primary)' }}>ChatFlow</h2>
+                </div>
                 <ChatListSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             </header>
             <Tabs
@@ -126,7 +130,7 @@ const ChatListSearch = ({ searchTerm, setSearchTerm }) => {
                     // Add the Search Icon at the start
                     startAdornment: (
                         <InputAdornment position="start">
-                            <SearchIcon sx={{ color: 'var(--text-muted, #9CA3AF)' }} />
+                            <SearchIcon sx={{ color: 'var(--text-muted, #9CA3AF)', marginLeft: '10px' }} />
                         </InputAdornment>
                     ),
                 }}

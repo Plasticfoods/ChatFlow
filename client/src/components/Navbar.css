@@ -1,0 +1,111 @@
+/* NAVBAR CONTAINER (Inherits from .menu in your main layout) */
+.menu {
+  /* Ensure these are present from previous steps */
+  background-color: var(--bg-surface);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  height: 100%;
+  padding: 2rem 0;
+  
+  /* Defaults for DESKTOP (Vertical Column) */
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 1. TOP NAV SECTION */
+.nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Spacing between icons */
+  width: 100%;
+  align-items: center;
+}
+
+/* 2. BOTTOM TOGGLE SECTION */
+.bottom-section {
+  /* THE MAGIC TRICK: Pushes this section to the very bottom */
+  margin-top: auto; 
+  
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 3. INDIVIDUAL NAV ITEMS */
+.nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 20px; /* Soft square shape */
+  color: var(--text-muted); /* Default Gray */
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+/* Hover State */
+.nav-link:hover {
+  background-color: rgba(0,0,0,0.04);
+  color: var(--primary);
+}
+
+/* ACTIVE STATE (Blue Icon + Light Blue Background) */
+.nav-link.active {
+  background-color: var(--secondary); /* Light Blue */
+  color: var(--primary); /* Brand Blue */
+}
+
+/* Optional: Subtle indicator bar for active state */
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: -8px; /* Stick to the edge of sidebar */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background-color: var(--primary);
+  border-radius: 0 4px 4px 0;
+}
+
+/* ============================
+   MOBILE RESPONSIVENESS
+   ============================ */
+@media (max-width: 768px) {
+  .menu {
+    /* Switch to Horizontal Row */
+    flex-direction: row;
+    justify-content: space-between; /* Even spacing */
+    padding: 0;
+    
+    /* Remove the Desktop height/border logic if handled by parent grid */
+    border-right: none;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .nav-section {
+    flex-direction: row; /* Horizontal Items */
+    justify-content: space-around;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Hide the "Active Indicator Bar" on mobile */
+  .nav-link.active::before {
+    display: none;
+  }
+  
+  /* Reset the "Push to bottom" logic for mobile */
+  .bottom-section {
+    margin-top: 0;
+    width: auto;
+    /* Optional: Hide theme toggle on mobile if space is tight */
+    /* display: none; */ 
+    border-left: 1px solid var(--border-color); /* Separator */
+    padding-left: 12px;
+    margin-right: 12px;
+  }
+}

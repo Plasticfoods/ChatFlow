@@ -1,0 +1,162 @@
+/* MAIN CONTAINER */
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--bg-main); /* The light gray background #F5F7FB */
+  position: relative;
+}
+
+/* ============================
+   1. CHAT HEADER
+   ============================ */
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background-color: var(--bg-surface); /* White */
+  border-bottom: 1px solid var(--border-color);
+  height: 72px; /* Fixed height for consistency */
+  flex-shrink: 0; /* Never shrink */
+}
+
+.chat-header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.chat-header-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.chat-header-text h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.chat-header-text p {
+  margin: 0;
+  font-size: 13px;
+  color: #10B981; /* Online Green */
+  font-weight: 500;
+}
+
+.chat-header-actions {
+  display: flex;
+  gap: 20px;
+  color: var(--primary); /* Blue Icons */
+}
+
+.header-icon {
+  cursor: pointer;
+  color: var(--text-muted); /* Default Gray */
+  transition: color 0.2s;
+}
+
+.header-icon:hover {
+  color: var(--primary);
+}
+
+/* ============================
+   2. MESSAGES AREA (Body)
+   ============================ */
+.chat-messages {
+  flex: 1;             /* Takes all available space */
+  overflow-y: auto;    /* Enables scrolling */
+  padding: 20px 40px;  /* Generous padding for readability */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;            /* Gap between bubbles */
+  min-height: 0;       /* Fix for flex scrolling bug */
+}
+
+/* Date Divider (e.g., "Today") */
+.date-divider {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0;
+}
+
+.date-divider span {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-dim);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ============================
+   3. INPUT AREA (Footer)
+   ============================ */
+.chat-input-area {
+  padding: 16px 24px;
+  background-color: var(--bg-surface); /* White */
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0; /* Never shrink */
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--bg-main); /* Light Gray Pill Background */
+  border-radius: 24px; /* Fully rounded pill */
+  padding: 8px 8px 8px 20px; /* Padding for text */
+  transition: box-shadow 0.2s;
+}
+
+.input-wrapper:focus-within {
+  box-shadow: 0 0 0 2px var(--secondary); /* Blue Focus Ring */
+}
+
+.chat-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 15px;
+  color: var(--text-main);
+  font-family: inherit;
+}
+
+.chat-input::placeholder {
+  color: var(--text-muted);
+}
+
+.input-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The Send Button */
+.send-button {
+  width: 40px;
+  height: 40px;
+  background-color: var(--primary);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.1s, background-color 0.2s;
+}
+
+.send-button:hover {
+  background-color: var(--primary-hover);
+  transform: scale(1.05);
+}
+
+.send-button:active {
+  transform: scale(0.95);
+}
