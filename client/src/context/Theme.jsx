@@ -34,17 +34,21 @@ export const ThemeProvider = ({ children }) => {
   };
 
   // Helper to jump to a specific theme (useful for a settings dropdown)
-  const setSpecificTheme = (id) => {
-    const index = themes.findIndex(t => t.id === id);
-    if (index !== -1) {
-      setThemeIndex(index);
+  const setSpecificTheme = (themeIndex, themeLabel) => {
+    if(themeIndex !== null && themeIndex < themes.length) {
+      setThemeIndex(themeIndex);
     }
+    themes.forEach((theme, index) => {
+      if(theme.label === themeLabel) {
+        setThemeIndex(index);
+      }
+    })
   };
 
   return (
     <ThemeContext.Provider 
-      value={{ 
-        theme: currentTheme.id,     // The current ID string (e.g., 'light')
+      value={{
+        themeIndex: themeIndex,    // The current index
         themeLabel: currentTheme.label, // The current display name
         switchTheme,                // The cycler function
         setSpecificTheme,           // The specific setter
