@@ -16,7 +16,8 @@ import './ChatWindow.css';
 const CURRENT_USER_ID = "me";
 const CHAT_PARTNER_ID = "Sarah Jenkins";
 
-const ChatWindow = () => {
+
+export default function ChatWindow({ activeChatId, setActiveChatId }) {
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef(null);
 
@@ -73,13 +74,12 @@ const ChatWindow = () => {
   };
 
   return (
-    <div className="chat-window hidden-on-mobile">
-      
+    <div className={`chat-window ${activeChatId ? 'active' : 'hidden-on-mobile'}`}>      
       {/* HEADER */}
       <header className="chat-header">
         <div className="chat-header-info">
           {/* Clickable back arrow button for mobile view */}
-          <div type="button" className="back-button hidden-on-desktop">
+          <div type="button" className="back-button hidden-on-desktop" onClick={() => setActiveChatId(null)}>
             <ArrowLeft /> 
           </div>
           <img 
@@ -162,4 +162,3 @@ const ChatWindow = () => {
   );
 };
 
-export default ChatWindow;

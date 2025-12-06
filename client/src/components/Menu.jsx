@@ -12,7 +12,7 @@ import './Navbar.css'; // Import the styles above
 
 export default function Menu() {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const iconSize = 20;
+  const iconSize = 24;
 
   // Define your navigation items here
   const navItems = [
@@ -42,7 +42,7 @@ export default function Menu() {
       </div>
 
       {/* --- BOTTOM SECTION: UTILITIES --- */}
-      <div className="bottom-section">
+      <div className="bottom-section hidden-on-mobile">
 
         {/* Theme Toggle Button */}
         <button

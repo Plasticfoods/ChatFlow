@@ -7,8 +7,7 @@ import ChatListItems from './ChatListItems.jsx';
 import { MessageCircleCode, MessageSquareDot  } from 'lucide-react';
 
 
-export default function ChatList() {
-    const [activeChatId, setActiveChatId] = useState(1);
+export default function ChatList({ activeChatId, setActiveChatId }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all'); // 'all', 'unread', 'groupchat'
 
