@@ -17,16 +17,15 @@ const MessageBubble = ({ text, time, isOwnMessage, isRead }) => {
           <span className="timestamp">{time}</span>
           
           {/* Only show read receipts on MY messages */}
-          {isOwnMessage && (
+          {/* {isOwnMessage && (
             <span className="read-receipt">
-              {/* Show double check for read, single check for sent */}
               {isRead ? (
                 <CheckCheck size={14} /> 
               ) : (
                 <Check size={14} color="var(--text-dim)" />
               )}
             </span>
-          )}
+          )} */}
         </div>
 
       </div>

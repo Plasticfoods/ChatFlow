@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   MessageSquare,
-  Phone,
   Users,
   Settings,
   Moon,
   Sun,
+  User
 } from 'lucide-react';
 import './Navbar.css'; // Import the styles above
 
@@ -18,8 +18,8 @@ export default function Menu() {
   const navItems = [
     { path: '/', icon: <MessageSquare size={iconSize} />, label: '' },
     { path: '/contacts', icon: <Users size={iconSize} />, label: 'Contacts' },
-    { path: '/calls', icon: <Phone size={iconSize} />, label: 'Calls' },
     { path: '/settings', icon: <Settings size={iconSize} />, label: 'Settings' },
+    { path: '/profile', icon: <User size={iconSize} />, label: 'Profile' },
   ];
 
   return (
