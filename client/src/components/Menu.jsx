@@ -9,9 +9,10 @@ import {
   User
 } from 'lucide-react';
 import './Navbar.css'; // Import the styles above
+import { useTheme } from '../context/Theme';
 
 export default function Menu() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { switchTheme } = useTheme();
   const iconSize = 24;
 
   // Define your navigation items here
@@ -46,12 +47,13 @@ export default function Menu() {
 
         {/* Theme Toggle Button */}
         <button
-          onClick={() => setIsDarkMode(!isDarkMode)}
           className="nav-link hidden-on-mobile"
           title="Toggle Theme"
           style={{ border: 'none', background: 'none', cursor: 'pointer' }}
+          size={iconSize}
+          onClick={switchTheme}
         >
-          {isDarkMode ? <Sun size={iconSize} /> : <Moon size={iconSize} />}
+          <Sun />
         </button>
       </div>
     </nav>

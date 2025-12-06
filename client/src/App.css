@@ -1,29 +1,3 @@
-:root {
-  /* Brand Colors */
-  --primary: #2f80ed; /* Send button, Active icons */
-  --primary-hover: #1f7ae0; /* Darker blue for hover states */
-  --secondary: #e3f2ff; /* Selected chat, My messages */
-
-  /* Backgrounds */
-  --bg-main: #f5f7fb; /* The large gray background */
-  --bg-surface: #ffffff; /* White panels (Sidebar, Headers) */
-  --border: #e5e7eb; /* Thin gray borders */
-
-  /* Text */
-  --text-main: #1c1f26; /* Names, Message text */
-  --text-dim: #6b7280; /* Timestamps */
-  --text-muted: #9ca3af; /* Placeholders */
-
-  /* Add this specific one for text inside buttons/badges */
-  --text-inverse: #ffffff;
-
-  /* Typography Weights */
-  --fw-regular: 400; /* Body text, timestamps, read messages */
-  --fw-medium: 500; /* Optional: often used for buttons or highlights */
-  --fw-semibold: 600; /* Names, Unread messages, Headings */
-  --border-color: #e5e7eb; /* The Light Gray Divider */
-}
-
 #App {
   font-family: "Inter", system-ui, sans-serif;
   background-color: var(--bg-main); /* Uses variable defined above */
