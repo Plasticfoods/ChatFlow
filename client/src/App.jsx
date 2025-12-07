@@ -8,7 +8,10 @@ import './App.css'
 function App() {
 
   return (
-    <div id="App">
+    <div id="App"
+      // This for overlay loading animation
+      style={{ position: "relative" }} 
+    >
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/contacts" element={<Contacts />} />

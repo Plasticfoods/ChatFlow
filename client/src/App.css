@@ -34,6 +34,18 @@
   /* height: 100%; */
 }
 
+.empty-chat-state {
+  display: flex;
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center;
+  height: 100%; 
+  width: 100%;
+  background-color: var(--bg-main);
+  text-align: center;
+  padding: 20px;
+}
+
 @media (min-width: 769px) {
   .hidden-on-desktop {
     display: none;
@@ -94,7 +106,7 @@
     left: 0;
     width: 100%;
     height: 100%;       /* Cover the full screen */
-    z-index: 200;        /* Sit on top of everything */
+    z-index: 100;        /* Sit on top of everything */
     
     /* Animation (Optional): Slide in from right */
     transition: transform 0.3s ease-in-out;
