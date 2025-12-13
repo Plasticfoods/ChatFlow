@@ -1,13 +1,12 @@
 import { TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useState } from 'react';
-import { chatData } from './tempData.js';
 import { Tabs, Tab } from '@mui/material';
 import ChatListItems from './ChatListItems.jsx';
-import { MessageCircleCode, MessageSquareDot  } from 'lucide-react';
+import { MessageCircleCode, MessageSquarePlus } from 'lucide-react';
 
 
-export default function ChatList({ activeChatId, setActiveChatId }) {
+export default function ChatList({ chats, activeChatId, setActiveChatId, setShowAddChatSection }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all'); // 'all', 'unread', 'groupchat'
 
@@ -17,7 +16,7 @@ export default function ChatList({ activeChatId, setActiveChatId }) {
     };
 
     // 2. The Smart Filter Logic
-    const filteredChats = chatData.filter(chat => {
+    const filteredChats = chats.filter(chat => {
         // First, check if it matches the search text
         const matchesSearch = chat.name.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -41,6 +40,7 @@ export default function ChatList({ activeChatId, setActiveChatId }) {
                 <div className='hidden-on-mobile' style={{ display: 'flex', justifyContent: 'start', padding: '1rem 1.4rem', gap: '15px', alignItems: 'center' }}>
                     <MessageCircleCode color='var(--primary)' size={35} />
                     <h2 id='chatflow' style={{ fontSize: '2rem', fontWeight: '600', color: 'var(--primary)' }}>ChatFlow</h2>
+                    <MessageSquarePlus color='var(--text-main)' size={26} style={{ marginLeft: 'auto', cursor: 'pointer' }} onClick={() => setShowAddChatSection(true)} />
                 </div>
                 <ChatListSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             </header>
@@ -85,7 +85,7 @@ export default function ChatList({ activeChatId, setActiveChatId }) {
 }
 
 
-const ChatListSearch = ({ searchTerm, setSearchTerm }) => {
+export const ChatListSearch = ({ searchTerm, setSearchTerm }) => {
     return (
         <div style={{ padding: '.5rem 1.2rem' }}>
             <TextField

@@ -23,7 +23,7 @@ export default function ChatListItems({ chats, activeChatId, setActiveChatId }) 
 }
 
 
-const ChatListItem = ({ chat, isActive, setActiveChatId }) => {
+export const ChatListItem = ({ chat, isActive, setActiveChatId }) => {
   // Helper to determine if we should show bold text
   const isUnread = chat.unreadCount > 0;
 

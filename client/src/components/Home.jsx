@@ -3,10 +3,13 @@ import ChatList from "./ChatList"
 import ChatWindow from "./ChatWindow"
 import { useState, useEffect } from "react";
 import Loader from "./Loader";
+import { chatData } from './tempData.js';
+import AddChatSection from "./AddChatSection";
 
 export default function Home() {
-    const [activeChatId, setActiveChatId] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [activeChatId, setActiveChatId] = useState(null);
+    const [showAddChatSection, setShowAddChatSection] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -23,7 +26,8 @@ export default function Home() {
     return (
         <div className="home" style={{ position: 'relative' }}>
             <Menu />
-            <ChatList activeChatId={activeChatId} setActiveChatId={setActiveChatId} />
+            {showAddChatSection ? <AddChatSection chats={chatData} setShowAddChatSection={setShowAddChatSection} /> :
+                <ChatList chats={chatData} activeChatId={activeChatId} setActiveChatId={setActiveChatId} setShowAddChatSection={setShowAddChatSection} />}
             <ChatWindow activeChatId={activeChatId} setActiveChatId={setActiveChatId} />
         </div>
     )

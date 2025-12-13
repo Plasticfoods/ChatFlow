@@ -46,6 +46,24 @@
   padding: 20px;
 }
 
+/* Custom Scrollbar for Chat List and Message Area */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-muted);
+}
+
 @media (min-width: 769px) {
   .hidden-on-desktop {
     display: none;
