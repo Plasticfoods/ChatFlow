@@ -1,2 +1,2 @@
-
-console.log("Server Started");
+const connectDB = require('./config/db');
+connectDB();
