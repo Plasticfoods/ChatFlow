@@ -15,7 +15,7 @@
 }
 
 /* Home Layout */
-.home {
+.page-layout, .home {
   height: 100%;
   /* overflow: hidden; */
   background-color: var(--bg-main);
@@ -26,7 +26,7 @@
 }
 
 /* Set color of direct child of home */
-.home > div {
+.page-layout, .home > div {
   background-color: var(--bg-surface);
   /* CRITICAL: This stops the 1fr from "surrendering" to large content */
   min-height: 0;
@@ -87,7 +87,7 @@
     border-top: 1px solid var(--border-color);
   }
 
-  .home {
+  .page-layout, .home {
     /* Change Grid: 1 Column, 2 Rows */
     /* Row 1: Content (1fr - takes all space) */
     /* Row 2: Bottom Menu (60px - fixed height) */
@@ -142,7 +142,7 @@
    Action: We reduce the Chat List width slightly to save space for messages.
 */
 @media (min-width: 769px) and (max-width: 1024px) {
-  .home {
+  .page-layout, .home {
     /* Shrink the middle column (ChatList) from 20rem to 16rem */
     grid-template-columns: 4rem 20rem 1fr;
   }

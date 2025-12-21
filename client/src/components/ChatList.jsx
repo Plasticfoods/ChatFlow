@@ -6,7 +6,7 @@ import ChatListItems from './ChatListItems.jsx';
 import { MessageCircleCode, MessageSquarePlus } from 'lucide-react';
 
 
-export default function ChatList({ chats, activeChatId, setActiveChatId, setShowAddChatSection }) {
+export default function ChatList({ chats, activeChat, setActiveChat, setShowAddChatSection }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all'); // 'all', 'unread', 'groupchat'
 
@@ -79,7 +79,7 @@ export default function ChatList({ chats, activeChatId, setActiveChatId, setShow
                     sx={tabStyle}
                 />
             </Tabs>
-            <ChatListItems chats={filteredChats} activeChatId={activeChatId} setActiveChatId={setActiveChatId} />
+            <ChatListItems chats={filteredChats} activeChat={activeChat} setActiveChat={setActiveChat} />
         </div>
     )
 }

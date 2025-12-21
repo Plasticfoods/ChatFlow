@@ -1,14 +1,16 @@
 import { Check, CheckCheck } from 'lucide-react'; // Import icons
 import './MessageBubble.css'; // Import the styles
 
-const MessageBubble = ({ text, time, isOwnMessage, isRead }) => {
+const MessageBubble = ({ text, time, isOwnMessage, isRead, username }) => {
   // Decide which class to apply based on who sent it
   const containerClass = isOwnMessage ? 'sent' : 'received';
 
   return (
     <div className={`message-bubble-container ${containerClass}`}>
+      {(username && !isOwnMessage) && <div className='message-username'>{username}</div>}
+
       <div className="message-bubble">
-        
+
         {/* 1. The Main Message Text */}
         <div className="message-text">{text}</div>
         

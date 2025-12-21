@@ -78,7 +78,7 @@
   padding: 2rem 1.8rem;  /* Generous padding for readability */
   display: flex;
   flex-direction: column;
-  gap: 4px;            /* Gap between bubbles */
+  gap: 5px;            /* Gap between bubbles */
   min-height: 0;       /* Fix for flex scrolling bug */
   background-color: var(--bg-main);
 }

@@ -1,7 +1,7 @@
 import { Box, Typography, Avatar } from '@mui/material';
 import { Check, CheckCheck, Paperclip } from 'lucide-react'; // Icons
 
-export default function ChatListItems({ chats, activeChatId, setActiveChatId }) {
+export default function ChatListItems({ chats, activeChat, setActiveChat }) {
 
     return (
         <div className="chat-list-items" style={{
@@ -13,8 +13,8 @@ export default function ChatListItems({ chats, activeChatId, setActiveChatId }) 
                     <ChatListItem 
                         key={index} 
                         chat={contact} 
-                        isActive={contact.id === activeChatId} 
-                        setActiveChatId={setActiveChatId} 
+                        isActive={contact.id === activeChat} 
+                        setActiveChat={setActiveChat} 
                     />
                 )
             })}
@@ -23,13 +23,13 @@ export default function ChatListItems({ chats, activeChatId, setActiveChatId }) 
 }
 
 
-export const ChatListItem = ({ chat, isActive, setActiveChatId }) => {
+export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
   // Helper to determine if we should show bold text
   const isUnread = chat.unreadCount > 0;
 
   return (
     <Box
-      onClick={() => setActiveChatId(chat.id)}
+      onClick={() => setActiveChat(chat)}
       sx={{
         display: 'flex',
         alignItems: 'center',
@@ -54,7 +54,7 @@ export const ChatListItem = ({ chat, isActive, setActiveChatId }) => {
           sx={{ width: 48, height: 48, border: '1px solid var(--border-color)' }} 
         />
         {/* Online Status Dot */}
-        {chat.status === 'online' && (
+        {/* {chat.status === 'online' && (
           <Box
             sx={{
               position: 'absolute',
@@ -67,7 +67,7 @@ export const ChatListItem = ({ chat, isActive, setActiveChatId }) => {
               border: '2px solid white',
             }}
           />
-        )}
+        )} */}
       </Box>
 
       {/* MIDDLE: NAME & MESSAGE PREVIEW */}
