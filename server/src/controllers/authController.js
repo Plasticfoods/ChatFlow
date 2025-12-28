@@ -39,7 +39,7 @@ const register = async (req, res) => {
         role: user.role,
         avatar: user.avatar,
       });
-      console.log("User registered successfully: ", username);
+      console.log("User registered successfully: ", user);
     } else {
       console.log("Failed to create user");
       res.status(400).json({ message: "Failed to create the user" });

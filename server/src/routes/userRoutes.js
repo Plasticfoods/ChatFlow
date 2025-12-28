@@ -1,7 +1,7 @@
 const {  Router } = require("express");
 const router = Router();
 const { searchUsers, getUserProfile, updateUserProfile } = require("../controllers/userController");
-const { checkAuthentication, checkAuthorization } = require("../middleware/authMiddleware");
+const { checkAuthentication, checkAuthorization } = require("../middlewares/auth");
 
 // @route   GET /api/user?search=john
 router.get("/", checkAuthentication, searchUsers);

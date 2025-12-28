@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const User = require("../models/user.model");
 
 /**
  * 1. Check Authentication (protect)
@@ -7,6 +7,32 @@ const User = require("../models/User");
  * If valid, it attaches the user object to 'req.user'.
  */
 const checkAuthentication = async (req, res, next) => {
+  try {
+    if(!req.cookies || !req.cookies.acess_token) {
+      console.log("No cookies or access token found");
+      return res.status(401).json({ message: "User is not authenticated" });
+    }
+
+    const accessToken = req.cookies.acess_token;
+    console.log("Access Token from Cookie during authentication: ", accessToken);
+
+    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET_KEY);
+    req.user = await User.findById(decoded.id).select("-password");
+  
+    if (!req.user) {
+      console.log("User does not exist");
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    console.log("Authenticated User: ", req.user.username);
+    next(); // Authentication successful
+  } catch (error) {
+    console.error("Error in checkAuthentication middleware:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const checkAuthentication2 = async (req, res, next) => {
   let acessToken;
 
   // 1. Try to get token from cookies (Best practice for Web Apps)

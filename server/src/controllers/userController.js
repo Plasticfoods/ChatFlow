@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const User = require("../models/user.model");
 
 /**
  * @desc    Get all users (Search functionality)

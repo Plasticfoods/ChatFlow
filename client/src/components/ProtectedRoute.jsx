@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { useUser } from '../context/UserContext.jsx';
+import { useUser } from '../context/User.jsx';
 import Loader from './Loader.jsx';
 
 const ProtectedRoute = ({ children }) => {
@@ -8,7 +8,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (userLoading) {
     return (
-        <Loader  />
+        <Loader overlay={true} />
     );
   }
 

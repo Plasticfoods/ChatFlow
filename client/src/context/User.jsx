@@ -15,7 +15,7 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data } = await axios.get('/api/auth/check');
+        const data = await axios.get('/api/user/profile');
         setUser(data);
       } catch (err) {
         if (err.response && err.response.status !== 401) {

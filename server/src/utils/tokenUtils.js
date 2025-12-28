@@ -13,6 +13,7 @@ const setAuthCookie = (res, userId) => {
     httpOnly: true, // Prevent client-side JS from reading the cookie (XSS protection)
     // sameSite: "strict", // Prevent CSRF attacks
     maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days in milliseconds
+    withCredentials: true,
   });
   return acessToken;
 };
