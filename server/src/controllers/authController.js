@@ -7,7 +7,7 @@ const { setAuthCookie, clearAuthCookie } = require("../utils/tokenUtils");
  * @access  Public
  */
 const register = async (req, res) => {
-  const { name, email, username, password } = req.body;
+  const { name, email, username, password, role } = req.body;
 
   try {
     if (!name || !email || !username || !password) {
@@ -27,6 +27,7 @@ const register = async (req, res) => {
       email,
       username,
       password,
+      role: role || "user",
     });
 
     if (user) {
