@@ -32,7 +32,7 @@ export default function ChatList({ chats, activeChat, setActiveChat, setShowAddC
     });
 
     return (
-        <div className="chat-list" style={{
+        <div className="chat-list section-middle" style={{
             display: 'flex',
             flexDirection: 'column',
         }}>

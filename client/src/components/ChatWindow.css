@@ -1,5 +1,5 @@
 /* MAIN CONTAINER */
-.chat-window {
+.chat-window, .section-right {
   display: flex;
   flex-direction: column;
   height: 100%;

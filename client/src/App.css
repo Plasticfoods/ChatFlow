@@ -10,7 +10,7 @@
 
 /* Border for the Menu, ChatList, and ChatWindow components */
 .menu,
-.chat-list {
+.chat-list, .section-middle {
   border-right: 1px solid var(--border-color);
 }
 
@@ -26,7 +26,7 @@
 }
 
 /* Set color of direct child of home */
-.page-layout, .home > div {
+.page-layout > div, .home > div {
   background-color: var(--bg-surface);
   /* CRITICAL: This stops the 1fr from "surrendering" to large content */
   min-height: 0;
@@ -79,7 +79,7 @@
   }
 
   .menu,
-  .chat-list {
+  .chat-list, .section-middle {
     border-right: none;
   }
 
@@ -108,7 +108,7 @@
   }
 
   /* 2. ADJUST THE CHAT LIST */
-  .chat-list {
+  .chat-list, .section-middle {
     /* Move to the 1st row (Top) */
     grid-row-start: 1;
     grid-row-end: 2;
@@ -118,7 +118,7 @@
     overflow-y: auto; /* Allow scrolling */
   }
 
-  .chat-window {
+  .chat-window, .section-right {
     position: absolute; /* Break out of the grid flow */
     top: 0;
     left: 0;
@@ -132,7 +132,7 @@
   }
 
   /* Class to add when a chat is active */
-  .chat-window.active {
+  .chat-window.active, .section-right.active {
     transform: translateX(0); /* Slide into view */
   }
 }

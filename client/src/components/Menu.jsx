@@ -24,7 +24,7 @@ export default function Menu() {
   ];
 
   return (
-    <nav className="menu">
+    <nav className="menu section-left">
 
       {/* --- TOP SECTION: APP NAV --- */}
       <div className="nav-section">

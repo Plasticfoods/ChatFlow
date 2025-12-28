@@ -190,7 +190,7 @@ export function SingleChatWindow({ activeChat, setActiveChat }) {
   }
 
   return (
-    <div className={`chat-window ${activeChat ? 'active' : 'hidden-on-mobile'}`}>
+    <div className={`chat-window section-right ${activeChat ? 'active' : 'hidden-on-mobile'}`}>
       {/* HEADER */}
       <header className="chat-header">
         <div className="chat-header-info">
@@ -330,7 +330,7 @@ export function GroupChatWindow({ activeChat, setActiveChat }) {
   }
 
   return (
-    <div className={`chat-window ${activeChat ? 'active' : 'hidden-on-mobile'}`}>
+    <div className={`chat-window section-right ${activeChat ? 'active' : 'hidden-on-mobile'}`}>
       {/* HEADER */}
       <header className="chat-header">
         <div className="chat-header-info">

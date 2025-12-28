@@ -24,7 +24,7 @@ export default function Home() {
     }
 
     return (
-        <div className="home" style={{ position: 'relative' }}>
+        <div className="home page-layout" style={{ position: 'relative' }}>
             <Menu />
             {showAddChatSection ? <AddChatSection chats={chatData} setShowAddChatSection={setShowAddChatSection} /> :
                 <ChatList chats={chatData} activeChat={activeChat} setActiveChat={setActiveChat} setShowAddChatSection={setShowAddChatSection} />}

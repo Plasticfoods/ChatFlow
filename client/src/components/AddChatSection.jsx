@@ -40,7 +40,7 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
         }}>
             <header>
                 <div className='hidden-on-mobile' style={{ display: 'flex', justifyContent: 'start', padding: '1rem 1.4rem', gap: '15px', alignItems: 'center' }}>
-                    <ChevronLeft  color='var(--text-main)' size={30} onClick={() => setShowAddChatSection(false)} />
+                    <ChevronLeft  color='var(--text-main)' size={30} sx={{ cursor: 'pointer' }} onClick={() => setShowAddChatSection(false)} />
                     <h4 style={{ fontSize: '1.5rem', fontWeight: '500', color: 'var(--text-main)' }}>New Chat</h4>
                 </div>
                 <ChatListSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} style={{ cursor: 'pointer'}} />
