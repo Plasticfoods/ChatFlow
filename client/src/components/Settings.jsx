@@ -8,9 +8,8 @@ import {
   LogOut,
   MessageSquare,
   ChevronRight,
-  Monitor,
-  Moon,
-  Sun
+  ChevronLeft,
+  ArrowLeft
 } from 'lucide-react';
 import { useUser } from '../context/User.jsx';
 import { useNavigate } from 'react-router-dom';
@@ -54,7 +53,7 @@ export default function Settings() {
         return <UserProfileSection user={user} setActiveTab={setActiveTab} />;
       case 'appearance':
         return (
-          <div className="settings-detail-view fade-in">
+          <div className="settings-detail-view fade-in user-profile-section">
             <h2 className="content-title">Appearance</h2>
 
             {/* Section 1: Theme Selection */}
@@ -102,10 +101,10 @@ export default function Settings() {
 
       default:
         return (
-          <div className="settings-detail-view fade-in">
+          <div className="settings-detail-view user-profile-section fade-in">
             <h2 className="content-title">{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
             <div className="settings-section">
-              <p className="placeholder-text">Settings for {activeTab} will appear here.</p>
+              <p className="placeholder-text">Settings for tabs will appear here.</p>
             </div>
           </div>
         );
@@ -286,9 +285,14 @@ export function UserProfileSection({ user, setActiveTab }) {
 
   return (
     <div className='user-profile-section'>
-      <header>
-        <h2>Public Profile</h2>
-        <p>Manage your public profile information</p>
+      <header className="section-header2">
+        <div type="button" className="back-button hidden-on-desktop" onClick={() => setActiveTab(null)}>
+          <ChevronLeft size={36} color='var(--text-main)' />
+        </div>
+        <div>
+          <h2>Public Profile</h2>
+          <p>Manage your public profile information</p>
+        </div>
       </header>
 
       <div className="profile-picture-section settings-section">
@@ -315,6 +319,28 @@ export function UserProfileSection({ user, setActiveTab }) {
         <div>
           <h3 className="section-title">Personal Information</h3>
           <p className="section-subtitle">Update your personal information to keep your account up to date</p>
+        </div>
+        <div className="form-groups">
+          <div className="form-group">
+            <label>First Name</label>
+            <input type="text" defaultValue={user?.name} placeholder="Your name" />
+          </div>
+          <div className="form-group">
+            <label>Last Name</label>
+            <input type="text" defaultValue={user?.name} placeholder="Your last name" />
+          </div>
+          <div className="form-group">
+            <label>Username</label>
+            <input type="text" defaultValue={user?.username} placeholder="@username" />
+          </div>
+          <div className="form-group">
+            <label>Email</label>
+            <input type="text" defaultValue={user?.email} placeholder="Your email" />
+          </div>
+          <div className="form-group about-me">
+            <label>Bio</label>
+            <textarea rows={6} defaultValue={user?.bio} placeholder="Your bio" />
+          </div>
         </div>
       </div>
     </div>

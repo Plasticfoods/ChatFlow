@@ -71,11 +71,7 @@
 }
 
 /* Container for the right-side detail view */
-.settings-detail-view {
-  padding: 40px;
-  max-width: 900px;
-  margin: 0 auto;
-}
+
 
 .content-title {
   font-size: 1.75rem;
@@ -87,7 +83,7 @@
 /* --- SECTIONS --- */
 /* User profile section */
 .user-profile-section {
-  padding: 2rem 4rem;
+  padding: 2rem min(4rem, 6%);
 }
 
 .user-profile-section header {
@@ -194,6 +190,12 @@
 }
 
 /* Forms */
+.form-groups {
+  display: grid;
+  gap: .4rem 3rem;
+  grid-template-columns: 1fr 1fr;
+}
+
 .form-group {
   margin-bottom: 20px;
 }
@@ -201,12 +203,12 @@
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 500;
   color: var(--text-main);
 }
 
-.form-group input {
+.form-group input, .form-group textarea {
   width: 100%;
   padding: 10px 14px;
   border: 1px solid var(--border-color);
@@ -218,9 +220,14 @@
   transition: border-color 0.2s;
 }
 
-.form-group input:focus {
+.form-group input:focus, .form-group textarea:focus {
   border-color: var(--primary);
   background-color: var(--bg-surface);
+}
+
+.about-me {
+  grid-column-start: 1;
+  grid-column-end: 3;
 }
 
 /* Theme Grid */
@@ -394,4 +401,18 @@ input:checked + .slider {
 }
 input:checked + .slider:before {
   transform: translateX(20px);
+}
+
+@media (max-width: 768px) {
+  .form-groups {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .section-header2 {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+  }
 }
