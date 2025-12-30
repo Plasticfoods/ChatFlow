@@ -16,12 +16,15 @@ import { useNavigate } from 'react-router-dom';
 import './Settings.css';
 import Menu from './Menu.jsx';
 import { Button } from '@mui/material';
+import Loader from './Loader.jsx';
+import ErrorPage from './ErrorPage.jsx';
+import { useTheme } from '../context/Theme.jsx';
 // import defaultAvatar from '../assets/';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('');
-  const [sectionClassName, setSectionClassName] = useState('hidden-on-mobile');
-  const { user, logout } = useUser();
+  const { user, logout, userLoading, userError } = useUser();
+  const { setSpecificTheme } = useTheme();
   const navigate = useNavigate();
 
   // Your Theme Data (For the Appearance Tab)
@@ -30,7 +33,10 @@ export default function Settings() {
     { label: 'Dark', color: '#60A5FA', bg: '#0F172A' },
     { label: 'Forest', color: '#10B981', bg: '#ECFDF5' },
     { label: 'Midnight', color: '#C084FC', bg: '#000000' },
-    { label: 'Sunset', color: '#F97316', bg: '#FFEDD5' },
+    { label: 'Sunset Orange', color: '#F97316', bg: '#FFEDD5' },
+    { label: 'Forest', color: '#10B981', bg: '#ECFDF5' },
+    { label: 'Midnight', color: '#C084FC', bg: '#000000' },
+    { label: 'Sunset Orange', color: '#F97316', bg: '#FFEDD5' },
   ];
 
   const handleLogout = async () => {
@@ -50,11 +56,19 @@ export default function Settings() {
   const renderContent = () => {
     switch (activeTab) {
       case 'account':
-        return <UserProfileSection user={user} setActiveTab={setActiveTab} />;
+        return <UserProfileSection user={user} setActiveTab={setActiveTab} logout={logout} />;
       case 'appearance':
         return (
-          <div className="settings-detail-view fade-in user-profile-section">
-            <h2 className="content-title">Appearance</h2>
+          <div className="settings-detail-view fade-in tab-section">
+            <header className="tab-section-header">
+              <div type="button" className="back-button hidden-on-desktop" onClick={() => setActiveTab('')}>
+                <ChevronLeft size={36} color='var(--text-main)' />
+              </div>
+              <div>
+                <h2>Appearance</h2>
+                <p>Set your theme and display preferences</p>
+              </div>
+            </header>
 
             {/* Section 1: Theme Selection */}
             <div className="settings-section">
@@ -65,7 +79,7 @@ export default function Settings() {
 
               <div className="theme-grid">
                 {themes.map((theme) => (
-                  <div key={theme.label} className="theme-card">
+                  <div key={theme.label} className="theme-card" onClick={() => setSpecificTheme(null, theme.label)}>
                     <div
                       className="theme-preview"
                       style={{ backgroundColor: theme.bg, borderColor: theme.color }}
@@ -91,7 +105,7 @@ export default function Settings() {
                   <p>Reduce eye strain with a dark interface</p>
                 </div>
                 <label className="switch">
-                  <input type="checkbox" />
+                  <input type="checkbox" onChange={() => setSpecificTheme(null, 'Dark')} />
                   <span className="slider round"></span>
                 </label>
               </div>
@@ -101,7 +115,7 @@ export default function Settings() {
 
       default:
         return (
-          <div className="settings-detail-view user-profile-section fade-in">
+          <div className="settings-detail-view tab-section fade-in hidden-on-mobile">
             <h2 className="content-title">{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
             <div className="settings-section">
               <p className="placeholder-text">Settings for tabs will appear here.</p>
@@ -115,7 +129,7 @@ export default function Settings() {
     switch (activeTab) {
       case 'account':
         return (
-          <div className="settings-detail-view fade-in">
+          <div className="settings-detail-view tab-section fade-in">
             <h2 className="content-title">Account</h2>
 
             {/* Section 1: Profile Card */}
@@ -170,7 +184,7 @@ export default function Settings() {
             <div className="settings-section danger-zone">
               <h3>Danger Zone</h3>
               <button className="btn-danger" onClick={handleLogout}>
-                <LogOut size={18} />
+                <LogOut size={22} />
                 Logout
               </button>
             </div>
@@ -237,13 +251,17 @@ export default function Settings() {
     }
   };
 
-  useEffect(() => {
-    if (activeTab !== null && activeTab.length > 0) {
-      setSectionClassName('active');
-    } else {
-      setSectionClassName('hidden-on-mobile');
-    }
-  }, [activeTab]);
+  if (userLoading) {
+    return <Loader />;
+  }
+
+  if(userError) {
+    return <ErrorPage 
+      title="Unable to Load Settings" 
+      message="There was an issue loading your settings. Please try again later." 
+      onRetry={() => window.location.reload()} 
+    />;
+  }
 
   return (
     <div className="settings page-layout"> {/* Uses App.css grid layout */}
@@ -272,21 +290,19 @@ export default function Settings() {
       </div>
 
       {/* 3. SECTION (Content Area) */}
-      <div className={`settings-content section-right ${sectionClassName}`}>
+      <div className={`settings-content section-right ${activeTab ? 'active' : 'hidden-on-mobile'}`}>
         {renderContent()}
       </div>
-
     </div>
   );
 };
 
 
-export function UserProfileSection({ user, setActiveTab }) {
-
+export function UserProfileSection({ user, setActiveTab, logout }) {
   return (
-    <div className='user-profile-section'>
-      <header className="section-header2">
-        <div type="button" className="back-button hidden-on-desktop" onClick={() => setActiveTab(null)}>
+    <div className='user-profile-section tab-section fade-in'>
+      <header className="tab-section-header">
+        <div type="button" className="back-button hidden-on-desktop" onClick={() => setActiveTab('')}>
           <ChevronLeft size={36} color='var(--text-main)' />
         </div>
         <div>
@@ -339,10 +355,17 @@ export function UserProfileSection({ user, setActiveTab }) {
           </div>
           <div className="form-group about-me">
             <label>Bio</label>
-            <textarea rows={6} defaultValue={user?.bio} placeholder="Your bio" />
+            <textarea rows={6} defaultValue={user?.about} placeholder="Your bio" />
           </div>
         </div>
       </div>
+
+      <div>
+        <Button  color="error" variant="outlined" onClick={logout} >
+          <LogOut size={22} style={{ marginRight: '.5rem' }} />
+          Logout
+        </Button>      
+        </div>
     </div>
   );
 }

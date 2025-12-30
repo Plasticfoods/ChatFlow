@@ -71,7 +71,7 @@ export const useTheme = () => {
 
 // --- 1. THE DATA ---
 // Array structure: Order matters for cycling (Light -> Dark -> Forest -> Midnight -> Light)
-const themes = [
+export const themes = [
   {
     label: 'Light',
     colors: {

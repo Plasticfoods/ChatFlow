@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const UserContext = createContext();
 
@@ -7,15 +8,17 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   // This loading state is NOW RESTRICTED only for the initial session check
   const [userLoading, setUserLoading] = useState(true); 
-  const [error, setError] = useState(null);
+  const [userError, setUserError] = useState(null);
+  const navigate = useNavigate();
 
   axios.defaults.withCredentials = true;
 
   // 1. Check for existing session on Mount (Keep this logic)
   useEffect(() => {
     const checkAuth = async () => {
+      setUserLoading(true);
       try {
-        const data = await axios.get('/api/user/profile');
+        const { data }= await axios.get('/api/user/profile');
         setUser(data);
       } catch (err) {
         if (err.response && err.response.status !== 401) {
@@ -33,14 +36,14 @@ export const UserProvider = ({ children }) => {
   // 2. Login Function
   // REMOVED: setUserLoading(true/false) - Let your local component handle the UI
   const login = async (email, password) => {
-    setError(null);
+    setUserError(null);
     try {
       const { data } = await axios.post('/api/auth/login', { email, password });
       setUser(data);
       return { success: true };
     } catch (err) {
       const message = err.response?.data?.message || err.message || 'Login failed';
-      setError(message);
+      setUserError(message);
       return { success: false, message };
     }
   };
@@ -48,25 +51,29 @@ export const UserProvider = ({ children }) => {
   // 3. Register Function
   // REMOVED: setUserLoading(true/false) - Let your local component handle the UI
   const register = async (name, email, username, password) => {
-    setError(null);
+    setUserError(null);
     try {
       const { data } = await axios.post('/api/auth/register', { name, email, username, password });
       setUser(data);
       return { success: true };
     } catch (err) {
       const message = err.response?.data?.message || err.message || 'Registration failed';
-      setError(message);
+      setUserError(message);
       return { success: false, message };
     }
   };
 
   // 4. Logout Function
   const logout = async () => {
+    setUserLoading(true);
     try {
       await axios.post('/api/auth/logout');
       setUser(null);
+      navigate('/login');
     } catch (err) {
       console.error("Logout failed", err);
+    } finally {
+      setUserLoading(false);
     }
   };
 
@@ -87,7 +94,7 @@ export const UserProvider = ({ children }) => {
       value={{ 
         user, 
         userLoading, // Only true on initial page load
-        error, 
+        userError, 
         login, 
         register, 
         logout, 

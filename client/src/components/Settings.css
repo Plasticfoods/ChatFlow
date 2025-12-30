@@ -82,11 +82,11 @@
 
 /* --- SECTIONS --- */
 /* User profile section */
-.user-profile-section {
+.tab-section {
   padding: 2rem min(4rem, 6%);
 }
 
-.user-profile-section header {
+.tab-section header {
   margin-bottom: 30px;
 }
 
@@ -409,10 +409,10 @@ input:checked + .slider:before {
     flex-direction: column;
   }
 
-  .section-header2 {
+  .tab-section-header {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
+    gap: .7rem;
     align-items: center;
   }
 }
