@@ -74,8 +74,9 @@ const checkAuthentication2 = async (req, res, next) => {
  * Checks if the authenticated user has a specific role.
  * usage: router.delete(..., authorize('admin'), ...)
  */
-const checkAuthorization = (...roles) => {
+const checkAuthorization = (roles) => {
   return (req, res, next) => {
+    console.log("Checking authorization for roles: ", roles);
     // checkAuthentication() middleware runs first, so req.user is already available
     if (!req.user) {
        return res.status(401).json({ message: "User not authenticated" });
@@ -87,6 +88,7 @@ const checkAuthorization = (...roles) => {
       });
     }
 
+    console.log(`User role '${req.user.role}' authorized to access this route`);
     next(); // Authorization successful
   };
 };

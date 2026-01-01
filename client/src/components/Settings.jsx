@@ -12,7 +12,6 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useUser } from '../context/User.jsx';
-import { useNavigate } from 'react-router-dom';
 import './Settings.css';
 import Menu from './Menu.jsx';
 import { Button } from '@mui/material';
@@ -23,9 +22,8 @@ import { useTheme } from '../context/Theme.jsx';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('');
-  const { user, logout, userLoading, userError } = useUser();
+  const { user, userError } = useUser();
   const { setSpecificTheme } = useTheme();
-  const navigate = useNavigate();
 
   // Your Theme Data (For the Appearance Tab)
   const themes = [
@@ -39,11 +37,6 @@ export default function Settings() {
     { label: 'Sunset Orange', color: '#F97316', bg: '#FFEDD5' },
   ];
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
-
   const menuItems = [
     { id: 'account', icon: <User size={20} />, label: 'Account' },
     { id: 'privacy & Security', icon: <Lock size={20} />, label: 'Privacy' },
@@ -56,7 +49,7 @@ export default function Settings() {
   const renderContent = () => {
     switch (activeTab) {
       case 'account':
-        return <UserProfileSection user={user} setActiveTab={setActiveTab} logout={logout} />;
+        return <UserProfileSection setActiveTab={setActiveTab} />;
       case 'appearance':
         return (
           <div className="settings-detail-view fade-in tab-section">
@@ -167,12 +160,12 @@ export default function Settings() {
 
               <div className="form-group">
                 <label>Display Name</label>
-                <input type="text" defaultValue={user?.name} placeholder="Your name" />
+                <input type="text" value={user?.name} placeholder="Your name" />
               </div>
 
               <div className="form-group">
                 <label>Status Message</label>
-                <input type="text" defaultValue={user?.about || "Available"} placeholder="What's happening?" />
+                <input type="text" value={user?.about || "Available"} placeholder="What's happening?" />
               </div>
 
               <div className="form-actions">
@@ -251,10 +244,6 @@ export default function Settings() {
     }
   };
 
-  if (userLoading) {
-    return <Loader />;
-  }
-
   if(userError) {
     return <ErrorPage 
       title="Unable to Load Settings" 
@@ -298,7 +287,43 @@ export default function Settings() {
 };
 
 
-export function UserProfileSection({ user, setActiveTab, logout }) {
+export function UserProfileSection({ setActiveTab }) {
+  const { user, logout, userLoading, userError, updateProfile } = useUser();
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempUserData, setTempUserData] = useState(user);
+
+  const handleUpdateProfile = async () => {
+    const result =  await updateProfile(tempUserData);
+    if(result.success) {
+      setIsEditing(false);
+    }
+  }
+
+  const handleUserInfoChange = (e) => {
+    const { name, value } = e.target;
+    setTempUserData((prevUser) => ({
+      ...prevUser,
+      [name]: value,
+    }));
+  }
+
+  const handleCancel = () => {
+    setTempUserData(user); // Revert changes
+    setIsEditing(false);
+  }
+
+  if(userLoading) {
+    return <Loader message="Loading Profile..." overlay={false} />;
+  }
+
+  if(userError) {
+    return <ErrorPage 
+      title="Unable to Load Profile"
+      message="There was an issue loading your profile. Please try again later." 
+      onRetry={() => window.location.reload()} 
+    />;
+  }
+
   return (
     <div className='user-profile-section tab-section fade-in'>
       <header className="tab-section-header">
@@ -339,33 +364,43 @@ export function UserProfileSection({ user, setActiveTab, logout }) {
         <div className="form-groups">
           <div className="form-group">
             <label>First Name</label>
-            <input type="text" defaultValue={user?.name} placeholder="Your name" />
+            <input type="text" value={tempUserData?.name} placeholder="Your name" name='name' onChange={handleUserInfoChange} style={{ backgroundColor: `${isEditing ? 'var(--bg-surface)' : 'var(--bg-main)'}` }} disabled={!isEditing} />
           </div>
           <div className="form-group">
             <label>Last Name</label>
-            <input type="text" defaultValue={user?.name} placeholder="Your last name" />
+            <input type="text" value={tempUserData?.name} placeholder="Your last name" name='name' disabled={!isEditing} style={{ backgroundColor: `${isEditing ? 'var(--bg-surface)' : 'var(--bg-main)'}` }} />
           </div>
           <div className="form-group">
             <label>Username</label>
-            <input type="text" defaultValue={user?.username} placeholder="@username" />
+            <input type="text" value={tempUserData?.username} placeholder="@username" name='username' onChange={handleUserInfoChange} disabled={true} />
           </div>
           <div className="form-group">
             <label>Email</label>
-            <input type="text" defaultValue={user?.email} placeholder="Your email" />
+            <input type="text" value={tempUserData?.email} placeholder="Your email" name='email' onChange={handleUserInfoChange} style={{ backgroundColor: `${isEditing ? 'var(--bg-surface)' : 'var(--bg-main)'}` }} disabled={!isEditing} />
           </div>
           <div className="form-group about-me">
             <label>Bio</label>
-            <textarea rows={6} defaultValue={user?.about} placeholder="Your bio" />
+            <textarea rows={6} value={tempUserData?.about} placeholder="Your bio" name='about' onChange={handleUserInfoChange} style={{ backgroundColor: `${isEditing ? 'var(--bg-surface)' : 'var(--bg-main)'}` }} disabled={!isEditing} />
           </div>
+        </div>
+        <div className="form-actions">
+          {isEditing ? (
+            <>
+              <button className="btn-primary" style={{ fontWeight: '600', marginRight: '1.2rem' }} onClick={handleUpdateProfile}>Save Changes</button>
+              <button className="btn-secondary" onClick={handleCancel}>Cancel</button>
+            </>
+          ) : (
+            <button className="btn-primary" onClick={() => setIsEditing(true)}>Edit Profile</button>
+          )}
         </div>
       </div>
 
       <div>
-        <Button  color="error" variant="outlined" onClick={logout} >
-          <LogOut size={22} style={{ marginRight: '.5rem' }} />
+        <Button color="error" variant="outlined" onClick={logout} style={{  textTransform: 'none', fontWeight: '600' }} >
+          <LogOut size={22} style={{ marginRight: '.5rem', }} />
           Logout
-        </Button>      
-        </div>
+        </Button> 
+      </div>
     </div>
   );
 }

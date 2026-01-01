@@ -43,6 +43,7 @@ const getUserProfile = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      username: user.username,
       avatar: user.avatar,
       about: user.about,
       role: user.role,
@@ -60,6 +61,7 @@ const getUserProfile = async (req, res) => {
  */
 const updateUserProfile = async (req, res) => {
   try {
+    console.log("Update user profile: ", req.body);
     const user = await User.findById(req.user._id);
 
     if (!user) {
@@ -82,6 +84,7 @@ const updateUserProfile = async (req, res) => {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
+      username: updatedUser.username,
       avatar: updatedUser.avatar,
       about: updatedUser.about,
       role: updatedUser.role,

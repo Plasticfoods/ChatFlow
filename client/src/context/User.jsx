@@ -78,21 +78,31 @@ export const UserProvider = ({ children }) => {
   };
 
   // 5. Update Profile Function
-  const updateProfile = async (profileData) => {
+  const updateProfile = async (updatedUser) => {
+    setUserLoading(true);
+    setUserError(null);
     try {
-      const { data } = await axios.put('/api/user/profile', profileData);
+      const { data } = await axios.put('/api/user/profile', updatedUser);
       setUser(data);
       return { success: true };
     } catch (err) {
+      if(err.response && (err.response.status === 401 || err.response.status === 403)) {
+        setUser(null);
+        navigate('/login');
+        return { success: false, message: err.message };
+      }
       const message = err.response?.data?.message || err.message || 'Update failed';
+      setUserError(message);
       return { success: false, message };
+    } finally {
+      setUserLoading(false);
     }
   };
 
   return (
     <UserContext.Provider 
       value={{ 
-        user, 
+        user,
         userLoading, // Only true on initial page load
         userError, 
         login, 
