@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    lastName: { type: String },
     email: { type: String, required: true, unique: true },
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -11,7 +12,7 @@ const userSchema = new mongoose.Schema(
       type: String, 
       default: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg" 
     },
-    about: { type: String, default: "Available" }, // WhatsApp "About" status
+    about: { type: String, default: "Available" },
     role: { type: String, enum: ["user", "admin"], default: "user" },
   },
   { timestamps: true }
