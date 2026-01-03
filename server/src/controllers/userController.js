@@ -15,9 +15,10 @@ const searchUsers = async (req, res) => {
           ],
         }
       : {};
-
+    console.log("Searching users with keyword:", keyword);
     // Return users matching search, excluding the current logged-in user
     const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+    console.log("Found users:", users);
     res.status(200).json(users);
   } catch (error) {
     console.error("Error in allUsers:", error);

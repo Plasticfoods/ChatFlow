@@ -79,7 +79,7 @@ export default function ChatList({ chats, activeChat, setActiveChat, setShowAddC
                     sx={tabStyle}
                 />
             </Tabs>
-            <ChatListItems chats={filteredChats} activeChat={activeChat} setActiveChat={setActiveChat} />
+            <ChatListItems chats={[]} activeChat={activeChat} setActiveChat={setActiveChat} />
         </div>
     )
 }
@@ -106,11 +106,6 @@ export const ChatListSearch = ({ searchTerm, setSearchTerm }) => {
                         // 2. Remove the default MUI Border
                         '& fieldset': {
                             border: 'none',
-                        },
-
-                        // 3. Hover state (optional subtle darken)
-                        '&:hover': {
-                            backgroundColor: '#eef0f5',
                         },
 
                         // 4. Focus state (optional ring)

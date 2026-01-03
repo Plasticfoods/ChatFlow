@@ -2,24 +2,43 @@ import { Box, Typography, Avatar } from '@mui/material';
 import { Check, CheckCheck, Paperclip } from 'lucide-react'; // Icons
 
 export default function ChatListItems({ chats, activeChat, setActiveChat }) {
-
+  if (chats.length === 0) {
     return (
-        <div className="chat-list-items" style={{
-            flex: 1,
-            overflowY: 'auto',
+      <div className="chat-list-items" style={{
+        flex: 1,
+        overflowY: 'auto',
+        display: 'flex',
+        // justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',  
+      }}>
+        <Typography variant="body1" sx={{
+          maxWidth: '50%', 
+          color: 'var(--text-dim)', textAlign: 'center', marginTop: '3rem', fontWeight: 600, marginLeft: '-30px'
         }}>
-            {chats.map((contact, index) => {
-                return (
-                    <ChatListItem 
-                        key={index} 
-                        chat={contact} 
-                        isActive={contact.id === activeChat} 
-                        setActiveChat={setActiveChat} 
-                    />
-                )
-            })}
-        </div>
+          Add your first chat to get started!
+        </Typography>
+      </div>
     )
+  }
+
+  return (
+    <div className="chat-list-items" style={{
+      flex: 1,
+      overflowY: 'auto',
+    }}>
+      {chats.map((contact, index) => {
+        return (
+          <ChatListItem
+            key={index}
+            chat={contact}
+            isActive={contact.id === activeChat}
+            setActiveChat={setActiveChat}
+          />
+        )
+      })}
+    </div>
+  )
 }
 
 
@@ -48,10 +67,10 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
     >
       {/* LEFT: AVATAR & ONLINE STATUS */}
       <Box sx={{ position: 'relative', marginRight: '16px' }}>
-        <Avatar 
-          src={chat.avatar} 
-          alt={chat.name} 
-          sx={{ width: 48, height: 48, border: '1px solid var(--border-color)' }} 
+        <Avatar
+          src={chat.avatar}
+          alt={chat.name}
+          sx={{ width: 48, height: 48, border: '1px solid var(--border-color)' }}
         />
         {/* Online Status Dot */}
         {/* {chat.status === 'online' && (
@@ -73,9 +92,9 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
       {/* MIDDLE: NAME & MESSAGE PREVIEW */}
       <Box sx={{ flex: 1, minWidth: 0 /* Fixes flex text overflow */ }}>
         {/* Name Row */}
-        <Typography 
-          variant="subtitle1" 
-          sx={{ 
+        <Typography
+          variant="subtitle1"
+          sx={{
             fontWeight: isUnread ? 700 : 600, // Bolder if unread
             color: 'var(--text-main)',
             lineHeight: 1.2,
@@ -86,8 +105,8 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
         </Typography>
 
         {/* Message Preview Row */}
-        <Typography 
-          variant="body2" 
+        <Typography
+          variant="body2"
           sx={{
             display: 'flex',
             alignItems: 'center',
@@ -114,20 +133,20 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
       </Box>
 
       {/* RIGHT: TIME & UNREAD BADGE */}
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'flex-end', 
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
           marginLeft: '8px',
-          minWidth: '50px' 
+          minWidth: '50px'
         }}
       >
         {/* Time */}
-        <Typography 
-          variant="caption" 
-          sx={{ 
-            color: isUnread ? 'var(--primary)' : 'var(--text-dim)', 
+        <Typography
+          variant="caption"
+          sx={{
+            color: isUnread ? 'var(--primary)' : 'var(--text-dim)',
             fontWeight: isUnread ? 600 : 400,
             marginBottom: '6px'
           }}
@@ -157,10 +176,10 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
         ) : (
           /* Read Receipts (Optional: Only show if it's NOT a group and NO unread messages) */
           !chat.isGroup && (
-             <Box sx={{ color: 'var(--text-dim)' }}>
-               {/* Logic: You would usually check 'chat.lastMessageIsOwn' here */}
-               <CheckCheck size={16} />
-             </Box>
+            <Box sx={{ color: 'var(--text-dim)' }}>
+              {/* Logic: You would usually check 'chat.lastMessageIsOwn' here */}
+              <CheckCheck size={16} />
+            </Box>
           )
         )}
       </Box>
