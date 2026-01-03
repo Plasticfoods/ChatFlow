@@ -52,6 +52,9 @@ import {
   Chrome
 } from 'lucide-react';
 import { useUser } from '../context/User.jsx';
+import Loader from "./Loader.jsx";
+import ErrorPage from "./ErrorPage.jsx";
+import { useNavigate } from "react-router-dom";
 
 
 const AuthLayout = ({ children, title, subtitle, linkText, linkAction, linkLabel }) => (
@@ -117,9 +120,10 @@ const AuthLayout = ({ children, title, subtitle, linkText, linkAction, linkLabel
 );
 
 export const LoginPage = () => {
-  const { login } = useUser();
+  const { login, user, userLoading, userError } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async(e) => {
     e.preventDefault();
@@ -128,6 +132,18 @@ export const LoginPage = () => {
       window.location.href = '/';
     }
   };
+
+  if(userLoading) {
+    return <Loader overlay={true} />
+  }
+
+  if(userError) {
+    return <ErrorPage code={userError.code} />
+  }
+
+  if(user) {
+    navigate("/");
+  }
 
   return (
     <AuthLayout 

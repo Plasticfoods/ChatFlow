@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from './Snackbar';
 
 const UserContext = createContext();
 
@@ -10,6 +11,7 @@ export const UserProvider = ({ children }) => {
   const [userLoading, setUserLoading] = useState(true); 
   const [userError, setUserError] = useState(null);
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
 
   axios.defaults.withCredentials = true;
 
@@ -40,10 +42,13 @@ export const UserProvider = ({ children }) => {
     try {
       const { data } = await axios.post('/api/auth/login', { email, password });
       setUser(data);
+      showSnackbar("Logged in Successfully", "success");
       return { success: true };
     } catch (err) {
+      setUserError(err);
       const message = err.response?.data?.message || err.message || 'Login failed';
-      setUserError(message);
+      // setUserError(message);
+      showSnackbar(message, "warning");
       return { success: false, message };
     }
   };
@@ -96,6 +101,7 @@ export const UserProvider = ({ children }) => {
       return { success: false, message };
     } finally {
       setUserLoading(false);
+      showSnackbar("User profile updated successfully!!", "info");
     }
   };
 

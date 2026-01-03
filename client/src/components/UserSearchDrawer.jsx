@@ -51,6 +51,7 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
 
       const { data } = await axios.get(`/api/user?search=${encodeURIComponent(query.trim())}`);
       setSearchResult(data);
+      // showSnackbar("No users found matching that query", "info");
     } catch (err) {
       setError("Failed to search users. Please try again.");
       console.error("Error during user search:", err);
