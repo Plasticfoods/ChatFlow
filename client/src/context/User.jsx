@@ -8,7 +8,7 @@ const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   // This loading state is NOW RESTRICTED only for the initial session check
-  const [userLoading, setUserLoading] = useState(true); 
+  const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState(null);
   const navigate = useNavigate();
   const { showSnackbar } = useSnackbar();
@@ -20,7 +20,7 @@ export const UserProvider = ({ children }) => {
     const checkAuth = async () => {
       setUserLoading(true);
       try {
-        const { data }= await axios.get('/api/user/profile');
+        const { data } = await axios.get('/api/user/profile');
         setUser(data);
       } catch (err) {
         if (err.response && err.response.status !== 401) {
@@ -36,20 +36,28 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   // 2. Login Function
-  // REMOVED: setUserLoading(true/false) - Let your local component handle the UI
   const login = async (email, password) => {
+    setUserLoading(true);
     setUserError(null);
     try {
-      const { data } = await axios.post('/api/auth/login', { email, password });
+      const { data } = await axios.post('/api/auth/login2', { email, password });
       setUser(data);
       showSnackbar("Logged in Successfully", "success");
       return { success: true };
     } catch (err) {
-      setUserError(err);
-      const message = err.response?.data?.message || err.message || 'Login failed';
-      // setUserError(message);
-      showSnackbar(message, "warning");
-      return { success: false, message };
+      console.log(err);
+      if (err.response && err.response.status >= 500) {
+        // Catch 500, 502, 503, 504, etc.
+        setUserError(err);
+        return;
+      }
+      if (err.response) {
+        showSnackbar(err.response.statusText, "info");
+      } else {
+        setUserError(err);
+      }
+    } finally {
+      setUserLoading(false);
     }
   };
 
@@ -91,7 +99,7 @@ export const UserProvider = ({ children }) => {
       setUser(data);
       return { success: true };
     } catch (err) {
-      if(err.response && (err.response.status === 401 || err.response.status === 403)) {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
         setUser(null);
         navigate('/login');
         return { success: false, message: err.message };
@@ -106,15 +114,16 @@ export const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider 
-      value={{ 
+    <UserContext.Provider
+      value={{
         user,
         userLoading, // Only true on initial page load
-        userError, 
-        login, 
-        register, 
-        logout, 
-        updateProfile 
+        userError,
+        login,
+        register,
+        logout,
+        updateProfile,
+        setUserError
       }}
     >
       {children}
@@ -123,3 +132,14 @@ export const UserProvider = ({ children }) => {
 };
 
 export const useUser = () => useContext(UserContext);
+
+// Desc
+// Here is a breakdown of why this works well with your ErrorPage.jsx setup:
+
+// Server Crashes (5xx): You correctly catch status >= 500 and pass it to setUserError(err). This will render your ErrorPage, telling the user "It's not you, it's us," which is the perfect UX for a server outage.
+
+// Network Errors: The else block catches errors where err.response is missing (like offline issues). Passing this to setUserError(err) triggers the ErrorPage with the "Connection Error" state defined in your getErrorDetails function.
+
+// User Errors (4xx): You filter these out (e.g., Wrong Password, User Not Found) and show a Snackbar instead. This keeps the user on the login form so they can try again immediately.
+
+// One small recommendation: For the Snackbar message, err.response.statusText can sometimes be vague (e.g., just "Bad Request"). If your backend sends a specific message (like "Invalid password"), you should try to use that first.

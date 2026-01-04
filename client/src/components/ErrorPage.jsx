@@ -1,28 +1,134 @@
+import React, { useMemo } from 'react';
 import { Box, Typography, Button, Paper } from '@mui/material';
-import { AlertTriangle, Home, RefreshCcw } from 'lucide-react';
+import {
+  AlertTriangle,
+  Home,
+  RefreshCcw,
+  WifiOff,
+  ServerCrash,
+  Lock,
+  FileQuestion // Added for Unknown errors
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/User';
 
-const ErrorPage = ({ 
-  code = '404', 
-  title = 'Page Not Found', 
-  message = "The page you're looking for doesn't exist or has been moved.",
-  onHome,
-  onRetry 
+/**
+ * Helper to parse Axios errors into UI-friendly formats
+ */
+const getErrorDetails = (error) => {
+  // Default State (Unknown / Client-side JS Error)
+  let details = {
+    code: 'Unknown',
+    title: 'Unexpected Error',
+    message: error?.message || 'An unknown error occurred. It might be a client-side issue.',
+    Icon: FileQuestion
+  };
+
+  if (!error) return details;
+
+  // 1. Axios Response Error (Server responded with 4xx or 5xx)
+  if (error.response) {
+    const status = error.response.status;
+    details.code = status;
+
+    switch (status) {
+      case 500:
+      case 502:
+      case 504:
+        details.title = 'Server Error';
+        details.message = "Our servers are acting up. It's not you, it's us. Please try again later.";
+        details.Icon = ServerCrash;
+        break;
+      case 404:
+        details.title = 'Page Not Found';
+        details.message = "The page you're looking for doesn't exist or has been moved.";
+        details.Icon = AlertTriangle;
+        break;
+      case 401:
+      case 403:
+        details.title = 'Access Denied';
+        details.message = "You don't have permission to view this page.";
+        details.Icon = Lock;
+        break;
+      case 503:
+        details.title = 'Service Unavailable';
+        details.message = "The service is currently unavailable. Please check back later.";
+        details.Icon = ServerCrash;
+        break;
+      default:
+        // Generic handling for other status codes (e.g. 418, 429)
+        details.title = error.response.statusText || 'Server Error';
+        details.message = error.response.data?.message || 'The server returned an unexpected response.';
+        details.Icon = AlertTriangle;
+    }
+  }
+  // 2. Network Error (No response received)
+  else if (error.request) {
+    details.code = 'Network';
+    details.title = 'Connection Error';
+    details.message = 'Unable to reach the server. Please check your internet connection.';
+    details.Icon = WifiOff;
+  }
+
+  return details;
+};
+
+const ErrorPage = ({
+  error,          // The raw error object from your API catch block
+  onRetry,
+  onRetryPath,
+  onHome,         // Function to run when clicking "Go Home"
+  // Overrides (optional) - if you want to force a specific message
+  code: propCode,
+  title: propTitle,
+  message: propMessage
 }) => {
+  const navigate = useNavigate();
+  const { setUserError } = useUser();
+
+  // Parse the error object only when it changes
+  const { code, title, message, Icon } = useMemo(() => {
+    // If explicit props are passed, use them. Otherwise, parse the error object.
+    const autoDetails = getErrorDetails(error);
+    return {
+      code: propCode || autoDetails.code,
+      title: propTitle || autoDetails.title,
+      message: propMessage || autoDetails.message,
+      Icon: autoDetails.Icon
+    };
+  }, [error, propCode, propTitle, propMessage]);
+
+  const handleHome = () => {
+    if (onHome) {
+      onHome();
+      return;
+    }
+    setUserError(null);
+    navigate("/");
+  };
+
+  const handleOnRetry = () => {
+    if (onRetry) {
+      onRetry();
+      return;
+    }
+    setUserError(null);
+    navigate(onRetryPath);
+  }
+
   return (
-    <Box 
-      sx={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        bgcolor: 'var(--bg-main)', 
+    <Box
+      sx={{
+        minHeight: '100vh',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: 'var(--bg-main)',
         color: 'var(--text-main)',
         p: 2,
-        animation: 'fadeIn 0.5s ease-out',
-        '@keyframes fadeIn': {
-          from: { opacity: 0 },
-          to: { opacity: 1 }
-        }
+        // Subtle animated gradient background effect
+        backgroundImage: 'radial-gradient(circle at 50% 50%, var(--bg-surface) 0%, var(--bg-main) 100%)',
       }}
     >
       <Paper
@@ -32,65 +138,78 @@ const ErrorPage = ({
           width: '100%',
           textAlign: 'center',
           p: { xs: 4, md: 6 },
-          borderRadius: '24px',
+          borderRadius: 'var(--radius-md)',
           bgcolor: 'var(--bg-surface)',
-          // Border removed as requested
+          border: '1px solid var(--border-color)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)'
+          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.08)',
+          animation: 'slideUpFade 0.5s ease-out',
+          '@keyframes slideUpFade': {
+            from: { opacity: 0, transform: 'translateY(20px)' },
+            to: { opacity: 1, transform: 'translateY(0)' }
+          }
         }}
       >
-        {/* Icon Circle */}
-        <Box 
-          sx={{ 
-            width: 80, 
-            height: 80, 
-            borderRadius: '50%', 
-            bgcolor: 'var(--secondary)', 
-            color: 'var(--primary)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            mb: 4
+        {/* Animated Icon Circle */}
+        <Box
+          sx={{
+            width: 80,
+            height: 80,
+            borderRadius: '50%',
+            bgcolor: 'var(--secondary)',
+            color: 'var(--primary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mb: 3,
+            animation: 'pulse 3s infinite ease-in-out',
+            '@keyframes pulse': {
+              '0%': { boxShadow: '0 0 0 0 rgba(var(--primary-rgb), 0.1)' },
+              '70%': { boxShadow: '0 0 0 15px rgba(var(--primary-rgb), 0)' },
+              '100%': { boxShadow: '0 0 0 0 rgba(var(--primary-rgb), 0)' }
+            }
           }}
         >
-          <AlertTriangle size={40} strokeWidth={1.5} />
+          <Icon size={40} strokeWidth={1.5} />
         </Box>
 
         {/* Error Code */}
-        <Typography 
-          variant="h1" 
-          sx={{ 
-            fontSize: '4rem', 
-            fontWeight: 800, 
-            color: 'var(--primary)', 
-            lineHeight: 1, 
-            mb: 2 
+        <Typography
+          variant="h1"
+          sx={{
+            fontSize: '4rem',
+            fontWeight: 800,
+            color: 'var(--primary)',
+            lineHeight: 1,
+            mb: 1,
+            opacity: 0.9
           }}
         >
           {code}
         </Typography>
 
         {/* Title */}
-        <Typography 
-          variant="h5" 
-          sx={{ 
-            fontWeight: 700, 
-            color: 'var(--text-main)', 
-            mb: 2 
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 700,
+            color: 'var(--text-main)',
+            mb: 2
           }}
         >
           {title}
         </Typography>
 
         {/* Message */}
-        <Typography 
-          variant="body1" 
-          sx={{ 
-            color: 'var(--text-dim)', 
-            mb: 5, 
-            lineHeight: 1.6 
+        <Typography
+          variant="body1"
+          sx={{
+            color: 'var(--text-dim)',
+            mb: 5,
+            lineHeight: 1.6,
+            maxWidth: '90%'
           }}
         >
           {message}
@@ -98,44 +217,51 @@ const ErrorPage = ({
 
         {/* Actions */}
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, width: '100%' }}>
-          {/* Always visible Go Home button, defaults to root path */}
+
           <Button
             fullWidth
-            onClick={onHome || (() => window.location.href = '/')}
-            startIcon={<Home size={20} />}
+            onClick={handleHome}
+            startIcon={<Home size={18} />}
             sx={{
-              py: 1.5,
+              py: 1.2,
               borderRadius: 'var(--radius-md)',
               textTransform: 'none',
               fontWeight: 600,
               color: 'var(--text-main)',
               border: '1px solid var(--border-color)',
-              '&:hover': { bgcolor: 'var(--bg-main)', borderColor: 'var(--text-dim)' }
+              bgcolor: 'transparent',
+              '&:hover': {
+                bgcolor: 'var(--bg-main)',
+                borderColor: 'var(--text-dim)'
+              }
             }}
           >
             Go Home
           </Button>
 
-           {onRetry && (
+          {onRetryPath && (
             <Button
               fullWidth
-              onClick={onRetry}
-              startIcon={<RefreshCcw size={20} />}
-              variant="contained"
+              onClick={handleOnRetry}
+              startIcon={<RefreshCcw size={18} />}
+              disableElevation
               sx={{
-                py: 1.5,
+                py: 1.2,
                 borderRadius: 'var(--radius-md)',
                 textTransform: 'none',
                 fontWeight: 600,
                 bgcolor: 'var(--primary)',
                 color: 'var(--text-inverse)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                '&:hover': { bgcolor: 'var(--primary-hover)' }
+                '&:hover': {
+                  bgcolor: 'var(--primary-hover)',
+                  transform: 'translateY(-1px)'
+                },
+                transition: 'all 0.2s'
               }}
             >
               Try Again
             </Button>
-           )}
+          )}
         </Box>
       </Paper>
     </Box>
@@ -143,3 +269,152 @@ const ErrorPage = ({
 };
 
 export default ErrorPage;
+
+
+// import { Box, Typography, Button, Paper } from '@mui/material';
+// import { AlertTriangle, Home, RefreshCcw } from 'lucide-react';
+
+// const ErrorPage = ({
+//   err,
+//   onRetry,
+//   code = '404',
+//   title = 'Page Not Found',
+//   message = "The page you're looking for doesn't exist or has been moved.",
+//   onHome,
+// }) => {
+
+//   return (
+//     <Box
+//       sx={{
+//         minHeight: '100vh',
+//         display: 'flex',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         bgcolor: 'var(--bg-main)',
+//         color: 'var(--text-main)',
+//         p: 2,
+//         animation: 'fadeIn 0.5s ease-out',
+//         '@keyframes fadeIn': {
+//           from: { opacity: 0 },
+//           to: { opacity: 1 }
+//         }
+//       }}
+//     >
+//       <Paper
+//         elevation={0}
+//         sx={{
+//           maxWidth: 480,
+//           width: '100%',
+//           textAlign: 'center',
+//           p: { xs: 4, md: 6 },
+//           borderRadius: '24px',
+//           bgcolor: 'var(--bg-surface)',
+//           // Border removed as requested
+//           display: 'flex',
+//           flexDirection: 'column',
+//           alignItems: 'center',
+//           boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)'
+//         }}
+//       >
+//         {/* Icon Circle */}
+//         <Box
+//           sx={{
+//             width: 80,
+//             height: 80,
+//             borderRadius: '50%',
+//             bgcolor: 'var(--secondary)',
+//             color: 'var(--primary)',
+//             display: 'flex',
+//             alignItems: 'center',
+//             justifyContent: 'center',
+//             mb: 4
+//           }}
+//         >
+//           <AlertTriangle size={40} strokeWidth={1.5} />
+//         </Box>
+
+//         {/* Error Code */}
+//         <Typography
+//           variant="h2"
+//           sx={{
+//             fontSize: '4rem',
+//             fontWeight: 800,
+//             color: 'var(--primary)',
+//             lineHeight: 1,
+//             mb: 2
+//           }}
+//         >
+//           {code}
+//         </Typography>
+
+//         {/* Title */}
+//         <Typography
+//           variant="h5"
+//           sx={{
+//             fontWeight: 700,
+//             color: 'var(--text-main)',
+//             mb: 2
+//           }}
+//         >
+//           {title}
+//         </Typography>
+
+//         {/* Message */}
+//         <Typography
+//           variant="body1"
+//           sx={{
+//             color: 'var(--text-dim)',
+//             mb: 5,
+//             lineHeight: 1.6
+//           }}
+//         >
+//           {message}
+//         </Typography>
+
+//         {/* Actions */}
+//         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, width: '100%' }}>
+//           {/* Always visible Go Home button, defaults to root path */}
+//           <Button
+//             fullWidth
+//             onClick={onHome || (() => window.location.href = '/')}
+//             startIcon={<Home size={20} />}
+//             sx={{
+//               py: 1.5,
+//               borderRadius: 'var(--radius-md)',
+//               textTransform: 'none',
+//               fontWeight: 600,
+//               color: 'var(--text-main)',
+//               border: '1px solid var(--border-color)',
+//               '&:hover': { bgcolor: 'var(--bg-main)', borderColor: 'var(--text-dim)' }
+//             }}
+//           >
+//             Go Home
+//           </Button>
+
+//            {onRetry && (
+//             <Button
+//               fullWidth
+//               onClick={onRetry}
+//               startIcon={<RefreshCcw size={20} />}
+//               variant="contained"
+//               sx={{
+//                 py: 1.5,
+//                 borderRadius: 'var(--radius-md)',
+//                 textTransform: 'none',
+//                 fontWeight: 600,
+//                 bgcolor: 'var(--primary)',
+//                 color: 'var(--text-inverse)',
+//                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+//                 '&:hover': { bgcolor: 'var(--primary-hover)' }
+//               }}
+//             >
+//               Try Again
+//             </Button>
+//            )}
+//         </Box>
+//       </Paper>
+//     </Box>
+//   );
+// };
+
+// export default ErrorPage;

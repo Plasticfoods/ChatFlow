@@ -120,7 +120,7 @@ const AuthLayout = ({ children, title, subtitle, linkText, linkAction, linkLabel
 );
 
 export const LoginPage = () => {
-  const { login, user, userLoading, userError } = useUser();
+  const { login, user, userLoading, userError, setUserError } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -138,7 +138,7 @@ export const LoginPage = () => {
   }
 
   if(userError) {
-    return <ErrorPage code={userError.code} />
+    return <ErrorPage error={userError} onRetryPath="/login" />
   }
 
   if(user) {
