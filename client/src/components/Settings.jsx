@@ -18,11 +18,13 @@ import { Button } from '@mui/material';
 import Loader from './Loader.jsx';
 import ErrorPage from './ErrorPage.jsx';
 import { useTheme } from '../context/Theme.jsx';
-// import defaultAvatar from '../assets/';
+import axios from 'axios';
+import { useSnackbar } from '../context/Snackbar.jsx';
+
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('');
-  const { user, userError } = useUser();
+  // const { user, userError } = useUser();
   const { setSpecificTheme } = useTheme();
 
   // Your Theme Data (For the Appearance Tab)
@@ -244,13 +246,13 @@ export default function Settings() {
     }
   };
 
-  if(userError) {
-    return <ErrorPage 
-      title="Unable to Load Settings" 
-      message="There was an issue loading your settings. Please try again later." 
-      onRetry={() => window.location.reload()} 
-    />;
-  }
+  // if(userError) {
+  //   return <ErrorPage 
+  //     title="Unable to Load Settings" 
+  //     message="There was an issue loading your settings. Please try again later." 
+  //     onRetry={() => window.location.reload()} 
+  //   />;
+  // }
 
   return (
     <div className="settings page-layout"> {/* Uses App.css grid layout */}
@@ -288,16 +290,37 @@ export default function Settings() {
 
 
 export function UserProfileSection({ setActiveTab }) {
-  const { user, logout, userLoading, userError, updateProfile } = useUser();
+  const { user, logout, userError, setUserError, setUser } = useUser();
+  const { showSnackbar } = useSnackbar();
   const [isEditing, setIsEditing] = useState(false);
   const [tempUserData, setTempUserData] = useState(user);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleUpdateProfile = async () => {
-    const result =  await updateProfile(tempUserData);
-    if(result.success) {
+  // 5. Update Profile Function
+  const updateUserProfile = async () => {
+    setUserError(null);
+    setIsLoading(true);
+    try {
+      const { data } = await axios.put('/api/user/profile', tempUserData);
+      setUser(data);
       setIsEditing(false);
+      showSnackbar("User profile updated successfully!!", "success");
+    } catch (err) {
+      if (err.response && err.response.status >= 500) {
+        // Catch 500, 502, 503, 504, etc.
+        setUserError(err);
+        return;
+      }
+      if (err.response && err.status != "404") {
+        showSnackbar(err.response.statusText, "info");
+      } else {
+        console.log(err);
+        setUserError(err);
+      }
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleUserInfoChange = (e) => {
     const { name, value } = e.target;
@@ -312,16 +335,12 @@ export function UserProfileSection({ setActiveTab }) {
     setIsEditing(false);
   }
 
-  if(userLoading) {
-    return <Loader message="Loading Profile..." overlay={false} />;
+  if (isLoading) {
+    return <Loader message="Updating User Profile..." overlay={false} />;
   }
 
-  if(userError) {
-    return <ErrorPage 
-      title="Unable to Load Profile"
-      message="There was an issue loading your profile. Please try again later." 
-      onRetry={() => window.location.reload()} 
-    />;
+  if (userError) {
+    return <ErrorPage error={userError} onRetryPath={"/settings"} />;
   }
 
   return (
@@ -386,7 +405,7 @@ export function UserProfileSection({ setActiveTab }) {
         <div className="form-actions">
           {isEditing ? (
             <>
-              <button className="btn-primary" style={{ fontWeight: '600', marginRight: '1.2rem' }} onClick={handleUpdateProfile}>Save Changes</button>
+              <button className="btn-primary" style={{ fontWeight: '600', marginRight: '1.2rem' }} onClick={updateUserProfile}>Save Changes</button>
               <button className="btn-secondary" onClick={handleCancel}>Cancel</button>
             </>
           ) : (
@@ -396,10 +415,10 @@ export function UserProfileSection({ setActiveTab }) {
       </div>
 
       <div>
-        <Button color="error" variant="outlined" onClick={logout} style={{  textTransform: 'none', fontWeight: '600' }} >
+        <Button color="error" variant="outlined" onClick={logout} style={{ textTransform: 'none', fontWeight: '600' }} >
           <LogOut size={22} style={{ marginRight: '.5rem', }} />
           Logout
-        </Button> 
+        </Button>
       </div>
     </div>
   );

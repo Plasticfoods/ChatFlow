@@ -35,27 +35,31 @@ export const UserProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  const errorHandling = (err) => {
+    if (err.response && err.response.status >= 500) {
+      // Catch 500, 502, 503, 504, etc.
+      setUserError(err);
+      return;
+    }
+    if (err.response && err.status != "404") {
+      showSnackbar(err.response.statusText, "info");
+    } else {
+      setUserError(err);
+    }
+  }
+
   // 2. Login Function
   const login = async (email, password) => {
     setUserLoading(true);
     setUserError(null);
     try {
-      const { data } = await axios.post('/api/auth/login2', { email, password });
+      const { data } = await axios.post('/api/auth/login', { email, password });
       setUser(data);
       showSnackbar("Logged in Successfully", "success");
       return { success: true };
     } catch (err) {
       console.log(err);
-      if (err.response && err.response.status >= 500) {
-        // Catch 500, 502, 503, 504, etc.
-        setUserError(err);
-        return;
-      }
-      if (err.response) {
-        showSnackbar(err.response.statusText, "info");
-      } else {
-        setUserError(err);
-      }
+      errorHandling(err);
     } finally {
       setUserLoading(false);
     }
@@ -92,24 +96,27 @@ export const UserProvider = ({ children }) => {
 
   // 5. Update Profile Function
   const updateProfile = async (updatedUser) => {
-    setUserLoading(true);
     setUserError(null);
+    setUserLoading(true);
     try {
-      const { data } = await axios.put('/api/user/profile', updatedUser);
+      const { data } = await axios.put('/api/user/profile1', updatedUser);
       setUser(data);
+      showSnackbar("User profile updated successfully!!", "success");
       return { success: true };
     } catch (err) {
-      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-        setUser(null);
-        navigate('/login');
-        return { success: false, message: err.message };
-      }
-      const message = err.response?.data?.message || err.message || 'Update failed';
-      setUserError(message);
-      return { success: false, message };
+      // if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+      //   setUser(null);
+      //   navigate('/login');
+      //   return { success: false, message: err.message };
+      // }
+      // const message = err.response?.data?.message || err.message || 'Update failed';
+      // setUserError(message);
+      // return { success: false, message };
+      console.log(err);
+      errorHandling(err);
+      return { success: false };
     } finally {
       setUserLoading(false);
-      showSnackbar("User profile updated successfully!!", "info");
     }
   };
 
@@ -123,7 +130,8 @@ export const UserProvider = ({ children }) => {
         register,
         logout,
         updateProfile,
-        setUserError
+        setUserError,
+        setUser
       }}
     >
       {children}

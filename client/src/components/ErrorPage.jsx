@@ -19,7 +19,7 @@ const getErrorDetails = (error) => {
   // Default State (Unknown / Client-side JS Error)
   let details = {
     code: 'Unknown',
-    title: 'Unexpected Error',
+    title: 'Something Went Wrong',
     message: error?.message || 'An unknown error occurred. It might be a client-side issue.',
     Icon: FileQuestion
   };
@@ -119,12 +119,16 @@ const ErrorPage = ({
   return (
     <Box
       sx={{
-        minHeight: '100vh',
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        bgcolor: 'var(--bg-main)',
+        position: 'fixed', // Fix: Break out of parent container
+        top: 0,
+        left: 0,
+        width: '100vw',    // Full viewport width
+        height: '100vh',   // Full viewport height
+        zIndex: 9999,      // Ensure it sits on top of all other elements
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        bgcolor: 'var(--bg-main)', 
         color: 'var(--text-main)',
         p: 2,
         // Subtle animated gradient background effect
