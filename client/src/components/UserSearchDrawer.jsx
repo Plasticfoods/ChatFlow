@@ -26,6 +26,9 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import ErrorPage from './ErrorPage.jsx';
+import { useSnackbar } from '../context/Snackbar.jsx';
+import Loader from './Loader.jsx';
+import { useNavigate } from 'react-router-dom';
 
 // --- Mock Data Database ---
 const MOCK_DATABASE = [
@@ -41,7 +44,10 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
   const [searchResult, setSearchResult] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isAddingUser, setIsAddingUser] = useState(false);
   const [error, setError] = useState(null);
+  const { showSnackbar } = useSnackbar();
+  const navigate = useNavigate();
 
   const handleUserSearch = async () => {
     if (!query.trim()) return;
@@ -72,8 +78,45 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
     setHasSearched(false);
   };
 
+  // Add Friend Handler (Mock Implementation)
+  const handleAddUser = async (user) => {
+    console.log("Adding user:", user);
+    setError(null);
+    setIsAddingUser(true);
+    try {
+      const { data } = await axios.post('/api/channel', { otherUser: user });
+      navigate("/");
+      setOpenUserSearchDrawer(false);
+      showSnackbar(`${data.message}`, "success");
+    } catch (err) {
+      if (err.response && err.response.status >= 500) {
+        // Catch 500, 502, 503, 504, etc.
+        setError(err);
+        return;
+      }
+      if(err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate('/login');
+        showSnackbar("Session expired. Please log in again.", "info");
+        return;
+      }
+      if (err.response && err.status != "404") {
+        showSnackbar(err.response.statusText, "info");
+      } else {
+        setError(err);
+      }
+    } finally {
+      setQuery('');
+      setSearchResult([]);
+      setIsAddingUser(false);
+    }
+  }
+
+  if (isAddingUser) {
+    return <Loader message="Adding user to your contacts..." overlay={true} />;
+  }
+
   if (error) {
-    return <ErrorPage message={error} onRetry={() => setError(null)} />;
+    return <ErrorPage error={error} onRetry={() => setError(null)} />;
   }
 
   return (
@@ -213,11 +256,13 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
                       {user.name}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                      <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', color: 'var(--text-dim)', fontWeight: 600 }}>
-                        <AtSign size={12} style={{ marginRight: 4 }} /> {user.username}
+                      {/* Search Result Username  */}
+                      <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', color: 'var(--text-dim)', fontWeight: 600, fontSize: '1rem' }}>
+                        <AtSign size={14} style={{ marginRight: 4 }} /> {user.username}
                       </Typography>
-                      <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', color: 'var(--text-dim)', fontWeight: 600 }}>
-                        <Mail size={12} style={{ marginRight: 4 }} /> {user.email}
+                      {/* Search Result Email */}
+                      <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', color: 'var(--text-dim)', fontWeight: 600, fontSize: '1rem' }}>
+                        <Mail size={14} style={{ marginRight: 4 }} /> {user.email}
                       </Typography>
                     </Box>
                   </Box>
@@ -234,6 +279,7 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
                     >
                       <MessageSquare size={18} />
                     </IconButton>
+                    {/* Add Friend Button */}
                     <IconButton
                       sx={{
                         bgcolor: 'var(--bg-main)',
@@ -241,6 +287,7 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
                         borderRadius: 'var(--radius-md)',
                         '&:hover': { bgcolor: 'var(--bg-surface)', color: 'var(--text-main)', border: '1px solid var(--border-color)' }
                       }}
+                      onClick={() => handleAddUser(user)}
                     >
                       <UserPlus size={18} />
                     </IconButton>

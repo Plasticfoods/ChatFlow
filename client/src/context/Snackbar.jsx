@@ -53,6 +53,7 @@ export const SnackbarProvider = ({ children }) => {
                 onClose={handleClose}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                 action={action}
+                sx={{ zIndex: "200" }}
             >
                 <Alert
                     onClose={handleClose}

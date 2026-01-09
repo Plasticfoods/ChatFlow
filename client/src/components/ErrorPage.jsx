@@ -99,10 +99,10 @@ const ErrorPage = ({
   }, [error, propCode, propTitle, propMessage]);
 
   const handleHome = () => {
-    if (onHome) {
-      onHome();
-      return;
-    }
+    // if (onHome) {
+    //   onHome();
+    //   return;
+    // }
     setUserError(null);
     navigate("/");
   };

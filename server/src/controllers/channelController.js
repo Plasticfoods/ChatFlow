@@ -1,4 +1,6 @@
 const Channel = require("../models/channel.model");
+const User = require("../models/user.model");
+const Message = require("../models/message.model");
 
 /**
  * @desc    Create or fetch One-on-One Chat
@@ -6,8 +8,9 @@ const Channel = require("../models/channel.model");
  * @access  Protected
  */
 const accessChannel = async (req, res) => {
+  console.log("Accessing / Creating channel for user:", req.body);
   try {
-    const { participantId } = req.body;
+    const { otherUser } = req.body;
     let isChannel;
 
     try {
@@ -16,7 +19,7 @@ const accessChannel = async (req, res) => {
         isGroupChannel: false,
         $and: [
           { users: { $elemMatch: { $eq: req.user._id } } },
-          { users: { $elemMatch: { $eq: participantId } } },
+          { users: { $elemMatch: { $eq: otherUser._id } } },
         ],
       })
         .populate("users", "-password")
@@ -36,12 +39,12 @@ const accessChannel = async (req, res) => {
     if (isChannel.length > 0) {
       // Chat exists, return it
       console.log(
-        "Channel already exists with users ",
+        "Channel already exists with users",
         req.user.username,
         " and ",
-        participantId
+        otherUser.username
       );
-      res.status(200).json(isChannel[0]);
+      res.status(200).json({ channel: isChannel[0], message: `${otherUser.username} already is in your contacts.` });
       return;
     }
 
@@ -64,14 +67,14 @@ const accessChannel = async (req, res) => {
         _id: createdChannel._id,
       }).populate("users", "-password");
       console.log("New channel created: ", newChannel);
-      res.status(200).send(newChannel);
+      res.status(200).json({ channel: newChannel, message: `${otherUser.username} added to your contacts!` });
     } catch (error) {
       console.error("Error while creating channel:", error);
-      res.status(500).send({ message: "Failed to create channel" });
+      res.status(500).json({ message: "Failed to create channel" });
     }
   } catch (error) {
     console.error("Error accessing / creating channel:", error);
-    res.status(500).send({ message: "Server error" });
+    res.status(500).json({ message: "Server error" });
   }
 };
 

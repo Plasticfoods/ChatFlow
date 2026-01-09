@@ -104,16 +104,16 @@ export const UserProvider = ({ children }) => {
       showSnackbar("User profile updated successfully!!", "success");
       return { success: true };
     } catch (err) {
-      // if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-      //   setUser(null);
-      //   navigate('/login');
-      //   return { success: false, message: err.message };
-      // }
-      // const message = err.response?.data?.message || err.message || 'Update failed';
-      // setUserError(message);
-      // return { success: false, message };
-      console.log(err);
-      errorHandling(err);
+      if (err.response && err.response.status >= 500) {
+        // Catch 500, 502, 503, 504, etc.
+        setUserError(err);
+        return;
+      }
+      if (err.response && err.status != "404") {
+        showSnackbar(err.response.statusText, "info");
+      } else {
+        setUserError(err);
+      }
       return { success: false };
     } finally {
       setUserLoading(false);
