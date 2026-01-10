@@ -44,7 +44,12 @@ const accessChannel = async (req, res) => {
         " and ",
         otherUser.username
       );
-      res.status(200).json({ channel: isChannel[0], message: `${otherUser.username} already is in your contacts.` });
+      res
+        .status(200)
+        .json({
+          channel: isChannel[0],
+          message: `${otherUser.username} already is in your contacts.`,
+        });
       return;
     }
 
@@ -53,12 +58,12 @@ const accessChannel = async (req, res) => {
       "Creating new channel with users ",
       req.user.username,
       " and ",
-      participantId
+      otherUser.username
     );
     let channelData = {
       channelName: "single", // For 1-on-1, name doesn't really matter
       isGroupChannel: false,
-      users: [req.user._id, participantId],
+      users: [req.user._id, otherUser._id],
     };
 
     try {
@@ -67,7 +72,12 @@ const accessChannel = async (req, res) => {
         _id: createdChannel._id,
       }).populate("users", "-password");
       console.log("New channel created: ", newChannel);
-      res.status(200).json({ channel: newChannel, message: `${otherUser.username} added to your contacts!` });
+      res
+        .status(200)
+        .json({
+          channel: newChannel,
+          message: `${otherUser.username} added to your contacts!`,
+        });
     } catch (error) {
       console.error("Error while creating channel:", error);
       res.status(500).json({ message: "Failed to create channel" });
@@ -99,9 +109,19 @@ const fetchChannels = async (req, res) => {
       select: "name avatar email",
     });
 
+    // Remove the current user from the 'users' array in the response
+    // This ensures the frontend 'users' list only contains the *other* participants
+    const processedResults = results.map((chat) => {
+      const chatObj = chat.toObject(); // Convert Mongoose doc to plain object
+      chatObj.users = chatObj.users.filter(
+        (user) => user._id.toString() !== req.user._id.toString()
+      );
+      return chatObj;
+    });
+
     console.log("Fetched channels for user ", req.user.username);
-    console.log(results);
-    res.status(200).json(results);
+    processedResults.forEach(chat => console.log(chat.channelName, chat.users.map(u => u.username ).join(", ")));
+    res.status(200).json(processedResults);
   } catch (error) {
     console.error("Error fetching channels:", error);
     res.status(500).json({ message: "Failed to fetch channels" });
@@ -158,22 +178,24 @@ const createGroupChannel = async (req, res) => {
  * @access  Protected
  */
 const deleteChannel = async (req, res) => {
-    try {
-        const { channelId } = req.params;
-        const deletedChannel = await Channel.findByIdAndDelete(channelId);
-        console.log("Deleted channel:", deletedChannel);
+  try {
+    const { channelId } = req.params;
+    const deletedChannel = await Channel.findByIdAndDelete(channelId);
+    console.log("Deleted channel:", deletedChannel);
 
-        // Delete associated messages here as well
-        const deletedMessages = await Message.deleteMany({ channel: channelId });
-        console.log("Deleted messages associated with channel:", deletedMessages.length);
+    // Delete associated messages here as well
+    const deletedMessages = await Message.deleteMany({ channel: channelId });
+    console.log(
+      "Deleted messages associated with channel:",
+      deletedMessages.length
+    );
 
-        res.status(200).json({ message: "Channel deleted successfully" });
-    } catch (error) {
-        console.error("Error deleting channel:", error);
-        res.status(500).json({ message: "Failed to delete channel" });
-    }
+    res.status(200).json({ message: "Channel deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting channel:", error);
+    res.status(500).json({ message: "Failed to delete channel" });
+  }
 };
-
 
 /**
  * @desc    Rename Group

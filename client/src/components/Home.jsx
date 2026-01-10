@@ -7,17 +7,9 @@ import { chatData, groupChatData } from './tempData.js';
 import AddChatSection from "./AddChatSection";
 
 export default function Home() {
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [activeChat, setActiveChat] = useState(null);
     const [showAddChatSection, setShowAddChatSection] = useState(false);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 2000); // Show loader for 2 seconds
-
-        return () => clearTimeout(timer);
-    }, []);
 
     if (isLoading) {
         return <Loader message="Loading Chats..." overlay={true} />;

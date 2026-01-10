@@ -13,18 +13,20 @@ import MessageBubble from './MessageBubble';
 import useIsMobile from '../hooks/mobileSreenHook';
 import './ChatWindow.css';
 import { groupChatData } from './tempData';
+import { useChat } from '../context/Chat.jsx';
 
 // Constants to simulate user identities
 const CURRENT_USER_ID = "me";
 const CHAT_PARTNER_ID = "Sarah Jenkins";
 
 
-export default function ChatWindow({ activeChat, setActiveChat }) {
+export default function ChatWindow() {
+  const { activeChat, setActiveChat } = useChat();
 
   return (
     <>
       {/* Decide between Single or Group Chat based on activeChat */}
-      {activeChat && activeChat.isGroup ? (
+      {activeChat && activeChat.isGroupChannel ? (
         <GroupChatWindow activeChat={activeChat} setActiveChat={setActiveChat} />
       ) : (
         <SingleChatWindow activeChat={activeChat} setActiveChat={setActiveChat} />

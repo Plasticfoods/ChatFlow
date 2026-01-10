@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { useUser } from './User';
 import { useNavigate } from 'react-router-dom';
@@ -6,13 +6,26 @@ import { useNavigate } from 'react-router-dom';
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
-    const [chats, setChats] = useState([]);
+    const [chats, setChats] = useState(null);
     const [activeChat, setActiveChat] = useState(null);
     const [chatLoading, setChatLoading] = useState(false);
     const [chatError, setChatError] = useState(null);
+    const [newUserAdded, setNewUserAdded] = useState(false);
     const navigate = useNavigate();
 
     const { user } = useUser();
+
+    // 2. AUTOMATIC TRIGGER: Fetch when User logs in
+    useEffect(() => {
+        if (user || newUserAdded) {
+            // This runs immediately when 'user' becomes available (login/reload)
+            fetchChats();
+        } else {
+            // Optional: Clear chats on logout
+            setChats([]);
+            setActiveChat(null);
+        }
+    }, [user, newUserAdded]);
 
     // 1. Fetch Chats (Optimized with useCallback to prevent infinite loops)
     const fetchChats = useCallback(async () => {
@@ -23,9 +36,10 @@ export const ChatProvider = ({ children }) => {
         setChatLoading(true);
         try {
             const { data } = await axios.get('/api/channel');
+            console.log("Fetched Chats:", data);
             setChats(data);
         } catch (err) {
-            if(err.response && (err.response.status == "401" || err.response.status == "403")) {
+            if (err.response && (err.response.status == "401" || err.response.status == "403")) {
                 // Handle unauthorized or forbidden access
                 navigate('/login');
             } else {
@@ -33,6 +47,7 @@ export const ChatProvider = ({ children }) => {
             }
         } finally {
             setChatLoading(false);
+            setNewUserAdded(false); // Reset the flag after fetching
         }
     }, [user]);
 
@@ -72,7 +87,9 @@ export const ChatProvider = ({ children }) => {
                 chatLoading,
                 chatError,
                 fetchChats,
-                updateLatestMessage
+                updateLatestMessage,
+                newUserAdded,
+                setNewUserAdded,
             }}
         >
             {children}

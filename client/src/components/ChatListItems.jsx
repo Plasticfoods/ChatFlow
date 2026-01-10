@@ -1,7 +1,33 @@
 import { Box, Typography, Avatar } from '@mui/material';
 import { Check, CheckCheck, Paperclip } from 'lucide-react'; // Icons
+import { useChat } from '../context/Chat';
+import ErrorPage from './ErrorPage';
+import { useEffect } from 'react';
+import { formatTime } from '../utils/formatTime';
 
 export default function ChatListItems({ chats, activeChat, setActiveChat }) {
+  const { chatLoading, chatError } = useChat();
+
+  if (chatLoading) {
+    return (
+      <div className="chat-list-items" style={{
+        flex: 1,
+        overflowY: 'auto',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+        <Typography variant="body1" sx={{ color: 'var(--text-dim)', marginTop: '3rem' }}>
+          Loading chats...
+        </Typography>
+      </div>
+    )
+  }
+
+  if (chatError) {
+    return <ErrorPage error={chatError} />;
+  }
+
   if (chats.length === 0) {
     return (
       <div className="chat-list-items" style={{
@@ -32,7 +58,7 @@ export default function ChatListItems({ chats, activeChat, setActiveChat }) {
           <ChatListItem
             key={index}
             chat={contact}
-            isActive={contact.id === activeChat}
+            isActive={contact._id === activeChat?._id}
             setActiveChat={setActiveChat}
           />
         )
@@ -44,7 +70,8 @@ export default function ChatListItems({ chats, activeChat, setActiveChat }) {
 
 export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
   // Helper to determine if we should show bold text
-  const isUnread = chat.unreadCount > 0;
+  const isUnread = 0;
+  let isTyping = false;
 
   return (
     <Box
@@ -68,7 +95,7 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
       {/* LEFT: AVATAR & ONLINE STATUS */}
       <Box sx={{ position: 'relative', marginRight: '16px' }}>
         <Avatar
-          src={chat.avatar}
+          src={chat.users[0].avatar}
           alt={chat.name}
           sx={{ width: 48, height: 48, border: '1px solid var(--border-color)' }}
         />
@@ -93,7 +120,7 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
       <Box sx={{ flex: 1, minWidth: 0 /* Fixes flex text overflow */ }}>
         {/* Name Row */}
         <Typography
-          variant="subtitle1"
+          variant="subtitle2"
           sx={{
             fontWeight: isUnread ? 700 : 600, // Bolder if unread
             color: 'var(--text-main)',
@@ -101,10 +128,10 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
             marginBottom: '4px'
           }}
         >
-          {chat.name}
+          {chat.users[0].name}
         </Typography>
 
-        {/* Message Preview Row */}
+        {/* Message Preview Row or Latest message */}
         <Typography
           variant="body2"
           sx={{
@@ -117,7 +144,7 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
             textOverflow: 'ellipsis',
           }}
         >
-          {chat.status === 'typing' ? (
+          {isTyping ? (
             'Typing...'
           ) : (
             <>
@@ -125,7 +152,7 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
                 <Paperclip size={14} style={{ marginRight: 4, flexShrink: 0 }} />
               )}
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {chat.lastMessage}
+                {chat.latestMessage ? chat.latestMessage.content : 'No messages yet.'}
               </span>
             </>
           )}
@@ -151,7 +178,7 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
             marginBottom: '6px'
           }}
         >
-          {chat.time}
+          {formatTime(chat.updatedAt)}
         </Typography>
 
         {/* Unread Count Badge */}
@@ -175,7 +202,7 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
           </Box>
         ) : (
           /* Read Receipts (Optional: Only show if it's NOT a group and NO unread messages) */
-          !chat.isGroup && (
+          !chat.isGroupChannel && (
             <Box sx={{ color: 'var(--text-dim)' }}>
               {/* Logic: You would usually check 'chat.lastMessageIsOwn' here */}
               <CheckCheck size={16} />

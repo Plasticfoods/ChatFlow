@@ -29,15 +29,8 @@ import ErrorPage from './ErrorPage.jsx';
 import { useSnackbar } from '../context/Snackbar.jsx';
 import Loader from './Loader.jsx';
 import { useNavigate } from 'react-router-dom';
+import { useChat } from '../context/Chat.jsx';
 
-// --- Mock Data Database ---
-const MOCK_DATABASE = [
-  { id: 1, name: "Alice Freeman", username: "alice_f", email: "alice@example.com", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice" },
-  { id: 5, name: "Alice Freeman", username: "alice_f", email: "alice@example.com", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice" },
-  { id: 2, name: "Bob Smith", username: "bob_builder", email: "bob@test.com", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob" },
-  { id: 3, name: "Charlie Davis", username: "charlie_d", email: "charlie@domain.org", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie" },
-  { id: 4, name: "Diana Prince", username: "wonder_d", email: "diana@themyscira.net", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Diana" },
-];
 
 export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSearchDrawer, onStartChat }) {
   const [query, setQuery] = useState('');
@@ -47,6 +40,7 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [error, setError] = useState(null);
   const { showSnackbar } = useSnackbar();
+  const { setNewUserAdded } = useChat();
   const navigate = useNavigate();
 
   const handleUserSearch = async () => {
@@ -85,9 +79,9 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
     setIsAddingUser(true);
     try {
       const { data } = await axios.post('/api/channel', { otherUser: user });
-      navigate("/");
       setOpenUserSearchDrawer(false);
       showSnackbar(`${data.message}`, "success");
+      setNewUserAdded(true); // Trigger chat list refresh
     } catch (err) {
       if (err.response && err.response.status >= 500) {
         // Catch 500, 502, 503, 504, etc.

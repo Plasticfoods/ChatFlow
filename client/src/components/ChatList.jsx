@@ -4,11 +4,15 @@ import { useState } from 'react';
 import { Tabs, Tab } from '@mui/material';
 import ChatListItems from './ChatListItems.jsx';
 import { MessageCircleCode, MessageSquarePlus } from 'lucide-react';
+import { useChat } from '../context/Chat.jsx';
+import { chatData } from './tempData.js';
 
 
-export default function ChatList({ chats, activeChat, setActiveChat, setShowAddChatSection }) {
+export default function ChatList({ setShowAddChatSection }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all'); // 'all', 'unread', 'groupchat'
+    const { chats: allChats, setActiveChat, activeChat, chatLoading, chatError } = useChat();
+     // TEMP: Use static data for now
 
     // 1. Handle Tab Change
     const handleTabChange = (event, newValue) => {
@@ -16,9 +20,9 @@ export default function ChatList({ chats, activeChat, setActiveChat, setShowAddC
     };
 
     // 2. The Smart Filter Logic
-    const filteredChats = chats.filter(chat => {
+    const filteredChats = allChats?.filter(chat => {
         // First, check if it matches the search text
-        const matchesSearch = chat.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = chat.users[0].name.toLowerCase().includes(searchTerm.toLowerCase());
 
         // Then, check if it matches the active Tab
         if (filterType === 'unread') {
@@ -79,7 +83,7 @@ export default function ChatList({ chats, activeChat, setActiveChat, setShowAddC
                     sx={tabStyle}
                 />
             </Tabs>
-            <ChatListItems chats={[]} activeChat={activeChat} setActiveChat={setActiveChat} />
+            <ChatListItems chats={filteredChats} activeChat={activeChat} setActiveChat={setActiveChat} />
         </div>
     )
 }
