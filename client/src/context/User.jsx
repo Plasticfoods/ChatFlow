@@ -17,6 +17,7 @@ export const UserProvider = ({ children }) => {
 
   // 1. Check for existing session on Mount (Keep this logic)
   useEffect(() => {
+    console.log("Checking user authentication status...");
     const checkAuth = async () => {
       setUserError(null);
       setUserLoading(true);

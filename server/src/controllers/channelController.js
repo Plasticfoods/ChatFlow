@@ -111,17 +111,17 @@ const fetchChannels = async (req, res) => {
 
     // Remove the current user from the 'users' array in the response
     // This ensures the frontend 'users' list only contains the *other* participants
-    const processedResults = results.map((chat) => {
-      const chatObj = chat.toObject(); // Convert Mongoose doc to plain object
-      chatObj.users = chatObj.users.filter(
-        (user) => user._id.toString() !== req.user._id.toString()
-      );
-      return chatObj;
-    });
+    // const processedResults = results.map((chat) => {
+    //   const chatObj = chat.toObject(); // Convert Mongoose doc to plain object
+    //   chatObj.users = chatObj.users.filter(
+    //     (user) => user._id.toString() !== req.user._id.toString()
+    //   );
+    //   return chatObj;
+    // });
 
     console.log("Fetched channels for user ", req.user.username);
-    processedResults.forEach(chat => console.log(chat.channelName, chat.users.map(u => u.username ).join(", ")));
-    res.status(200).json(processedResults);
+    results.forEach(chat => console.log(chat.channelName, chat.users.map(u => u.username ).join(", ")));
+    res.status(200).json(results);
   } catch (error) {
     console.error("Error fetching channels:", error);
     res.status(500).json({ message: "Failed to fetch channels" });

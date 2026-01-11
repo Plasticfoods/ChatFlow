@@ -60,7 +60,9 @@ const login = async (req, res) => {
 
   try {
     console.log("Attempting login for email: ", email);
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      $or: [{ email: email }, { username: email }],
+    });
 
     if (user && (await user.matchPassword(password))) {
       setAuthCookie(res, user._id);

@@ -11,8 +11,6 @@ import { chatData } from './tempData.js';
 export default function ChatList({ setShowAddChatSection }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all'); // 'all', 'unread', 'groupchat'
-    const { chats: allChats, setActiveChat, activeChat, chatLoading, chatError } = useChat();
-     // TEMP: Use static data for now
 
     // 1. Handle Tab Change
     const handleTabChange = (event, newValue) => {
@@ -20,20 +18,20 @@ export default function ChatList({ setShowAddChatSection }) {
     };
 
     // 2. The Smart Filter Logic
-    const filteredChats = allChats?.filter(chat => {
-        // First, check if it matches the search text
-        const matchesSearch = chat.users[0].name.toLowerCase().includes(searchTerm.toLowerCase());
+    // const filteredChats = allChats?.filter(chat => {
+    //     // First, check if it matches the search text
+    //     const matchesSearch = chat.users[0].name.toLowerCase().includes(searchTerm.toLowerCase());
 
-        // Then, check if it matches the active Tab
-        if (filterType === 'unread') {
-            return matchesSearch && chat.unreadCount > 0;
-        }
-        if (filterType === 'groupchat') {
-            return matchesSearch && chat.isGroup === true;
-        }
-        // Default 'all'
-        return matchesSearch;
-    });
+    //     // Then, check if it matches the active Tab
+    //     if (filterType === 'unread') {
+    //         return matchesSearch && chat.unreadCount > 0;
+    //     }
+    //     if (filterType === 'groupchat') {
+    //         return matchesSearch && chat.isGroup === true;
+    //     }
+    //     // Default 'all'
+    //     return matchesSearch;
+    // });
 
     return (
         <div className="chat-list section-middle" style={{
@@ -83,7 +81,7 @@ export default function ChatList({ setShowAddChatSection }) {
                     sx={tabStyle}
                 />
             </Tabs>
-            <ChatListItems chats={filteredChats} activeChat={activeChat} setActiveChat={setActiveChat} />
+            <ChatListItems />
         </div>
     )
 }

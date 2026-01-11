@@ -37,7 +37,8 @@ export const ChatProvider = ({ children }) => {
         try {
             const { data } = await axios.get('/api/channel');
             console.log("Fetched Chats:", data);
-            setChats(data);
+            const processedData = filterChatUsers(data);
+            setChats(processedData);
         } catch (err) {
             if (err.response && (err.response.status == "401" || err.response.status == "403")) {
                 // Handle unauthorized or forbidden access
@@ -77,6 +78,28 @@ export const ChatProvider = ({ children }) => {
         });
     };
 
+    // Remove the current user from the 'users' array in the response
+    const filterChatUsers = (list) => {
+        return list.map(chat => {
+            chat.users = chat.users.filter(c => c._id.toString() !== user._id.toString());
+            return chat;
+        })
+    }
+
+    // update chats when new message arrives via socket
+    const updateChatsOnMessage = (updatedChannel) => {
+        setChats(prevChats => {
+            const tempChats = [...prevChats];
+            const index = tempChats.findIndex(c => c._id === updatedChannel._id);
+
+            if (index !== -1) {
+                tempChats.splice(index, 1);
+            }
+            tempChats.unshift(updatedChannel);
+            return filterChatUsers(tempChats);
+        });
+    };
+
     return (
         <ChatContext.Provider
             value={{
@@ -90,6 +113,7 @@ export const ChatProvider = ({ children }) => {
                 updateLatestMessage,
                 newUserAdded,
                 setNewUserAdded,
+                updateChatsOnMessage
             }}
         >
             {children}

@@ -72,7 +72,6 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
     setHasSearched(false);
   };
 
-  // Add Friend Handler (Mock Implementation)
   const handleAddUser = async (user) => {
     console.log("Adding user:", user);
     setError(null);

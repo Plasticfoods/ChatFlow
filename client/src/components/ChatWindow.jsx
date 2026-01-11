@@ -25,16 +25,17 @@ export default function ChatWindow() {
   const [messages, setMessages] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { activeChat, setActiveChat } = useChat();
+  const { activeChat, setActiveChat, updateChatsOnMessage } = useChat();
   const { socket } = useSocket();
   const { showSnackbar } = useSnackbar();
 
   // LISTEN FOR INCOMING MESSAGES
   useEffect(() => {
     if (!socket) return;
+    console.log("ChatWindow - Setting up socket listener for incoming messages");
 
     const messageHandler = (data) => {
-      console.log("New message received in ChatWindow:", data);
+      console.log("Socket received new message:", data);
       const { newMessage, channel } = data;
       // Only append if the message belongs to the CURRENTLY open chat
       if (
@@ -43,6 +44,8 @@ export default function ChatWindow() {
       ) {
         setMessages((prev) => [...prev, newMessage]);
       }
+      // update chat list latest message
+      updateChatsOnMessage(channel);
     };
 
     socket.on("receive_message", (data) => {
@@ -50,8 +53,9 @@ export default function ChatWindow() {
     });
     return () => {
       socket.off("receive_message", messageHandler);
+      console.log("ChatWindow - Removed socket listener for incoming messages");
     };
-  }, [socket, activeChat]);
+  }, [socket]);
 
   // Initial fetch of messages and when activeChat changes
   useEffect(() => {
@@ -67,9 +71,9 @@ export default function ChatWindow() {
         setMessages(data);
 
         // --- SOCKET LOGIC: JOIN ROOM ---
-        if (socket) {
-          socket.emit("join_chat", activeChat._id);
-        }
+        // if (socket) {
+        //   socket.emit("join_chat", activeChat._id);
+        // }
       } catch (error) {
         showSnackbar("Failed to load messages", "error");
         console.error("Error fetching messages:", error);
@@ -92,6 +96,7 @@ export default function ChatWindow() {
 
       const { newMessage, channel } = data;
       setMessages((prev) => [...prev, newMessage]);
+      updateChatsOnMessage(channel);
     } catch (error) {
       showSnackbar("Failed to send message", "error");
       console.error("Error sending message", error);

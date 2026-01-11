@@ -18,14 +18,30 @@ const socketHandler = (io) => {
       console.log("User Joined Chat Room: " + channelId);
     });
 
+    // socket.on("new_message", (data) => {
+    //   console.log("Entering socket new_message handler");
+    //   console.log(data);
+
+    //   socket.to(data.channel._id).emit("receive_message", data);
+    //   console.log("Existing socket new_message handler");
+    // });
+
     // 3. SEND MESSAGE: User sends a message
-    // We forward this message to everyone else in that chat room.
+    // We forward this message to everyone else in that chat room.  
     socket.on("new_message", (data) => {
       console.log("Entering socket new_message handler");
-      console.log(data);
+      console.log(`${data.newMessage.sender.name} sent a message with content: ${data.newMessage.content}`);
+      const { newMessage, channel } = data;
+      if(!channel.users) {
+        console.log("Channel users not defined");
+        return;
+      }
 
-      socket.to(data.channel._id).emit("receive_message", data);
-      console.log("Existing socket new_message handler");
+      channel.users.forEach(user => {
+        if(user._id.toString() === newMessage.sender._id.toString()) return;
+        socket.to(user._id).emit("receive_message", data);
+      });
+      console.log("Exiting socket new_message handler");
     });
 
     // 4. CLEANUP: User closes browser

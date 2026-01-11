@@ -5,8 +5,16 @@ import ErrorPage from './ErrorPage';
 import { useEffect } from 'react';
 import { formatTime } from '../utils/formatTime';
 
-export default function ChatListItems({ chats, activeChat, setActiveChat }) {
-  const { chatLoading, chatError } = useChat();
+export default function ChatListItems() {
+  const { chats, activeChat, setActiveChat, chatLoading, chatError } = useChat();
+  // console.log("ChatListItems - chats ", chatLoading);
+  // if (chats) {
+  //   chats.forEach(chat => {
+  //     console.log(`${chat.users[0].name} => Latest: ${chat.latestMessage ? chat.latestMessage.content : 'No messages yet.'}`);
+  //   })
+  // } else {
+  //   console.log("Chat is null");
+  // }
 
   if (chatLoading) {
     return (
@@ -36,10 +44,10 @@ export default function ChatListItems({ chats, activeChat, setActiveChat }) {
         display: 'flex',
         // justifyContent: 'center',
         alignItems: 'center',
-        flexDirection: 'column',  
+        flexDirection: 'column',
       }}>
         <Typography variant="body1" sx={{
-          maxWidth: '50%', 
+          maxWidth: '50%',
           color: 'var(--text-dim)', textAlign: 'center', marginTop: '3rem', fontWeight: 600, marginLeft: '-30px'
         }}>
           Add your first chat to get started!

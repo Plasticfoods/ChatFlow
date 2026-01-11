@@ -47,9 +47,21 @@ const sendMessage = async (req, res) => {
     try {
       // CRITICAL: Update the latestMessage in the Channel collection
       // This ensures the chat list is sorted by most recent activity
-      updatedChannel = await Channel.findByIdAndUpdate(req.body.channelId, {
+      await Channel.findByIdAndUpdate(req.body.channelId, {
         latestMessage: newMessage._id,
-      }).populate("latestMessage");
+      });
+
+      // Fetch the updated channel with populated fields to return
+      updatedChannel = await Channel.findById(req.body.channelId)
+        .populate("users", "name avatar email username")
+        .populate("latestMessage");
+
+      // Remove the current user from the 'users' array in the response
+      // updatedChannel = updatedChannel.toObject(); 
+      // updatedChannel.users = updatedChannel.users.filter(
+      //   (user) => user._id.toString() !== req.user._id.toString()
+      // );  
+
       console.log("Updated latest message in channel");
     } catch (error) {
       console.error("Error updating latest message in channel:", error);

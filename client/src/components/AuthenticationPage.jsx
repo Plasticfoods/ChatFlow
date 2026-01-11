@@ -129,7 +129,7 @@ export const LoginPage = () => {
     e.preventDefault();
     const response = await login(email, password);
     if (response.success) {
-      window.location.href = '/';
+      navigate("/");
     }
   };
 

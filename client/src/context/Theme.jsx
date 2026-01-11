@@ -17,8 +17,6 @@ export const ThemeProvider = ({ children }) => {
   const currentTheme = themes[themeIndex];
 
   useEffect(() => {
-    console.log("Switching theme to:", currentTheme.label);
-
     // 1. Apply styles to body
     Object.entries(currentTheme.colors).forEach(([key, value]) => {
       document.body.style.setProperty(key, value);
