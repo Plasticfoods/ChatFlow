@@ -14,7 +14,7 @@ const checkAuthentication = async (req, res, next) => {
     }
 
     const accessToken = req.cookies.acess_token;
-    console.log("Access Token from Cookie during authentication: ", accessToken);
+    console.log("Token present during authentication ");
 
     const decoded = jwt.verify(accessToken, process.env.JWT_SECRET_KEY);
     req.user = await User.findById(decoded.id).select("-password");

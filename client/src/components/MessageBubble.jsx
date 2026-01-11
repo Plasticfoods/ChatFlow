@@ -1,5 +1,6 @@
 import { Check, CheckCheck } from 'lucide-react'; // Import icons
 import './MessageBubble.css'; // Import the styles
+import { formatTime } from "../utils/formatTime.js";
 
 const MessageBubble = ({ text, time, isOwnMessage, isRead, username }) => {
   // Decide which class to apply based on who sent it
@@ -16,7 +17,7 @@ const MessageBubble = ({ text, time, isOwnMessage, isRead, username }) => {
         
         {/* 2. Timestamp & Read Status */}
         <div className="message-meta">
-          <span className="timestamp">{time}</span>
+          <span className="timestamp">{formatTime(time)}</span>
           
           {/* Only show read receipts on MY messages */}
           {/* {isOwnMessage && (

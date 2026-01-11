@@ -4,6 +4,9 @@ const connectDB = require('./config/db');
 const cookieParser = require('cookie-parser');
 const indexRouter = require('./routes/index');
 const cors = require('cors');
+const { Server } = require("socket.io"); // 1. Import Socket.io
+const http = require("http");
+const socketHandler = require('./socket/socketHandler');  
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -22,10 +25,29 @@ app.get('/', (req, res) => {
     res.send('Hello, World! Your server is running.');
 });
 
+// Use the index router for all '/api' routes
 app.use('/api', indexRouter);
 
-// Start the server and listen on the defined port
-app.listen(PORT, async () => {
+// --- SOCKET SETUP START ---
+// 4. Create standard HTTP server wrapping Express
+const server = http.createServer(app);
+
+// 5. Initialize Socket.io on that server
+const io = new Server(server, {
+  pingTimeout: 60000, // Wait 60s before closing connection to save bandwidth
+  cors: {
+    origin: "http://localhost:5173", // Allow Frontend to connect
+    credentials: true,
+  },
+});
+
+// 6. Connect your logic handler
+socketHandler(io);
+
+// app.listen() CHANGE TO: server.listen(...) which includes Socket.io
+server.listen(PORT, async () => {
     console.log(`Server is running on ${PORT}`);
-    await connectDB();
+    // It is often better to connect to DB before starting the server, 
+    // but doing it here is also valid.
+    await connectDB(); 
 });

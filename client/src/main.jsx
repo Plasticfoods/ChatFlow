@@ -6,6 +6,7 @@ import { ChatProvider } from './context/Chat.jsx';
 import './index.css'
 import App from './App.jsx'
 import { SnackbarProvider } from './context/Snackbar.jsx';
+import { SocketProvider } from './context/Socket.jsx';
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -13,7 +14,9 @@ createRoot(document.getElementById('root')).render(
       <ThemeProvider>
         <UserProvider>
           <ChatProvider>
-            <App />
+            <SocketProvider>
+              <App />
+            </SocketProvider>
           </ChatProvider>
         </UserProvider>
       </ThemeProvider>

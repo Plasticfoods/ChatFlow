@@ -14,10 +14,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      // If you use socket.io, you might need to proxy that too:
+      // 2. Proxy Socket.io (CRITICAL STEP)
       '/socket.io': {
         target: 'http://localhost:7070',
-        ws: true, // Enable WebSockets
+        ws: true, // Enables WebSocket proxying
+        changeOrigin: true,
+        secure: false,
       },
     },
   },

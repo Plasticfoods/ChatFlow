@@ -8,107 +8,20 @@ import {
   ArrowLeft,
   MessageSquare
 } from 'lucide-react';
-import Loader from './Loader';
-import MessageBubble from './MessageBubble';
-import useIsMobile from '../hooks/mobileSreenHook';
+import Loader from './Loader.jsx';
+import MessageBubble from './MessageBubble.jsx';
+import useIsMobile from '../hooks/mobileSreenHook.js';
 import './ChatWindow.css';
-import { groupChatData } from './tempData';
+import { groupChatData } from './tempData.js';
 import { useChat } from '../context/Chat.jsx';
-import ErrorPage from './ErrorPage.jsx';
-import axios from 'axios';
-import { useUser } from '../context/User.jsx';
-import { useSocket } from '../context/Socket.jsx';
-import { useSnackbar } from '../context/Snackbar.jsx';
+
+// Constants to simulate user identities
+const CURRENT_USER_ID = "me";
+const CHAT_PARTNER_ID = "Sarah Jenkins";
 
 
 export default function ChatWindow() {
-  const [messages, setMessages] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const { activeChat, setActiveChat } = useChat();
-  const { socket } = useSocket();
-  const { showSnackbar } = useSnackbar();
-
-  // LISTEN FOR INCOMING MESSAGES
-  useEffect(() => {
-    if (!socket) return;
-
-    const messageHandler = (data) => {
-      console.log("New message received in ChatWindow:", data);
-      const { newMessage, channel } = data;
-      // Only append if the message belongs to the CURRENTLY open chat
-      if (
-        activeChat &&
-        activeChat._id === channel._id
-      ) {
-        setMessages((prev) => [...prev, newMessage]);
-      }
-    };
-
-    socket.on("receive_message", (data) => {
-      messageHandler(data);
-    });
-    return () => {
-      socket.off("receive_message", messageHandler);
-    };
-  }, [socket, activeChat]);
-
-  // Initial fetch of messages and when activeChat changes
-  useEffect(() => {
-    setError(null);
-    if (!activeChat) return;
-
-    const fetchMessages = async () => {
-      if (!activeChat) return;
-
-      setIsLoading(true);
-      try {
-        const { data } = await axios.get(`/api/message/${activeChat._id}`);
-        setMessages(data);
-
-        // --- SOCKET LOGIC: JOIN ROOM ---
-        if (socket) {
-          socket.emit("join_chat", activeChat._id);
-        }
-      } catch (error) {
-        showSnackbar("Failed to load messages", "error");
-        console.error("Error fetching messages:", error);
-        setError(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMessages();
-  }, [activeChat]);
-
-  const sendMessage = async (message) => {
-    try {
-      const { data } = await axios.post("/api/message", message);
-      console.log("Message sent:", data);
-
-      // B. Emit to Socket (so others see it)
-      socket.emit("new_message", data);
-
-      const { newMessage, channel } = data;
-      setMessages((prev) => [...prev, newMessage]);
-    } catch (error) {
-      showSnackbar("Failed to send message", "error");
-      console.error("Error sending message", error);
-    }
-  }
-
-  if (isLoading) {
-    return <Loader message="Loading Coversation..." overlay={false} className='chat-window active' />;
-  }
-
-  if (error) {
-    return <ErrorPage error={error} />;
-  }
-
-  if (!activeChat) {
-    return <EmptyChatState />;
-  }
 
   return (
     <>
@@ -116,7 +29,7 @@ export default function ChatWindow() {
       {activeChat && activeChat.isGroupChannel ? (
         <GroupChatWindow activeChat={activeChat} setActiveChat={setActiveChat} />
       ) : (
-        <SingleChatWindow isLoading={isLoading} messages={messages} sendMessage={sendMessage} />
+        <SingleChatWindow activeChat={activeChat} setActiveChat={setActiveChat} />
       )}
     </>
   )
@@ -173,52 +86,110 @@ const EmptyChatState = () => {
   );
 };
 
-export function SingleChatWindow({ isLoading, messages, sendMessage }) {
+export function SingleChatWindow({ activeChat, setActiveChat }) {
   const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const isMobileScreen = useIsMobile();
 
-  const { activeChat, setActiveChat } = useChat();
-  const { user } = useUser();
+  // Updated Data Structure: Only text, sender, receiver, time
+  const [messages, setMessages] = useState([
+    {
+      text: "Hi there! I was reviewing the new project proposal you sent over.",
+      sender: CHAT_PARTNER_ID,
+      receiver: CURRENT_USER_ID,
+      time: "10:30 AM"
+    },
+    {
+      text: "It looks really solid, especially the timeline section.",
+      sender: CHAT_PARTNER_ID,
+      receiver: CURRENT_USER_ID,
+      time: "10:31 AM"
+    },
+    {
+      text: "Glad you liked it! I put a lot of focus on realistic deadlines this time.",
+      sender: CURRENT_USER_ID,
+      receiver: CHAT_PARTNER_ID,
+      time: "10:32 AM"
+    },
+    {
+      text: "Also, here are the updated assets for the landing page.",
+      sender: CHAT_PARTNER_ID,
+      receiver: CURRENT_USER_ID,
+      time: "10:35 AM"
+    },
+    {
+      text: "Also, here are the updated assets for the landing page.",
+      sender: CHAT_PARTNER_ID,
+      receiver: CURRENT_USER_ID,
+      time: "10:35 AM"
+    },
+    {
+      text: "Also, here are the updated assets for the landing page.",
+      sender: CHAT_PARTNER_ID,
+      receiver: CURRENT_USER_ID,
+      time: "10:35 AM"
+    },
+    {
+      text: "Also, here are the updated assets for the landing page.",
+      sender: CHAT_PARTNER_ID,
+      receiver: CURRENT_USER_ID,
+      time: "10:35 AM"
+    },
+    {
+      text: "Also, here are the updated assets for the landing page.",
+      sender: CHAT_PARTNER_ID,
+      receiver: CURRENT_USER_ID,
+      time: "10:35 AM"
+    },
+  ]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // useEffect(() => {
-  //   if (!activeChat) return;
-  //   setIsLoading(true);
-  //   const timer = setTimeout(() => {
-  //     setIsLoading(false);
-  //     // Scroll to bottom when first time loading the chat
-  //     scrollToBottom();
-  //   }, 1000);
+  useEffect(() => {
+    if (!activeChat) return;
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      // Scroll to bottom when first time loading the chat
+      scrollToBottom();
+    }, 1000);
 
-  //   return () => clearTimeout(timer);
-  // }, [activeChat]);
+    return () => clearTimeout(timer);
+  }, [activeChat]);
 
   useEffect(() => {
     if (!isLoading) {
       scrollToBottom();
     }
-  }, [isLoading, messages]);
+  }, [isLoading]);
 
-  const handleSend = async (e) => {
+  const handleSend = (e) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
     // Create new message strictly following the requested attributes
     const newMessage = {
-      content: inputValue,
-      image: null,
-      sender: user._id,
-      channelId: activeChat._id,
+      text: inputValue,
+      sender: CURRENT_USER_ID,
+      receiver: CHAT_PARTNER_ID,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    setInputValue('');
-    await sendMessage(newMessage);
     scrollToBottom();
+    setMessages([...messages, newMessage]);
+    setInputValue('');
   };
+
+  if (isLoading) {
+    return <Loader message="Loading Coversation..." overlay={false} className='chat-window active' />;
+  }
+
+  if (!activeChat) {
+    return <EmptyChatState />;
+  }
 
   return (
     <div className={`chat-window section-right ${activeChat ? 'active' : 'hidden-on-mobile'}`}>
@@ -230,14 +201,13 @@ export function SingleChatWindow({ isLoading, messages, sendMessage }) {
             <ArrowLeft />
           </div>
           <img
-            src={activeChat?.users[0]?.avatar}
+            src="https://i.pravatar.cc/150?u=1"
             alt="Sarah"
             className="chat-header-avatar"
           />
           <div className="chat-header-text">
-            <h3>{activeChat?.users[0]?.name}</h3>
-            <div>@{activeChat?.users[0]?.username}</div>
-            {/* <p>Online</p> */}
+            <h3>{CHAT_PARTNER_ID}</h3>
+            <p>Online</p>
           </div>
         </div>
 
@@ -248,28 +218,21 @@ export function SingleChatWindow({ isLoading, messages, sendMessage }) {
 
       {/* MESSAGES LIST */}
       <div className="chat-messages">
-        {/* Date divider can be added here if needed */}
-        {/* <div className="date-divider">
+        <div className="date-divider">
           <span>Today</span>
-        </div> */}
+        </div>
 
-        {messages?.length > 0 ? (messages?.map((msg, index) => (
+        {messages.map((msg, index) => (
           <MessageBubble
             // Using index as key because 'id' was removed from the data structure
             key={index}
-            text={msg.content}
-            time={msg.createdAt}
+            text={msg.text}
+            time={msg.time}
             // Derive ownership by comparing sender to current user
-            isOwnMessage={msg.sender._id === user._id}
+            isOwnMessage={msg.sender === CURRENT_USER_ID}
           // Note: isRead is not in the data, so we omit passing it (or pass logic if needed)
           />
-        ))) : (
-          <div className='date-divider'>
-            <span style={{ fontSize: '.8rem' }}>
-              No messages yet. Start the conversation!
-            </span>
-          </div>
-        )}
+        ))}
 
         <div ref={messagesEndRef} />
       </div>
@@ -337,7 +300,7 @@ export function GroupChatWindow({ activeChat, setActiveChat }) {
     return () => clearTimeout(timer);
   }, [activeChat]);
 
-  useEffect(() => {
+    useEffect(() => {
     if (!isLoading) {
       scrollToBottom();
     }

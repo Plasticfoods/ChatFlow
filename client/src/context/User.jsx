@@ -18,15 +18,17 @@ export const UserProvider = ({ children }) => {
   // 1. Check for existing session on Mount (Keep this logic)
   useEffect(() => {
     const checkAuth = async () => {
+      setUserError(null);
       setUserLoading(true);
       try {
         const { data } = await axios.get('/api/user/profile');
         setUser(data);
       } catch (err) {
-        if (err.response && err.response.status !== 401) {
-          console.error("Session check failed", err);
+        if (err.response && (err.response.status == 401 || err.response.status == 403)) {
+          setUser(null);
+        } else {
+          setUserError(err);
         }
-        setUser(null);
       } finally {
         setUserLoading(false);
       }
@@ -34,6 +36,25 @@ export const UserProvider = ({ children }) => {
 
     checkAuth();
   }, []);
+
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     setUserLoading(true);
+  //     try {
+  //       const { data } = await axios.get('/api/user/profile');
+  //       setUser(data);
+  //     } catch (err) {
+  //       if (err.response && err.response.status !== 401) {
+  //         console.error("Session check failed", err);
+  //       }
+  //       setUser(null);
+  //     } finally {
+  //       setUserLoading(false);
+  //     }
+  //   };
+
+  //   checkAuth();
+  // }, []);
 
   const errorHandling = (err) => {
     if (err.response && err.response.status >= 500) {

@@ -8,6 +8,7 @@ const Channel = require("../models/channel.model");
  * @access  Protected
  */
 const sendMessage = async (req, res) => {
+  console.log("sendMessage called with body:", req.body);
   try {
     const { content, image, channelId } = req.body;
 
@@ -28,36 +29,43 @@ const sendMessage = async (req, res) => {
       // Populate necessary fields for the frontend
       newMessage = await newMessage
         .populate("sender", "name avatar email username")
-        .populate("channel");
+        // .populate("channel");
 
       // Deep populate the users inside the channel object
-    //   newMessage = await User.populate(newMessage, {
-    //     path: "channel.users",
-    //     select: "name avatar email username",
-    //   });
+      //   newMessage = await User.populate(newMessage, {
+      //     path: "channel.users",
+      //     select: "name avatar email username",
+      //   });
 
-      console.log("New message created ", newMessage);
+      console.log("New message created");
     } catch (error) {
       console.error("Error while creating message:", error);
       return res.status(500).json({ message: "Failed to create message" });
     }
 
+    let updatedChannel;
     try {
       // CRITICAL: Update the latestMessage in the Channel collection
       // This ensures the chat list is sorted by most recent activity
-      await Channel.findByIdAndUpdate(req.body.channelId, {
+      updatedChannel = await Channel.findByIdAndUpdate(req.body.channelId, {
         latestMessage: newMessage._id,
-      });
-
-      console.log("Updated latest message in channel ", req.body.channelId);
+      }).populate("latestMessage");
+      console.log("Updated latest message in channel");
     } catch (error) {
       console.error("Error updating latest message in channel:", error);
       res.status(500).json({ message: "Failed to send message" });
     }
-    res.status(201).json(newMessage);
+    
+    console.log("Sending back new message to client");
+    console.log(newMessage);
+    console.log(updatedChannel);
+    console.log("sendMessage completed successfully");
+    res.status(201).json({ newMessage, channel: updatedChannel });
   } catch (error) {
     console.error("Error in sendMessage:", error);
     res.status(500).json({ message: "Failed to send message" });
+  } finally {
+    console.log("Finally block: sendMessage process completed");
   }
 };
 
@@ -68,8 +76,9 @@ const sendMessage = async (req, res) => {
  */
 const getMessages = async (req, res) => {
   try {
-    const channelMessages = await Message.find({ channel: req.params.channelId })
-      .populate("sender", "name avatar email username");
+    const channelMessages = await Message.find({
+      channel: req.params.channelId,
+    }).populate("sender", "name avatar email username");
     console.log("Fetched messages for channel ", channelMessages.length);
     res.status(200).json(channelMessages);
   } catch (error) {
