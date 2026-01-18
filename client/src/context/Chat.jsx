@@ -11,6 +11,8 @@ export const ChatProvider = ({ children }) => {
     const [chatLoading, setChatLoading] = useState(false);
     const [chatError, setChatError] = useState(null);
     const [newUserAdded, setNewUserAdded] = useState(false);
+    // State variable which will track the latest channel update received within same chat or different chat
+    const [latestChannelUpdate, setLatestChannelUpdate] = useState(null);
     const navigate = useNavigate();
 
     const { user } = useUser();
@@ -36,7 +38,6 @@ export const ChatProvider = ({ children }) => {
         setChatLoading(true);
         try {
             const { data } = await axios.get('/api/channel');
-            console.log("Fetched Chats:", data);
             const processedData = filterChatUsers(data);
             setChats(processedData);
         } catch (err) {
@@ -96,6 +97,7 @@ export const ChatProvider = ({ children }) => {
                 tempChats.splice(index, 1);
             }
             tempChats.unshift(updatedChannel);
+            setLatestChannelUpdate(updatedChannel);
             return filterChatUsers(tempChats);
         });
     };
@@ -110,10 +112,12 @@ export const ChatProvider = ({ children }) => {
                 chatLoading,
                 chatError,
                 fetchChats,
-                updateLatestMessage,
+                //updateLatestMessage,
                 newUserAdded,
                 setNewUserAdded,
-                updateChatsOnMessage
+                updateChatsOnMessage,
+                latestChannelUpdate,
+                setLatestChannelUpdate
             }}
         >
             {children}

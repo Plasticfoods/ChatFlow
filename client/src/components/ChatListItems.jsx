@@ -67,7 +67,7 @@ export default function ChatListItems() {
             key={index}
             chat={contact}
             isActive={contact._id === activeChat?._id}
-            setActiveChat={setActiveChat}
+            // setActiveChat={setActiveChat}
           />
         )
       })}
@@ -76,14 +76,21 @@ export default function ChatListItems() {
 }
 
 
-export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
+export const ChatListItem = ({ chat, isActive }) => {
+  const { setActiveChat, setLatestChannelUpdate } = useChat();
+
+  const handleSetActiveChat = () => {
+    setActiveChat(chat);
+    setLatestChannelUpdate(null);
+  };
+
   // Helper to determine if we should show bold text
   const isUnread = 0;
   let isTyping = false;
 
   return (
     <Box
-      onClick={() => setActiveChat(chat)}
+      onClick={handleSetActiveChat}
       sx={{
         display: 'flex',
         alignItems: 'center',

@@ -8,11 +8,13 @@ import { useState } from 'react';
 import { MessageCircleCode, MessageSquarePlus, ChevronLeft, AtSign, Users, Mail, ChevronRight } from 'lucide-react';
 import { ChatListSearch } from './ChatList.jsx';
 import UserSearchDrawer from './UserSearchDrawer.jsx';
+import CreateGroupDrawer from './CreateGroupDrawer.jsx';
 
 export default function AddChatSection({ chats, setShowAddChatSection }) {
 
   const [searchTerm, setSearchTerm] = useState('')
   const [openUserSearchDrawer, setOpenUserSearchDrawer] = useState(false);
+  const [oepnGroupDrawer, setOpenGroupDrawer] = useState(false);
 
   // const [filterType, setFilterType] = useState('all'); // 'all', 'unread', 'groupchat'
 
@@ -54,7 +56,7 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
         {[
           { icon: AtSign, label: "Find by Username", onClick: () => setOpenUserSearchDrawer(true) },
           { icon: Mail, label: "Find by Email", onClick: () => setOpenUserSearchDrawer(true) },
-          { icon: Users, label: "Create Group" },
+          { icon: Users, label: "Create Group", onClick: () => setOpenGroupDrawer(true) },
         ].map((opt, idx) => (
           <ListItemButton
             key={idx}
@@ -73,6 +75,7 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
       </List>
 
       <UserSearchDrawer openUserSearchDrawer={openUserSearchDrawer} setOpenUserSearchDrawer={setOpenUserSearchDrawer} />
+      <CreateGroupDrawer open={oepnGroupDrawer} onClose={() => setOpenGroupDrawer(false)} />
     </div>
   )
 }

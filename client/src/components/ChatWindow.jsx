@@ -25,22 +25,23 @@ export default function ChatWindow() {
   const [messages, setMessages] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { activeChat, setActiveChat, updateChatsOnMessage } = useChat();
+  const { activeChat, setActiveChat, updateChatsOnMessage, latestChannelUpdate } = useChat();
   const { socket } = useSocket();
   const { showSnackbar } = useSnackbar();
 
   // LISTEN FOR INCOMING MESSAGES
   useEffect(() => {
     if (!socket) return;
-    console.log("ChatWindow - Setting up socket listener for incoming messages");
+    console.log("ChatWindow - Setting up socket listener for incoming messages", activeChat);
 
     const messageHandler = (data) => {
       console.log("Socket received new message:", data);
       const { newMessage, channel } = data;
       // Only append if the message belongs to the CURRENTLY open chat
+      // console.log("Active Chat inside message handler ", activeChat);
       if (
-        activeChat &&
-        activeChat._id === channel._id
+        latestChannelUpdate &&
+        latestChannelUpdate._id === channel._id
       ) {
         setMessages((prev) => [...prev, newMessage]);
       }
@@ -61,6 +62,10 @@ export default function ChatWindow() {
   useEffect(() => {
     setError(null);
     if (!activeChat) return;
+    if(latestChannelUpdate && latestChannelUpdate._id === activeChat._id) {
+      // If the latest channel update is for the active chat, no need to refetch
+      return;
+    }
 
     const fetchMessages = async () => {
       if (!activeChat) return;
