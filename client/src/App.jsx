@@ -2,9 +2,9 @@ import Home from './components/Home'
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Contacts from './components/Contacts';
 import Settings from './components/Settings';
-import Profile from './components/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
 import { LoginPage, RegisterPage } from './components/AuthenticationPage';
+import ProfilePage from './components/ProfilePage';
 import './App.css';
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
     { path:"/" , element:<Home />, isProtected:true },
     { path:"/contacts" , element:<Contacts /> , isProtected:true },
     { path:"/settings" , element:<Settings /> , isProtected:true },
-    { path:"/profile" , element:<Profile /> , isProtected:true },
+    { path:"/profile" , element:<ProfilePage /> , isProtected:true },
     { path:"/login" , element:<LoginPage /> , isProtected:false },
     { path:"/register" , element:<RegisterPage /> , isProtected:false },
   ];
