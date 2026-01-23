@@ -15,105 +15,21 @@ import './ChatWindow.css';
 import { groupChatData } from './tempData';
 import { useChat } from '../context/Chat.jsx';
 import ErrorPage from './ErrorPage.jsx';
-import axios from 'axios';
 import { useUser } from '../context/User.jsx';
-import { useSocket } from '../context/Socket.jsx';
-import { useSnackbar } from '../context/Snackbar.jsx';
-
 
 export default function ChatWindow() {
-  const [messages, setMessages] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { activeChat, setActiveChat, updateChatsOnMessage, latestChannelUpdate } = useChat();
-  const { socket } = useSocket();
-  const { showSnackbar } = useSnackbar();
+  const { activeChat, setActiveChatId, messages: chatMessages, messagesLoading, messagesError, sendMessage } = useChat();
 
-  // LISTEN FOR INCOMING MESSAGES
-  useEffect(() => {
-    if (!socket) return;
-    console.log("ChatWindow - Setting up socket listener for incoming messages", activeChat);
-
-    const messageHandler = (data) => {
-      console.log("Socket received new message:", data);
-      const { newMessage, channel } = data;
-      // Only append if the message belongs to the CURRENTLY open chat
-      // console.log("Active Chat inside message handler ", activeChat);
-      if (
-        latestChannelUpdate &&
-        latestChannelUpdate._id === channel._id
-      ) {
-        setMessages((prev) => [...prev, newMessage]);
-      }
-      // update chat list latest message
-      updateChatsOnMessage(channel);
-    };
-
-    socket.on("receive_message", (data) => {
-      messageHandler(data);
-    });
-    return () => {
-      socket.off("receive_message", messageHandler);
-      console.log("ChatWindow - Removed socket listener for incoming messages");
-    };
-  }, [socket]);
-
-  // Initial fetch of messages and when activeChat changes
-  useEffect(() => {
-    setError(null);
-    if (!activeChat) return;
-    if(latestChannelUpdate && latestChannelUpdate._id === activeChat._id) {
-      // If the latest channel update is for the active chat, no need to refetch
-      return;
-    }
-
-    const fetchMessages = async () => {
-      if (!activeChat) return;
-
-      setIsLoading(true);
-      try {
-        const { data } = await axios.get(`/api/message/${activeChat._id}`);
-        setMessages(data);
-
-        // --- SOCKET LOGIC: JOIN ROOM ---
-        // if (socket) {
-        //   socket.emit("join_chat", activeChat._id);
-        // }
-      } catch (error) {
-        showSnackbar("Failed to load messages", "error");
-        console.error("Error fetching messages:", error);
-        setError(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMessages();
-  }, [activeChat]);
-
-  const sendMessage = async (message) => {
-    try {
-      const { data } = await axios.post("/api/message", message);
-      console.log("Message sent:", data);
-
-      // B. Emit to Socket (so others see it)
-      socket.emit("new_message", data);
-
-      const { newMessage, channel } = data;
-      setMessages((prev) => [...prev, newMessage]);
-      updateChatsOnMessage(channel);
-    } catch (error) {
-      showSnackbar("Failed to send message", "error");
-      console.error("Error sending message", error);
-    }
+  const handleSetActiveChat = () => {
+    setActiveChatId(null);
   }
 
-  if (isLoading) {
+  if (messagesLoading) {
     return <Loader message="Loading Coversation..." overlay={false} className='chat-window active' />;
   }
 
-  if (error) {
-    return <ErrorPage error={error} />;
+  if (messagesError) {
+    return <ErrorPage error={messagesError} />;
   }
 
   if (!activeChat) {
@@ -124,9 +40,9 @@ export default function ChatWindow() {
     <>
       {/* Decide between Single or Group Chat based on activeChat */}
       {activeChat && activeChat.isGroupChannel ? (
-        <GroupChatWindow activeChat={activeChat} setActiveChat={setActiveChat} />
+        <GroupChatWindow handleSetActiveChat={handleSetActiveChat} />
       ) : (
-        <SingleChatWindow isLoading={isLoading} messages={messages} sendMessage={sendMessage} />
+        <SingleChatWindow handleSetActiveChat={handleSetActiveChat} />
       )}
     </>
   )
@@ -183,35 +99,22 @@ const EmptyChatState = () => {
   );
 };
 
-export function SingleChatWindow({ isLoading, messages, sendMessage }) {
+export function SingleChatWindow({ handleSetActiveChat }) {
+  const { activeChat, messages, messagesLoading, sendMessage } = useChat();
+  const { user } = useUser();
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef(null);
   const isMobileScreen = useIsMobile();
-
-  const { activeChat, setActiveChat } = useChat();
-  const { user } = useUser();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // useEffect(() => {
-  //   if (!activeChat) return;
-  //   setIsLoading(true);
-  //   const timer = setTimeout(() => {
-  //     setIsLoading(false);
-  //     // Scroll to bottom when first time loading the chat
-  //     scrollToBottom();
-  //   }, 1000);
-
-  //   return () => clearTimeout(timer);
-  // }, [activeChat]);
-
   useEffect(() => {
-    if (!isLoading) {
+    if (!messagesLoading) {
       scrollToBottom();
     }
-  }, [isLoading, messages]);
+  }, [messagesLoading, messages]);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -236,7 +139,7 @@ export function SingleChatWindow({ isLoading, messages, sendMessage }) {
       <header className="chat-header">
         <div className="chat-header-info">
           {/* Clickable back arrow button for mobile view */}
-          <div type="button" className="back-button hidden-on-desktop" onClick={() => setActiveChat(null)}>
+          <div type="button" className="back-button hidden-on-desktop" onClick={handleSetActiveChat}>
             <ArrowLeft />
           </div>
           <img
@@ -327,7 +230,7 @@ export function SingleChatWindow({ isLoading, messages, sendMessage }) {
   );
 };
 
-export function GroupChatWindow({ activeChat, setActiveChat }) {
+export function GroupChatWindow({ handleSetActiveChat }) {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);

@@ -2,11 +2,10 @@ import { Box, Typography, Avatar } from '@mui/material';
 import { Check, CheckCheck, Paperclip } from 'lucide-react'; // Icons
 import { useChat } from '../context/Chat';
 import ErrorPage from './ErrorPage';
-import { useEffect } from 'react';
 import { formatTime } from '../utils/formatTime';
 
 export default function ChatListItems() {
-  const { chats, activeChat, setActiveChat, chatLoading, chatError } = useChat();
+  const { chats, activeChat, chatLoading, chatError } = useChat();
   // console.log("ChatListItems - chats ", chatLoading);
   // if (chats) {
   //   chats.forEach(chat => {
@@ -77,11 +76,10 @@ export default function ChatListItems() {
 
 
 export const ChatListItem = ({ chat, isActive }) => {
-  const { setActiveChat, setLatestChannelUpdate } = useChat();
-
+  const { setActiveChatId } = useChat();
+  
   const handleSetActiveChat = () => {
-    setActiveChat(chat);
-    setLatestChannelUpdate(null);
+    setActiveChatId(chat._id);
   };
 
   // Helper to determine if we should show bold text

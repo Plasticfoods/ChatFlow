@@ -13,11 +13,11 @@ createRoot(document.getElementById('root')).render(
     <SnackbarProvider>
       <ThemeProvider>
         <UserProvider>
-          <ChatProvider>
-            <SocketProvider>
+          <SocketProvider>
+            <ChatProvider>
               <App />
-            </SocketProvider>
-          </ChatProvider>
+            </ChatProvider>
+          </SocketProvider>
         </UserProvider>
       </ThemeProvider>
     </SnackbarProvider>

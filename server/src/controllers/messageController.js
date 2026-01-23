@@ -87,6 +87,7 @@ const sendMessage = async (req, res) => {
  * @access  Protected
  */
 const getMessages = async (req, res) => {
+  console.log("getMessages called for channelId:", req.params.channelId);
   try {
     const channelMessages = await Message.find({
       channel: req.params.channelId,
