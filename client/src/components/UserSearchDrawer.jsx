@@ -40,7 +40,7 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [error, setError] = useState(null);
   const { showSnackbar } = useSnackbar();
-  const { setNewUserAdded } = useChat();
+  const { setNewChatAdded } = useChat();
   const navigate = useNavigate();
 
   const handleUserSearch = async () => {
@@ -80,7 +80,7 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
       const { data } = await axios.post('/api/channel', { otherUser: user });
       setOpenUserSearchDrawer(false);
       showSnackbar(`${data.message}`, "success");
-      setNewUserAdded(true); // Trigger chat list refresh
+      setNewChatAdded(true); // Trigger chat list refresh
     } catch (err) {
       if (err.response && err.response.status >= 500) {
         // Catch 500, 502, 503, 504, etc.

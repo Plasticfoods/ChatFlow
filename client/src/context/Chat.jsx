@@ -18,24 +18,20 @@ export const ChatProvider = ({ children }) => {
     const [messages, setMessages] = useState([]);
     const [messagesLoading, setMessagesLoading] = useState(false);
     const [messagesError, setMessagesError] = useState(null);
-    const [newUserAdded, setNewUserAdded] = useState(false);
-    // State variable which will track the latest channel update received within same chat or different chat
-    // const [latestChannelUpdate, setLatestChannelUpdate] = useState(null);
+    const [newChatAdded, setNewChatAdded] = useState(false);
     const navigate = useNavigate();
-
     const { user } = useUser();
 
-    // 2. AUTOMATIC TRIGGER: Fetch when User logs in
+    // This runs immediately when 'user' becomes available (login/reload) or when a new chat is added
     useEffect(() => {
-        if (user || newUserAdded) {
-            // This runs immediately when 'user' becomes available (login/reload)
+        if (user || newChatAdded) {
             fetchChats();
         } else {
-            // Optional: Clear chats on logout
             setChats([]);
             setActiveChat(null);
+            setActiveChatId(null);
         }
-    }, [user, newUserAdded]);
+    }, [user, newChatAdded]);
 
     // Set up socket listener for incoming messages
     useEffect(() => {
@@ -43,7 +39,7 @@ export const ChatProvider = ({ children }) => {
         console.log("ChatWindow - Setting up socket listener for incoming messages", activeChatId);
 
         const messageHandler = (data) => {
-            console.log("Socket received new message:", data);
+            console.log("Socket received new message: ", activeChatId);
             const { newMessage, channel } = data;
             // Only append if the message belongs to the CURRENTLY opened chat
             if (activeChatId && channel._id === activeChatId) {
@@ -54,13 +50,20 @@ export const ChatProvider = ({ children }) => {
         };
 
         socket.on("receive_message", messageHandler);
+        
+        // CLEANUP: This is critical. It removes the old listener so a new one 
+        // with the FRESH activeChatId can be created.
+        return () => {
+            socket.off("receive_message", messageHandler);
+            console.log("ChatWindow - Removed socket listener for incoming messages");
+        }
     }, [socket, activeChatId]);
 
     // 3. Fetch Messages when Active Chat changes and set Active Chat Object
     useEffect(() => {
         if (!activeChatId || !chats) {
             setActiveChat(null);
-            setMessages([]);
+            setMessages(null);
             return;
         };
 
@@ -86,6 +89,7 @@ export const ChatProvider = ({ children }) => {
                 showSnackbar("Failed to load messages", "error");
                 console.error("Error fetching messages:", error);
                 setMessagesError(error);
+                setMessages(null);
             } finally {
                 setMessagesLoading(false);
             }
@@ -104,6 +108,7 @@ export const ChatProvider = ({ children }) => {
         try {
             const { data } = await axios.get('/api/channel');
             const processedData = filterChatUsers(data);
+            processedData.forEach(chat => console.log("Fetched chat:", chat));
             setChats(processedData);
         } catch (err) {
             if (err.response && (err.response.status == "401" || err.response.status == "403")) {
@@ -114,7 +119,7 @@ export const ChatProvider = ({ children }) => {
             }
         } finally {
             setChatLoading(false);
-            setNewUserAdded(false); // Reset the flag after fetching
+            setNewChatAdded(false); // Reset the flag after fetching
         }
     }, [user]);
 
@@ -164,8 +169,6 @@ export const ChatProvider = ({ children }) => {
                 setActiveChat,
                 chatLoading,
                 chatError,
-                newUserAdded,
-                setNewUserAdded,
 
                 activeChatId,
                 setActiveChatId,
@@ -173,7 +176,9 @@ export const ChatProvider = ({ children }) => {
                 messagesLoading,
                 messagesError,
                 updateChatListOnMessage,
-                sendMessage
+                sendMessage,
+                newChatAdded,
+                setNewChatAdded,
             }}
         >
             {children}

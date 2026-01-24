@@ -3,6 +3,7 @@ import { Check, CheckCheck, Paperclip } from 'lucide-react'; // Icons
 import { useChat } from '../context/Chat';
 import ErrorPage from './ErrorPage';
 import { formatTime } from '../utils/formatTime';
+import groupIcon from '../assets/user-icon-24.jpg';
 
 export default function ChatListItems() {
   const { chats, activeChat, chatLoading, chatError } = useChat();
@@ -77,6 +78,8 @@ export default function ChatListItems() {
 
 export const ChatListItem = ({ chat, isActive }) => {
   const { setActiveChatId } = useChat();
+  const groupAvatarURL = 'https://icon-library.com/icon/group-icon-20.html';
+  const testAvaterURL = 'https://icon-library.com/icon/user-icon-24.html';
   
   const handleSetActiveChat = () => {
     setActiveChatId(chat._id);
@@ -108,8 +111,8 @@ export const ChatListItem = ({ chat, isActive }) => {
       {/* LEFT: AVATAR & ONLINE STATUS */}
       <Box sx={{ position: 'relative', marginRight: '16px' }}>
         <Avatar
-          src={chat.users[0].avatar}
-          alt={chat.name}
+          src={chat.isGroupChannel ? chat.avatar : chat.users[0]?.avatar || testAvaterURL}
+          alt={chat.icon}
           sx={{ width: 48, height: 48, border: '1px solid var(--border-color)' }}
         />
         {/* Online Status Dot */}
@@ -141,7 +144,7 @@ export const ChatListItem = ({ chat, isActive }) => {
             marginBottom: '4px'
           }}
         >
-          {chat.users[0].name}
+          {chat.isGroupChannel ? chat.channelName : chat.users[0].name}
         </Typography>
 
         {/* Message Preview Row or Latest message */}

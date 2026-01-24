@@ -22,28 +22,28 @@ import {
   Search,
   Check
 } from 'lucide-react';
+import { useChat } from '../context/Chat';
+import axios from 'axios';
+import { useSnackbar } from '../context/Snackbar';
+import Loader from './Loader';
 
-// --- Mock Contacts Data ---
-const MOCK_CONTACTS = [
-  { id: 1, name: "Alice Freeman", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice", status: "online" },
-  { id: 2, name: "Bob Smith", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob", status: "offline" },
-  { id: 3, name: "Charlie Davis", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie", status: "online" },
-  { id: 4, name: "Diana Prince", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Diana", status: "away" },
-  { id: 5, name: "Evan Wright", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Evan", status: "online" },
-  { id: 6, name: "Fiona Gallagher", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Fiona", status: "offline" },
-];
-
-export default function CreateGroupDrawer({ open, onClose }) { 
+export default function CreateGroupDrawer({ open, onClose }) {
   const [groupName, setGroupName] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [groupImage, setGroupImage] = useState(null);
+  const { chats, setNewChatAdded } = useChat();
+  const { showSnackbar } = useSnackbar();
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   // Filter contacts based on search
-  const filteredContacts = MOCK_CONTACTS.filter(user =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredContacts = chats.filter(chat => {
+    if(chat.isGroupChannel) return false; // Exclude group chats
+    const user = chat.users[0];
+    return user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           user.username.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   // Handle user selection/deselection
   const handleToggleUser = (userId) => {
@@ -63,22 +63,45 @@ export default function CreateGroupDrawer({ open, onClose }) {
   };
 
   // Create Action
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!groupName || selectedUsers.length === 0) return;
-    
+
     // Logic to create group goes here (e.g., API call)
-    console.log("Creating group:", { groupName, selectedUsers, groupImage });
-    
-    // Reset and close
-    setGroupName('');
-    setSelectedUsers([]);
-    setGroupImage(null);
-    onClose();
+    console.log("Creating group:", { groupName, selectedUsers });
+
+    try {
+      setIsLoading(true);
+      // const { data } = await axios.post('/api/channel/group', {
+      //   name: groupName,
+      //   members: selectedUsers,
+      // });
+        const { data } = await axios.post('/api/channel/group', {
+        name: groupName,
+        users: selectedUsers,
+      });
+
+      showSnackbar("Group created successfully", "success");
+      setNewChatAdded(true); // Notify chat context to refresh chat list
+    } catch (error) {
+      showSnackbar("Failed to create group", "error");
+      console.error("Error creating group:", error);
+    } finally {
+      // Reset and close
+      setGroupName('');
+      setSelectedUsers([]);
+      setGroupImage(null);
+      onClose();
+      setIsLoading(false);
+    }
   };
+
+  if(isLoading) {
+    return <Loader overlay={true} message="Creating group..." />;
+  }
 
   return (
     <Drawer
-        className="create-group-drawer"
+      className="create-group-drawer"
       anchor="right"
       open={open}
       onClose={onClose}
@@ -119,7 +142,7 @@ export default function CreateGroupDrawer({ open, onClose }) {
 
         {/* --- Scrollable Content --- */}
         <Box sx={{ flex: 1, overflowY: 'auto', p: 3 }}>
-          
+
           {/* 1. Group Info Section */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
             {/* Image Uploader */}
@@ -147,7 +170,7 @@ export default function CreateGroupDrawer({ open, onClose }) {
                 onChange={handleImageUpload}
               />
             </Box>
-            
+
             {/* Name Input */}
             <TextField
               fullWidth
@@ -173,15 +196,18 @@ export default function CreateGroupDrawer({ open, onClose }) {
           {/* 2. Selected Members (Chips) */}
           {selectedUsers.length > 0 && (
             <Stack direction="row" spacing={1} sx={{ mb: 3, overflowX: 'auto', pb: 1 }}>
-              {selectedUsers.map(id => {
-                const user = MOCK_CONTACTS.find(u => u.id === id);
+              {selectedUsers.map(userId => {
+                const chat = chats.find(c => c.users[0]._id === userId);
+                const user = chat ? chat.users[0] : null;
+
                 if (!user) return null;
+
                 return (
                   <Chip
-                    key={id}
+                    key={userId}
                     avatar={<Avatar src={user.avatar} />}
                     label={user.name}
-                    onDelete={() => handleToggleUser(id)}
+                    onDelete={() => handleToggleUser(userId)}
                     sx={{
                       bgcolor: 'var(--bg-main)',
                       color: 'var(--text-main)',
@@ -199,7 +225,7 @@ export default function CreateGroupDrawer({ open, onClose }) {
           <Typography variant="subtitle2" sx={{ color: 'var(--text-dim)', mb: 2, fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>
             Add Members
           </Typography>
-          
+
           <TextField
             fullWidth
             placeholder="Search contacts..."
@@ -225,12 +251,13 @@ export default function CreateGroupDrawer({ open, onClose }) {
           />
 
           <List sx={{ px: 0 }}>
-            {filteredContacts.map(user => {
-               const isSelected = selectedUsers.includes(user.id);
-               return (
+            {filteredContacts.map(contact => {
+              const user = contact.users[0];
+              const isSelected = selectedUsers.includes(user._id);
+              return (
                 <ListItemButton
-                  key={user.id}
-                  onClick={() => handleToggleUser(user.id)}
+                  key={contact._id} // Use contact._id (chat ID) as key for list item
+                  onClick={() => handleToggleUser(user._id)}
                   sx={{
                     borderRadius: 'var(--radius-md)',
                     mb: 0.5,
@@ -267,8 +294,8 @@ export default function CreateGroupDrawer({ open, onClose }) {
                       fontWeight: isSelected ? 600 : 400,
                       fontSize: '0.95rem'
                     }}
-                    secondary={user.status}
-                    secondaryTypographyProps={{ color: 'var(--text-dim)', fontSize: '0.8rem' }}
+                    secondary={`@${user.username}`}
+                    secondaryTypographyProps={{ color: 'var(--text-dim)', fontSize: '.9rem' }}
                   />
                   <Checkbox
                     checked={isSelected}
@@ -281,7 +308,7 @@ export default function CreateGroupDrawer({ open, onClose }) {
                     }}
                   />
                 </ListItemButton>
-               );
+              );
             })}
           </List>
         </Box>

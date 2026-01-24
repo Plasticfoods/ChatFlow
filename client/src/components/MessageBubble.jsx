@@ -8,7 +8,7 @@ const MessageBubble = ({ text, time, isOwnMessage, isRead, username }) => {
 
   return (
     <div className={`message-bubble-container ${containerClass}`}>
-      {(username && !isOwnMessage) && <div className='message-username'>{username}</div>}
+      {(username && !isOwnMessage) && <div className='message-username'>{`@${username}`}</div>}
 
       <div className="message-bubble">
 

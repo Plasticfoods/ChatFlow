@@ -159,6 +159,7 @@ const createGroupChannel = async (req, res) => {
       users: users,
       isGroupChannel: true,
       groupAdmin: req.user,
+      
     });
 
     const fullGroupChannel = await Channel.findOne({ _id: groupChannel._id })
