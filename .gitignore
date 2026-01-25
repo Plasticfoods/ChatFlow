@@ -3,6 +3,7 @@ node_modules
 /.pnp
 .pnp.js
 design
+Temp.js
 
 # testing
 /coverage

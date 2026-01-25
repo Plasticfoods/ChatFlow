@@ -15,6 +15,7 @@ import './ChatWindow.css';
 import { useChat } from '../context/Chat.jsx';
 import ErrorPage from './ErrorPage.jsx';
 import { useUser } from '../context/User.jsx';
+import Avatar from '@mui/material/Avatar';
 
 export default function ChatWindow() {
   const { activeChat, setActiveChatId, messagesLoading, messagesError } = useChat();
@@ -114,7 +115,7 @@ export function SingleChatWindow({ handleSetActiveChat }) {
           </div>
           <img
             src={activeChat?.users[0]?.avatar || "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"}
-            alt="User"
+            alt="image"
             className="chat-header-avatar"
           />
           <div className="chat-header-text">
@@ -222,7 +223,7 @@ export function GroupChatWindow({ handleSetActiveChat }) {
           </div>
           <div className="chat-header-text">
             <h3>{activeChat?.channelName || "Group Chat"}</h3>
-            <p>{activeChat?.users?.length} members</p>
+            <p>{activeChat?.users?.length + 1} members</p>
           </div>
         </div>
 
