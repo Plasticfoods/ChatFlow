@@ -6,7 +6,9 @@ const indexRouter = require('./routes/index');
 const cors = require('cors');
 const { Server } = require("socket.io"); // 1. Import Socket.io
 const http = require("http");
-const socketHandler = require('./socket/socketHandler');  
+const socketHandler = require('./socket/socketHandler');
+const { createRouteHandler } = require("uploadthing/express");
+const { uploadRouter } = require("./config/uploadthing");  
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -27,6 +29,15 @@ app.get('/', (req, res) => {
 
 // Use the index router for all '/api' routes
 app.use('/api', indexRouter);
+app.use(
+  "/api/uploadthing",
+  createRouteHandler({
+    router: uploadRouter,
+    config: {
+      uploadthingtoken: process.env.UPLOADTHING_TOKEN, 
+    },
+  })
+);
 
 // --- SOCKET SETUP START ---
 // 4. Create standard HTTP server wrapping Express

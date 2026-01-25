@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const channelSchema = new mongoose.Schema(
   {
     channelName: { type: String, trim: true }, // For group channels; null for DM
-    avatar: { type: String, default: "https://icon-library.com/icon/icon-user-23.html" },
+    avatar: { type: String, default: null },
     isGroupChannel: { type: Boolean, default: false },
     users: [
       {

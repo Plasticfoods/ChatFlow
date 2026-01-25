@@ -9,7 +9,6 @@ router.use("/auth", authRoutes);
 router.use("/user", userRoutes);
 router.use("/channel", channelRoutes);
 router.use("/message", messageRoutes);
-// router.use("/message", messageRoutes);
 
 router.get("/", (req, res) => {
   res.send("Welcome to the API");
