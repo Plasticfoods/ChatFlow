@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: "http://localhost:5173", // The exact URL of your React App
+  origin: process.env.CLIENT_URL,
   credentials: true,               // Essential for Cookies/Sessions
   methods: ["GET", "POST", "PUT", "DELETE"],
 }));
@@ -47,7 +47,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   pingTimeout: 60000, // Wait 60s before closing connection to save bandwidth
   cors: {
-    origin: "http://localhost:5173", // Allow Frontend to connect
+    origin: process.env.CLIENT_URL, // Allow Frontend to connect
     credentials: true,
   },
 });

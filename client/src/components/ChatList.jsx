@@ -82,7 +82,7 @@ export default function ChatList({ setShowAddChatSection }) {
                     sx={tabStyle}
                 />
             </Tabs>
-            <ChatListItems />
+            <ChatListItems chats={filteredChats} />
         </div>
     )
 }

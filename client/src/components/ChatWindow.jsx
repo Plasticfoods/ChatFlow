@@ -15,13 +15,18 @@ import './ChatWindow.css';
 import { useChat } from '../context/Chat.jsx';
 import ErrorPage from './ErrorPage.jsx';
 import { useUser } from '../context/User.jsx';
-import Avatar from '@mui/material/Avatar';
+import ChatInfoDrawer from './ChatInfoDrawer.jsx';
 
 export default function ChatWindow() {
   const { activeChat, setActiveChatId, messagesLoading, messagesError } = useChat();
+  const [openChatInfo, setOpenChatInfo] = useState(false);
 
   const handleSetActiveChat = () => {
     setActiveChatId(null);
+  }
+
+  const handleOpenChatInfo = () => {
+    setOpenChatInfo(true);
   }
 
   if (messagesLoading) {
@@ -39,10 +44,11 @@ export default function ChatWindow() {
   return (
     <>
       {activeChat && activeChat.isGroupChannel ? (
-        <GroupChatWindow handleSetActiveChat={handleSetActiveChat} />
+        <GroupChatWindow handleSetActiveChat={handleSetActiveChat} handleOpenChatInfo={handleOpenChatInfo} />
       ) : (
-        <SingleChatWindow handleSetActiveChat={handleSetActiveChat} />
+        <SingleChatWindow handleSetActiveChat={handleSetActiveChat} handleOpenChatInfo={handleOpenChatInfo} />
       )}
+      <ChatInfoDrawer open={openChatInfo} onClose={() => setOpenChatInfo(false)} chat={activeChat} />
     </>
   )
 }
@@ -74,7 +80,7 @@ const EmptyChatState = () => {
   );
 };
 
-export function SingleChatWindow({ handleSetActiveChat }) {
+export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
   const { activeChat, messages, messagesLoading, sendMessage } = useChat();
   const { user } = useUser();
   const [inputValue, setInputValue] = useState('');
@@ -124,7 +130,7 @@ export function SingleChatWindow({ handleSetActiveChat }) {
           </div>
         </div>
         <div className="chat-header-actions">
-          <Info className="header-icon" size={20} />
+          <Info className="header-icon" size={20} onClick={handleOpenChatInfo} />
         </div>
       </header>
 
@@ -168,7 +174,7 @@ export function SingleChatWindow({ handleSetActiveChat }) {
   );
 };
 
-export function GroupChatWindow({ handleSetActiveChat }) {
+export function GroupChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
   const { activeChat, messages, messagesLoading, sendMessage } = useChat();
   const { user } = useUser();
   const [inputValue, setInputValue] = useState('');
@@ -228,7 +234,7 @@ export function GroupChatWindow({ handleSetActiveChat }) {
         </div>
 
         <div className="chat-header-actions">
-          <Info className="header-icon" size={20} />
+          <Info className="header-icon" size={20} onClick={handleOpenChatInfo} />
         </div>
       </header>
 

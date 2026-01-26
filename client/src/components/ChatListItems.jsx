@@ -6,8 +6,8 @@ import { formatTime } from '../utils/formatTime';
 import defaultUserAvatar from '../assets/default_user_avatar.jpg';
 import { deepOrange, deepPurple } from '@mui/material/colors';
 
-export default function ChatListItems() {
-  const { chats, activeChat, chatLoading, chatError } = useChat();
+export default function ChatListItems({ chats }) {
+  const { activeChat, chatLoading, chatError } = useChat();
   // console.log("ChatListItems - chats ", chatLoading);
   // if (chats) {
   //   chats.forEach(chat => {
