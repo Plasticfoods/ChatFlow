@@ -10,13 +10,13 @@ export default defineConfig({
       // 1. Matches any request starting with "/api"
       '/api': {
         // 2. Forwards it to the Backend Server
-        target: import.meta.env.VITE_API_URL, 
+        target: import.meta.env.VITE_API_URL || 'https://chatflow-67xw.onrender.com', 
         changeOrigin: true,
         secure: false,
       },
       // 2. Proxy Socket.io (CRITICAL STEP)
       '/socket.io': {
-        target: import.meta.env.VITE_API_URL,
+        target: import.meta.env.VITE_API_URL || 'https://chatflow-67xw.onrender.com',
         ws: true, // Enables WebSocket proxying
         changeOrigin: true,
         secure: false,
