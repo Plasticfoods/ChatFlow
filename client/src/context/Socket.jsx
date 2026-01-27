@@ -16,7 +16,12 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     // 1. If user is logged in, connect socket
     if (user) {
-      const newSocket = io();
+      const newSocket = io(ENDPOINT, {
+        withCredentials: true,
+        extraHeaders: {
+          "my-custom-header": "chatflow",
+        },
+      });
       
       // 2. Identification: Tell backend who this socket belongs to
       newSocket.emit("setup", user);
