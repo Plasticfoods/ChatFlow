@@ -7,24 +7,24 @@ import { LoginPage, RegisterPage } from './components/AuthenticationPage';
 import ProfilePage from './components/ProfilePage';
 import './App.css';
 import axios from 'axios';
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
 
-dotenv.config();
 
 function App() {
-    console.log("API URL:", process.env.VITE_API_URL);
-  
-    // Set default axios configuration
-    axios.defaults.baseURL = process.env.VITE_API_URL;
-    axios.defaults.withCredentials = true;
+  let API_URL = "https://chatflow-67xw.onrender.com";
+  //console.log("API URL:", import.meta.env.VITE_API_URL);
+
+  // Set default axios configuration
+  axios.defaults.baseURL = API_URL;
+  axios.defaults.withCredentials = true;
 
   const routes = [
-    { path:"/" , element:<Home />, isProtected:true },
-    { path:"/contacts" , element:<Contacts /> , isProtected:true },
-    { path:"/settings" , element:<Settings /> , isProtected:true },
-    { path:"/profile" , element:<ProfilePage /> , isProtected:true },
-    { path:"/login" , element:<LoginPage /> , isProtected:false },
-    { path:"/register" , element:<RegisterPage /> , isProtected:false },
+    { path: "/", element: <Home />, isProtected: true },
+    { path: "/contacts", element: <Contacts />, isProtected: true },
+    { path: "/settings", element: <Settings />, isProtected: true },
+    { path: "/profile", element: <ProfilePage />, isProtected: true },
+    { path: "/login", element: <LoginPage />, isProtected: false },
+    { path: "/register", element: <RegisterPage />, isProtected: false },
   ];
 
   return (
