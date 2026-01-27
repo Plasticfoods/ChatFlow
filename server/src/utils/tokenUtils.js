@@ -8,12 +8,26 @@ const generateToken = (userId) => {
 
 const setAuthCookie = (res, userId) => {
   const acessToken = generateToken(userId);
+  console.log(
+    "Setting Auth Cookie with Token: ",
+    acessToken,
+    " for User ID: ",
+    userId,
+  );
+
+  // res.cookie("acess_token", acessToken, {
+  //   httpOnly: true, // Prevent client-side JS from reading the cookie (XSS protection)
+  //   // sameSite: "strict", // Prevent CSRF attacks
+  //   maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days in milliseconds
+  //   withCredentials: true,
+  // });
 
   res.cookie("acess_token", acessToken, {
     httpOnly: true, // Prevent client-side JS from reading the cookie (XSS protection)
-    // sameSite: "strict", // Prevent CSRF attacks
-    maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days in milliseconds
-    withCredentials: true,
+    secure: true, // Ensures cookie is sent over HTTPS
+    sameSite: "none", // Allow cross-site cookies
+    maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
+    domain: process.env.DOMAIN,
   });
   return acessToken;
 };
