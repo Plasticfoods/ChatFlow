@@ -5,7 +5,7 @@ import { useUser } from './User';
 const SocketContext = createContext();
 
 // Define your backend URL (or use environment variable)
-const ENDPOINT = "http://localhost:7070"; 
+const ENDPOINT = "https://chatflow-67xw.onrender.com";
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
