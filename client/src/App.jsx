@@ -6,8 +6,15 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { LoginPage, RegisterPage } from './components/AuthenticationPage';
 import ProfilePage from './components/ProfilePage';
 import './App.css';
+import axios from 'axios';
 
 function App() {
+    console.log("API URL:", import.meta.env.VITE_API_URL);
+  
+    // Set default axios configuration
+    axios.defaults.baseURL = import.meta.env.VITE_API_URL;
+    axios.defaults.withCredentials = true;
+
   const routes = [
     { path:"/" , element:<Home />, isProtected:true },
     { path:"/contacts" , element:<Contacts /> , isProtected:true },
