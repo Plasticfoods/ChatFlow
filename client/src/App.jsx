@@ -7,15 +7,20 @@ import { LoginPage, RegisterPage } from './components/AuthenticationPage';
 import ProfilePage from './components/ProfilePage';
 import './App.css';
 import axios from 'axios';
-// import dotenv from 'dotenv';
 
 
 function App() {
-  let API_URL = "https://chatflow-67xw.onrender.com";
-  //console.log("API URL:", import.meta.env.VITE_API_URL);
+  console.log("Client Env Mode", import.meta.env.MODE);
+  let apiUrl;
+  if (import.meta.env.MODE === 'development') {
+    apiUrl = import.meta.env.VITE_API_URL_LOCAL;
+  } else {
+    apiUrl = import.meta.env.VITE_API_URL;
+  }
+  console.log("API URL: ", apiUrl);
 
   // Set default axios configuration
-  axios.defaults.baseURL = API_URL;
+  axios.defaults.baseURL = apiUrl;
   axios.defaults.withCredentials = true;
 
   const routes = [

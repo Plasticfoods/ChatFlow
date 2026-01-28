@@ -13,11 +13,20 @@ const { uploadRouter } = require("./config/uploadthing");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+console.log("Env Mode", process.env.NODE_ENV);
+let clientUrl;
+if (process.env.NODE_ENV === 'development') {
+  clientUrl = process.env.CLIENT_URL_LOCAL;
+} else {
+  clientUrl = process.env.CLIENT_URL;
+}
+console.log("Client URL: ", clientUrl);
+
 // Middleware to parse JSON bodies (optional but useful)
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: clientUrl,
   credentials: true,               // Essential for Cookies/Sessions
   methods: ["GET", "POST", "PUT", "DELETE"],
 }));
@@ -47,7 +56,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   pingTimeout: 60000, // Wait 60s before closing connection to save bandwidth
   cors: {
-    origin: process.env.CLIENT_URL, // Allow Frontend to connect
+    origin: clientUrl, // Allow Frontend to connect
     credentials: true,
   },
 });

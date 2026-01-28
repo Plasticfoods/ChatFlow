@@ -1,5 +1,13 @@
 const jwt = require("jsonwebtoken");
 
+let domainUrl;
+if (process.env.NODE_ENV === 'development') {
+  domainUrl = process.env.DOMAIN_LOCAL;
+} else {
+  domainUrl = process.env.DOMAIN;
+}
+console.log("Domain URL for Cookies: ", domainUrl);
+
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET_KEY, {
     expiresIn: "2d",
@@ -27,7 +35,7 @@ const setAuthCookie = (res, userId) => {
     secure: true, // Ensures cookie is sent over HTTPS
     sameSite: "none", // Allow cross-site cookies
     maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
-    domain: process.env.DOMAIN,
+    domain: domainUrl,
   });
   return acessToken;
 };
