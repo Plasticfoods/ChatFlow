@@ -16,7 +16,7 @@ import { Button } from '@mui/material';
 import './Settings.css'; // Reusing settings styles for consistency
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState('info'); // 'info' or 'qr'
+  const [activeTab, setActiveTab] = useState(''); // 'info' or 'qr'
   const { user, logout } = useUser();
 
   const menuItems = [

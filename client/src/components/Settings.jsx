@@ -105,8 +105,16 @@ export default function Settings() {
 
       default:
         return (
-          <div className="settings-detail-view tab-section fade-in hidden-on-mobile">
-            <h2 className="content-title">{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
+          <div className="settings-detail-view tab-section fade-in">
+            <header className="tab-section-header">
+              <div type="button" className="back-button hidden-on-desktop" onClick={() => setActiveTab('')}>
+                <ChevronLeft size={36} color='var(--text-main)' />
+              </div>
+              <div>
+                <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
+                <p>Manage your {activeTab} settings</p>
+              </div>
+            </header>
             <div className="settings-section">
               <p className="placeholder-text">Settings for tabs will appear here.</p>
             </div>
@@ -205,7 +213,7 @@ export function UserProfileSection({ setActiveTab }) {
     if (res && res.length > 0) {
       const fileUrl = res[0].url;
       console.log("Avatar Uploaded:", fileUrl);
-      
+
       // Update local state to show the new image immediately
       setTempUserData(prev => ({ ...prev, avatar: fileUrl }));
       setIsUploading(false);
@@ -262,7 +270,7 @@ export function UserProfileSection({ setActiveTab }) {
               alt="Profile"
               className="profile-avatar-lg"
             />
-            
+
             {/* Overlay with UploadButton */}
             <div className="avatar-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {isUploading ? (
@@ -274,14 +282,16 @@ export function UserProfileSection({ setActiveTab }) {
                   onClientUploadComplete={handleAvatarUploadComplete}
                   onUploadError={handleAvatarUploadError}
                   appearance={{
-                    button: { 
-                      background: 'transparent', 
-                      color: 'white', 
-                      padding: 0, 
-                      width: '100%', 
+                    button: {
+                      background: 'transparent',
+                      color: 'white',
+                      padding: 0,
+                      width: '100%',
                       height: '100%',
                       fontSize: '14px',
-                      fontWeight: '600'
+                      fontWeight: '600',
+                      border: 'none',
+                      cursor: 'pointer',
                     },
                     allowedContent: { display: 'none' },
                     container: { width: '100%', height: '100%' }
