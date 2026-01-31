@@ -85,6 +85,7 @@ export default function ChatInfoDrawer({ open, onClose, chat }) {
           borderLeft: '1px solid var(--border-color)'
         }
       }}
+      className='chat-info-drawer'
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         

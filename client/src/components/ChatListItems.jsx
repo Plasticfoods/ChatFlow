@@ -5,6 +5,7 @@ import ErrorPage from './ErrorPage';
 import { formatTime } from '../utils/formatTime';
 import defaultUserAvatar from '../assets/default_user_avatar.jpg';
 import { deepOrange, deepPurple } from '@mui/material/colors';
+import { useOnlineUsers } from '../context/OnlineUsers';
 
 export default function ChatListItems({ chats }) {
   const { activeChat, chatLoading, chatError } = useChat();
@@ -76,9 +77,9 @@ export default function ChatListItems({ chats }) {
   )
 }
 
-
 export const ChatListItem = ({ chat, isActive }) => {
   const { setActiveChatId } = useChat();
+  const { isUserOnline } = useOnlineUsers();
   
   const handleSetActiveChat = () => {
     setActiveChatId(chat._id);
@@ -110,7 +111,7 @@ export const ChatListItem = ({ chat, isActive }) => {
       {/* LEFT: AVATAR & ONLINE STATUS */}
       <Box sx={{ position: 'relative', marginRight: '16px' }}>
         {chat.isGroupChannel ? (
-          <Avatar sx={{ bgcolor: deepPurple[500] }}>G</Avatar>
+          <Avatar sx={{ bgcolor: deepPurple[500], width: 48, height: 48, border: '1px solid var(--border-color)' }}>G</Avatar>
         ) : (
           <Avatar
           src={chat.users[0]?.avatar || defaultUserAvatar}
@@ -119,12 +120,12 @@ export const ChatListItem = ({ chat, isActive }) => {
         />
         )}
         {/* Online Status Dot */}
-        {/* {chat.status === 'online' && (
+        {isUserOnline(chat.users[0]?._id) && !chat.isGroupChannel && (
           <Box
             sx={{
               position: 'absolute',
-              bottom: 2,
-              right: 2,
+              bottom: 0,
+              right: 0,
               width: 12,
               height: 12,
               backgroundColor: '#10B981', // Emerald Green
@@ -132,7 +133,7 @@ export const ChatListItem = ({ chat, isActive }) => {
               border: '2px solid white',
             }}
           />
-        )} */}
+        )}
       </Box>
 
       {/* MIDDLE: NAME & MESSAGE PREVIEW */}

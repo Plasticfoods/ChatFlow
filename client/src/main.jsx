@@ -7,6 +7,7 @@ import './index.css'
 import App from './App.jsx'
 import { SnackbarProvider } from './context/Snackbar.jsx';
 import { SocketProvider } from './context/Socket.jsx';
+import { OnlineUsersProvider } from './context/OnlineUsers.jsx';
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -14,9 +15,11 @@ createRoot(document.getElementById('root')).render(
       <ThemeProvider>
         <UserProvider>
           <SocketProvider>
-            <ChatProvider>
-              <App />
-            </ChatProvider>
+            <OnlineUsersProvider>
+              <ChatProvider>
+                <App />
+              </ChatProvider>
+            </OnlineUsersProvider>
           </SocketProvider>
         </UserProvider>
       </ThemeProvider>

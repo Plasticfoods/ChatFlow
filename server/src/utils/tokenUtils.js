@@ -1,12 +1,24 @@
 const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+const path = require("path");
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-let domainUrl;
-if (process.env.NODE_ENV === 'development') {
-  domainUrl = process.env.DOMAIN_LOCAL;
-} else {
-  domainUrl = process.env.DOMAIN;
-}
-console.log("Domain URL for Cookies: ", domainUrl);
+const getDomainType = () => {
+  let domainType = "";
+  if (process.env.NODE_ENV === "development") {
+    domainType = "localhost";
+  } else {
+    domainType = "chatflow-67xw.onrender.com";
+  }
+  console.log(
+    "Domain Type for Cookies: ",
+    domainType,
+    " in ",
+    process.env.NODE_ENV,
+    " mode.",
+  );
+  return domainType;
+};
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET_KEY, {
@@ -35,7 +47,7 @@ const setAuthCookie = (res, userId) => {
     secure: true, // Ensures cookie is sent over HTTPS
     sameSite: "none", // Allow cross-site cookies
     maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
-    domain: domainUrl,
+    domain: getDomainType(), // Adjust domain as needed
   });
   return acessToken;
 };
