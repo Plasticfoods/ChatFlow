@@ -10,43 +10,57 @@ import {
 } from 'lucide-react';
 import Loader from './Loader.jsx';
 import MessageBubble from './MessageBubble.jsx';
-import useIsMobile from '../hooks/mobileSreenHook.js';
+// import useIsMobile from '../hooks/mobileSreenHook.jsx';
 import './ChatWindow.css';
-import { groupChatData } from './tempData.js';
 import { useChat } from '../context/Chat.jsx';
-
-// Constants to simulate user identities
-const CURRENT_USER_ID = "me";
-const CHAT_PARTNER_ID = "Sarah Jenkins";
-
+import ErrorPage from './ErrorPage.jsx';
+import { useUser } from '../context/User.jsx';
+import ChatInfoDrawer from './ChatInfoDrawer.jsx';
 
 export default function ChatWindow() {
-  const { activeChat, setActiveChat } = useChat();
+  const { activeChat, setActiveChatId, messagesLoading, messagesError } = useChat();
+  const [openChatInfo, setOpenChatInfo] = useState(false);
+
+  const handleSetActiveChat = () => {
+    setActiveChatId(null);
+  }
+
+  const handleOpenChatInfo = () => {
+    setOpenChatInfo(true);
+  }
+
+  if (messagesLoading) {
+    return <Loader message="Loading Conversation..." overlay={false} className='chat-window active' />;
+  }
+
+  if (messagesError) {
+    return <ErrorPage error={messagesError} />;
+  }
+
+  if (!activeChat) {
+    return <EmptyChatState />;
+  }
 
   return (
     <>
-      {/* Decide between Single or Group Chat based on activeChat */}
       {activeChat && activeChat.isGroupChannel ? (
-        <GroupChatWindow activeChat={activeChat} setActiveChat={setActiveChat} />
+        <GroupChatWindow handleSetActiveChat={handleSetActiveChat} handleOpenChatInfo={handleOpenChatInfo} />
       ) : (
-        <SingleChatWindow activeChat={activeChat} setActiveChat={setActiveChat} />
+        <SingleChatWindow handleSetActiveChat={handleSetActiveChat} handleOpenChatInfo={handleOpenChatInfo} />
       )}
+      <ChatInfoDrawer open={openChatInfo} onClose={() => setOpenChatInfo(false)} chat={activeChat} />
     </>
   )
 }
 
-
 const EmptyChatState = () => {
   return (
-    <div
-      className='hidden-on-mobile empty-chat-state'
-    >
-      {/* Decorative Icon Circle */}
+    <div className='hidden-on-mobile empty-chat-state'>
       <div
         style={{
           width: '80px',
           height: '80px',
-          backgroundColor: 'var(--secondary)', // Light blue circle
+          backgroundColor: 'var(--secondary)',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
@@ -56,196 +70,89 @@ const EmptyChatState = () => {
       >
         <MessageSquare size={40} color="var(--primary)" />
       </div>
-
-      {/* Title */}
-      <h2
-        style={{
-          fontSize: '24px',
-          fontWeight: 600,
-          color: 'var(--text-main)',
-          marginBottom: '12px'
-        }}
-      >
+      <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '12px' }}>
         Welcome to ChatFlow
       </h2>
-
-      {/* Subtitle */}
-      <p
-        style={{
-          fontSize: '15px',
-          color: 'var(--text-dim)',
-          maxWidth: '300px',
-          lineHeight: '1.5'
-        }}
-      >
+      <p style={{ fontSize: '15px', color: 'var(--text-dim)', maxWidth: '300px', lineHeight: '1.5' }}>
         Select a conversation from the sidebar to start messaging, or start a new chat.
       </p>
-
-      {/* Optional: Add a stylized 'New Chat' button here if you want */}
     </div>
   );
 };
 
-export function SingleChatWindow({ activeChat, setActiveChat }) {
+export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
+  const { activeChat, messages, messagesLoading, sendMessage } = useChat();
+  const { user } = useUser();
   const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
-  const isMobileScreen = useIsMobile();
-
-  // Updated Data Structure: Only text, sender, receiver, time
-  const [messages, setMessages] = useState([
-    {
-      text: "Hi there! I was reviewing the new project proposal you sent over.",
-      sender: CHAT_PARTNER_ID,
-      receiver: CURRENT_USER_ID,
-      time: "10:30 AM"
-    },
-    {
-      text: "It looks really solid, especially the timeline section.",
-      sender: CHAT_PARTNER_ID,
-      receiver: CURRENT_USER_ID,
-      time: "10:31 AM"
-    },
-    {
-      text: "Glad you liked it! I put a lot of focus on realistic deadlines this time.",
-      sender: CURRENT_USER_ID,
-      receiver: CHAT_PARTNER_ID,
-      time: "10:32 AM"
-    },
-    {
-      text: "Also, here are the updated assets for the landing page.",
-      sender: CHAT_PARTNER_ID,
-      receiver: CURRENT_USER_ID,
-      time: "10:35 AM"
-    },
-    {
-      text: "Also, here are the updated assets for the landing page.",
-      sender: CHAT_PARTNER_ID,
-      receiver: CURRENT_USER_ID,
-      time: "10:35 AM"
-    },
-    {
-      text: "Also, here are the updated assets for the landing page.",
-      sender: CHAT_PARTNER_ID,
-      receiver: CURRENT_USER_ID,
-      time: "10:35 AM"
-    },
-    {
-      text: "Also, here are the updated assets for the landing page.",
-      sender: CHAT_PARTNER_ID,
-      receiver: CURRENT_USER_ID,
-      time: "10:35 AM"
-    },
-    {
-      text: "Also, here are the updated assets for the landing page.",
-      sender: CHAT_PARTNER_ID,
-      receiver: CURRENT_USER_ID,
-      time: "10:35 AM"
-    },
-  ]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
-    if (!activeChat) return;
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      // Scroll to bottom when first time loading the chat
-      scrollToBottom();
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [activeChat]);
-
-  useEffect(() => {
-    if (!isLoading) {
+    if (!messagesLoading) {
       scrollToBottom();
     }
-  }, [isLoading]);
+  }, [messagesLoading, messages]);
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    // Create new message strictly following the requested attributes
     const newMessage = {
-      text: inputValue,
-      sender: CURRENT_USER_ID,
-      receiver: CHAT_PARTNER_ID,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      content: inputValue,
+      image: null,
+      sender: user._id,
+      channelId: activeChat._id,
     };
 
-    scrollToBottom();
-    setMessages([...messages, newMessage]);
     setInputValue('');
+    await sendMessage(newMessage);
+    scrollToBottom();
   };
-
-  if (isLoading) {
-    return <Loader message="Loading Coversation..." overlay={false} className='chat-window active' />;
-  }
-
-  if (!activeChat) {
-    return <EmptyChatState />;
-  }
 
   return (
     <div className={`chat-window section-right ${activeChat ? 'active' : 'hidden-on-mobile'}`}>
-      {/* HEADER */}
       <header className="chat-header">
         <div className="chat-header-info">
-          {/* Clickable back arrow button for mobile view */}
-          <div type="button" className="back-button hidden-on-desktop" onClick={() => setActiveChat(null)}>
+          <div type="button" className="back-button hidden-on-desktop" onClick={handleSetActiveChat}>
             <ArrowLeft />
           </div>
           <img
-            src="https://i.pravatar.cc/150?u=1"
-            alt="Sarah"
+            src={activeChat?.users[0]?.avatar || "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"}
+            alt="image"
             className="chat-header-avatar"
           />
           <div className="chat-header-text">
-            <h3>{CHAT_PARTNER_ID}</h3>
-            <p>Online</p>
+            <h3>{activeChat?.users[0]?.name}</h3>
+            <div>@{activeChat?.users[0]?.username}</div>
           </div>
         </div>
-
         <div className="chat-header-actions">
-          <Info className="header-icon" size={20} />
+          <Info className="header-icon" size={20} onClick={handleOpenChatInfo} />
         </div>
       </header>
 
-      {/* MESSAGES LIST */}
       <div className="chat-messages">
-        <div className="date-divider">
-          <span>Today</span>
-        </div>
-
-        {messages.map((msg, index) => (
+        {messages?.length > 0 ? (messages?.map((msg, index) => (
           <MessageBubble
-            // Using index as key because 'id' was removed from the data structure
             key={index}
-            text={msg.text}
-            time={msg.time}
-            // Derive ownership by comparing sender to current user
-            isOwnMessage={msg.sender === CURRENT_USER_ID}
-          // Note: isRead is not in the data, so we omit passing it (or pass logic if needed)
+            text={msg.content}
+            time={msg.createdAt}
+            isOwnMessage={msg.sender._id === user._id}
           />
-        ))}
-
+        ))) : (
+          <div className='date-divider'>
+            <span style={{ fontSize: '.8rem' }}>No messages yet. Start the conversation!</span>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* INPUT FOOTER */}
       <footer className="chat-input-area">
         <form className="input-wrapper" onSubmit={handleSend}>
-          <Paperclip
-            className="header-icon"
-            size={20}
-            style={{ cursor: 'pointer' }}
-          />
-
+          <Paperclip className="header-icon" size={20} style={{ cursor: 'pointer' }} />
           <input
             type="text"
             className="chat-input"
@@ -253,170 +160,121 @@ export function SingleChatWindow({ activeChat, setActiveChat }) {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
           />
-
           <div className="input-actions">
-            <Smile
-              className="header-icon"
-              size={20}
-              style={{ cursor: 'pointer', marginRight: 8 }}
-            />
-
-            {inputValue.trim() ? (
-              <button type="submit" className="send-button">
-                <Send size={18} />
-              </button>
-            ) : (
-              <Mic
-                className="header-icon"
-                size={22}
-                style={{ cursor: 'pointer', marginRight: 8 }}
-              />
-            )}
+            {/* <Smile className="header-icon" size={20} style={{ cursor: 'pointer', marginRight: 8 }} /> */}
+            <button type="submit" className="send-button"><Send size={20} /></button>
+            {/* <Mic className="header-icon" size={22} style={{ cursor: 'pointer', marginRight: 8 }} /> */}
           </div>
         </form>
       </footer>
-
     </div>
   );
 };
 
-export function GroupChatWindow({ activeChat, setActiveChat }) {
+export function GroupChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
+  const { activeChat, messages, messagesLoading, sendMessage } = useChat();
+  const { user } = useUser();
   const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
-  const [messages, setMessages] = useState(groupChatData.messages);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
-    if (!activeChat) return;
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [activeChat]);
-
-    useEffect(() => {
-    if (!isLoading) {
+    if (!messagesLoading) {
       scrollToBottom();
     }
-  }, [isLoading]);
+  }, [messagesLoading, messages]);
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    // Create new message strictly following the requested attributes
     const newMessage = {
-      text: inputValue,
-      sender: CURRENT_USER_ID,
-      receiver: CHAT_PARTNER_ID,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      content: inputValue,
+      sender: user._id,
+      channelId: activeChat._id,
     };
 
-    scrollToBottom();
-    setMessages([...messages, newMessage]);
     setInputValue('');
+    await sendMessage(newMessage);
+    scrollToBottom();
   };
-
-  if (isLoading) {
-    return <Loader message="Loading Coversation..." overlay={false} className='chat-window active' />;
-  }
-
-  if (!activeChat) {
-    return <EmptyChatState />;
-  }
 
   return (
     <div className={`chat-window section-right ${activeChat ? 'active' : 'hidden-on-mobile'}`}>
       {/* HEADER */}
       <header className="chat-header">
         <div className="chat-header-info">
-          {/* Clickable back arrow button for mobile view */}
-          <div type="button" className="back-button hidden-on-desktop" onClick={() => setActiveChat(null)}>
+          <div type="button" className="back-button hidden-on-desktop" onClick={handleSetActiveChat}>
             <ArrowLeft />
           </div>
-          <img
-            src="https://i.pravatar.cc/150?u=1"
-            alt="Sarah"
+          <div
             className="chat-header-avatar"
-          />
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'var(--secondary)',
+              color: 'var(--primary)',
+              fontSize: '1.2rem',
+              fontWeight: 'bold'
+            }}
+          >
+            {activeChat?.channelName?.charAt(0).toUpperCase() || "G"}
+          </div>
           <div className="chat-header-text">
-            <h3>{activeChat?.name || "Unknown User"}</h3>
-            <p>Group</p>
+            <h3>{activeChat?.channelName || "Group Chat"}</h3>
+            <p>{activeChat?.users?.length + 1} members</p>
           </div>
         </div>
 
         <div className="chat-header-actions">
-          <Info className="header-icon" size={20} />
+          <Info className="header-icon" size={20} onClick={handleOpenChatInfo} />
         </div>
       </header>
 
       {/* MESSAGES LIST */}
       <div className="chat-messages">
-        <div className="date-divider">
-          <span>Today</span>
-        </div>
-
-        {messages.map((msg, index) => (
+        {messages?.length > 0 ? (messages.map((msg, index) => (
           <MessageBubble
-            // Using index as key because 'id' was removed from the data structure
             key={index}
-            text={msg.text}
-            time={msg.time}
-            // Derive ownership by comparing sender to current user
-            isOwnMessage={msg.sender === CURRENT_USER_ID}
-            // Note: isRead is not in the data, so we omit passing it (or pass logic if needed)
-            username={msg.sender}
+            text={msg.content}
+            time={msg.createdAt}
+            isOwnMessage={msg.sender._id === user._id}
+            username={msg.sender.username}
           />
-        ))}
-
+        ))) : (
+          <div className='date-divider'>
+            <span style={{ fontSize: '.8rem' }}>No messages yet. Start the conversation!</span>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
       {/* INPUT FOOTER */}
       <footer className="chat-input-area">
         <form className="input-wrapper" onSubmit={handleSend}>
-          <Paperclip
-            className="header-icon"
-            size={20}
-            style={{ cursor: 'pointer' }}
-          />
-
+          <Paperclip className="header-icon" size={20} style={{ cursor: 'pointer' }} />
           <input
-            type="text"
+            type="textfield"
             className="chat-input"
             placeholder="Type a message..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
           />
-
           <div className="input-actions">
-            <Smile
-              className="header-icon"
-              size={20}
-              style={{ cursor: 'pointer', marginRight: 8 }}
-            />
-
+            {/* <Smile className="header-icon" size={20} style={{ cursor: 'pointer', marginRight: 8 }} />
             {inputValue.trim() ? (
-              <button type="submit" className="send-button">
-                <Send size={18} />
-              </button>
+              <button type="submit" className="send-button"><Send size={18} /></button>
             ) : (
-              <Mic
-                className="header-icon"
-                size={22}
-                style={{ cursor: 'pointer', marginRight: 8 }}
-              />
-            )}
+              <Mic className="header-icon" size={22} style={{ cursor: 'pointer', marginRight: 8 }} />
+            )} */}
+            <button type="submit" className="send-button"><Send size={20} /></button>
           </div>
         </form>
       </footer>
-
     </div>
   );
 };

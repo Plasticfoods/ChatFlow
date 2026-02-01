@@ -2,20 +2,25 @@ import { useState, useEffect, useRef } from 'react';
 import {
   Info,
   Smile,
-  Paperclip,
   Mic,
   Send,
   ArrowLeft,
-  MessageSquare
+  MessageSquare,
+  Paperclip,
+  X,
+  FileText
 } from 'lucide-react';
 import Loader from './Loader.jsx';
 import MessageBubble from './MessageBubble.jsx';
-// import useIsMobile from '../hooks/mobileSreenHook.jsx';
 import './ChatWindow.css';
 import { useChat } from '../context/Chat.jsx';
 import ErrorPage from './ErrorPage.jsx';
 import { useUser } from '../context/User.jsx';
 import ChatInfoDrawer from './ChatInfoDrawer.jsx';
+import { useSnackbar } from '../context/Snackbar.jsx';
+// Import UploadThing Button
+import { UploadButton } from "../utils/uploadthing";
+import "@uploadthing/react/styles.css";
 
 export default function ChatWindow() {
   const { activeChat, setActiveChatId, messagesLoading, messagesError } = useChat();
@@ -44,7 +49,7 @@ export default function ChatWindow() {
   return (
     <>
       {activeChat && activeChat.isGroupChannel ? (
-        <GroupChatWindow handleSetActiveChat={handleSetActiveChat} handleOpenChatInfo={handleOpenChatInfo} />
+        <SingleChatWindow handleSetActiveChat={handleSetActiveChat} handleOpenChatInfo={handleOpenChatInfo} />
       ) : (
         <SingleChatWindow handleSetActiveChat={handleSetActiveChat} handleOpenChatInfo={handleOpenChatInfo} />
       )}
@@ -81,10 +86,14 @@ const EmptyChatState = () => {
 };
 
 export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
-  const { activeChat, messages, messagesLoading, sendMessage } = useChat();
+  const { activeChat, messages, messagesLoading, sendMessage, activeChatId } = useChat();
   const { user } = useUser();
   const [inputValue, setInputValue] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [attachment, setAttachment] = useState(null); // URL of uploaded file
+  const [attachmentType, setAttachmentType] = useState(null); // 'image' or 'pdf'
   const messagesEndRef = useRef(null);
+  const { showSnackbar } = useSnackbar();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -97,19 +106,41 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
   }, [messagesLoading, messages]);
 
   const handleSend = async (e) => {
-    e.preventDefault();
-    if (!inputValue.trim()) return;
+    e?.preventDefault();
+    if (!inputValue.trim() && !attachment) return;
 
     const newMessage = {
       content: inputValue,
-      image: null,
+      attachment: attachment,
+      attachmentType: attachmentType,
       sender: user._id,
-      channelId: activeChat._id,
+      channelId: activeChatId,
     };
 
     setInputValue('');
+    setAttachment(null); // Clear preview
+    setAttachmentType(null);
     await sendMessage(newMessage);
     scrollToBottom();
+  };
+
+  // Handle File Upload Completion
+  const handleUploadComplete = async (res) => {
+    if (res && res.length > 0) {
+      const fileUrl = res[0].url;
+      const fileName = res[0].name || fileUrl;
+      const isImage = fileName.match(/\.(jpeg|jpg|gif|png|webp)$/i) != null;
+      
+      setAttachment(fileUrl);
+      setAttachmentType(isImage ? 'image' : 'file');
+      setInputValue("Sent an attachment");
+      setIsUploading(false);
+    }
+  };
+
+  const handleUploadError = (error) => {
+    showSnackbar(`Error uploading file: ${error.message}`, 'error');
+    setIsUploading(false);
   };
 
   return (
@@ -139,8 +170,12 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
           <MessageBubble
             key={index}
             text={msg.content}
+            attachment={msg.attachment} // Pass the attachment prop
             time={msg.createdAt}
             isOwnMessage={msg.sender._id === user._id}
+            username={msg.sender.username}
+            isGroupChat={activeChat.isGroupChannel}
+            attachmentType={msg.attachmentType}
           />
         ))) : (
           <div className='date-divider'>
@@ -151,33 +186,88 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
       </div>
 
       <footer className="chat-input-area">
-        <form className="input-wrapper" onSubmit={handleSend}>
-          <Paperclip className="header-icon" size={20} style={{ cursor: 'pointer' }} />
-          <input
-            type="text"
-            className="chat-input"
-            placeholder="Type a message..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-          />
-          <div className="input-actions">
-            <Smile className="header-icon" size={20} style={{ cursor: 'pointer', marginRight: 8 }} />
-            {inputValue.trim() ? (
-              <button type="submit" className="send-button"><Send size={18} /></button>
-            ) : (
-              <Mic className="header-icon" size={22} style={{ cursor: 'pointer', marginRight: 8 }} />
-            )}
+        {/* PREVIEW SECTION */}
+        {attachment && (
+          <div className="attachment-preview-container">
+            <div className="preview-box">
+              {attachmentType === 'image' ? (
+                <img src={attachment} alt="preview" className="preview-image" />
+              ) : (
+                <div className="preview-file">
+                  <FileText size={24} />
+                  <span>Document attached</span>
+                </div>
+              )}
+              <button 
+                className="remove-attachment-btn"
+                onClick={() => { setAttachment(null); setAttachmentType(null); }}
+              >
+                <X size={14} />
+              </button>
+            </div>
           </div>
-        </form>
+        )}
+
+        <div className="input-wrapper">
+          
+          {/* Upload Button Integration */}
+          <div style={{ display: 'flex', alignItems: 'center', marginRight: '8px' }}>
+             {isUploading ? (
+                <span style={{ fontSize: '15px', color: 'var(--text-muted)', fontWeight: 600 }}>Uploading...</span>
+             ) : (
+                <UploadButton
+                  endpoint="chatAttachment"
+                  onUploadBegin={() => setIsUploading(true)}
+                  onClientUploadComplete={handleUploadComplete}
+                  onUploadError={handleUploadError}
+                  appearance={{
+                    button: {
+                      background: 'transparent',
+                      color: 'var(--text-muted)',
+                      padding: 0,
+                      width: 'auto',
+                      height: 'auto',
+                      fontSize: '0', // Hide text
+                    },
+                    allowedContent: { display: 'none' } // Hide "Images up to 4MB"
+                  }}
+                  content={{
+                    button: <Paperclip className="header-icon" size={20} style={{ cursor: 'pointer' }} />
+                  }}
+                />
+             )}
+             {/* Attachment preview after attachment is selected */}
+             {/* {attachment && (
+                <div className="attachment-preview">
+                  <img src={attachment} alt="attachment preview" className="attachment-preview-image" />
+                </div>
+             )} */}
+          </div>
+
+          <form style={{ display: 'flex', flex: 1, alignItems: 'center' }} onSubmit={handleSend}>
+            <input
+              type="text"
+              className="chat-input"
+              placeholder="Type a message..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
+            <div className="input-actions">
+              <button type="submit" className="send-button"><Send size={20} /></button>
+            </div>
+          </form>
+        </div>
       </footer>
     </div>
   );
 };
 
 export function GroupChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
+  // Use global context messages instead of local state
   const { activeChat, messages, messagesLoading, sendMessage } = useChat();
   const { user } = useUser();
   const [inputValue, setInputValue] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -205,21 +295,39 @@ export function GroupChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
     scrollToBottom();
   };
 
+  const handleUploadComplete = async (res) => {
+    if (res && res.length > 0) {
+      const fileUrl = res[0].url;
+      const newMessage = {
+        content: "Sent an attachment",
+        image: fileUrl,
+        sender: user._id,
+        channelId: activeChat._id,
+      };
+      await sendMessage(newMessage);
+      setIsUploading(false);
+      scrollToBottom();
+    }
+  };
+
+  const handleUploadError = (error) => {
+    setIsUploading(false);
+  };
+
   return (
     <div className={`chat-window section-right ${activeChat ? 'active' : 'hidden-on-mobile'}`}>
-      {/* HEADER */}
       <header className="chat-header">
         <div className="chat-header-info">
           <div type="button" className="back-button hidden-on-desktop" onClick={handleSetActiveChat}>
             <ArrowLeft />
           </div>
-          <div 
-            className="chat-header-avatar" 
+          <div
+            className="chat-header-avatar"
             style={{
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              backgroundColor: 'var(--secondary)', 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'var(--secondary)',
               color: 'var(--primary)',
               fontSize: '1.2rem',
               fontWeight: 'bold'
@@ -238,12 +346,12 @@ export function GroupChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
         </div>
       </header>
 
-      {/* MESSAGES LIST */}
       <div className="chat-messages">
         {messages?.length > 0 ? (messages.map((msg, index) => (
           <MessageBubble
             key={index}
             text={msg.content}
+            attachment={msg.attachment} // Pass image prop
             time={msg.createdAt}
             isOwnMessage={msg.sender._id === user._id}
             username={msg.sender.username}
@@ -256,26 +364,42 @@ export function GroupChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* INPUT FOOTER */}
       <footer className="chat-input-area">
-        <form className="input-wrapper" onSubmit={handleSend}>
-          <Paperclip className="header-icon" size={20} style={{ cursor: 'pointer' }} />
-          <input
-            type="text"
-            className="chat-input"
-            placeholder="Type a message..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-          />
-          <div className="input-actions">
-            <Smile className="header-icon" size={20} style={{ cursor: 'pointer', marginRight: 8 }} />
-            {inputValue.trim() ? (
-              <button type="submit" className="send-button"><Send size={18} /></button>
-            ) : (
-              <Mic className="header-icon" size={22} style={{ cursor: 'pointer', marginRight: 8 }} />
-            )}
+        <div className="input-wrapper">
+           {/* Upload Button for Group Chat */}
+           <div style={{ display: 'flex', alignItems: 'center', marginRight: '10px' }}>
+             {isUploading ? (
+                <span style={{ fontSize: '10px', color: 'var(--primary)' }}>Uploading...</span>
+             ) : (
+                <UploadButton
+                  endpoint="chatAttachment"
+                  onUploadBegin={() => setIsUploading(true)}
+                  onClientUploadComplete={handleUploadComplete}
+                  onUploadError={handleUploadError}
+                  appearance={{
+                    button: { background: 'transparent', color: 'var(--text-muted)', padding: 0, width: 'auto', height: 'auto', fontSize: '0' },
+                    allowedContent: { display: 'none' }
+                  }}
+                  content={{
+                    button: <Paperclip className="header-icon" size={20} style={{ cursor: 'pointer' }} />
+                  }}
+                />
+             )}
           </div>
-        </form>
+
+          <form style={{ display: 'flex', flex: 1, alignItems: 'center' }} onSubmit={handleSend}>
+            <input
+              type="text"
+              className="chat-input"
+              placeholder="Type a message..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
+            <div className="input-actions">
+              <button type="submit" className="send-button"><Send size={20} /></button>
+            </div>
+          </form>
+        </div>
       </footer>
     </div>
   );

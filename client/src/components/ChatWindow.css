@@ -109,10 +109,12 @@
    3. INPUT AREA (Footer)
    ============================ */
 .chat-input-area {
-  padding: 16px 24px;
-  background-color: var(--bg-surface); /* White */
+  /* padding: 16px 24px; */
+  /* flex-shrink: 0; */
+  padding: 12px 16px;
+  background-color: var(--bg-surface);
   border-top: 1px solid var(--border-color);
-  flex-shrink: 0; /* Never shrink */
+  position: relative; /* Needed for preview positioning */
 }
 
 .input-wrapper {
@@ -171,4 +173,68 @@
 
 .send-button:active {
   transform: scale(0.95);
+}
+
+/* Attachment Preview */
+.attachment-preview-container {
+  position: absolute;
+  bottom: 100%; /* Sit exactly on top of the input area */
+  left: 0;
+  width: 100%;
+  padding: 10px 16px;
+  background-color: var(--bg-surface); /* Match input background or slightly different */
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  z-index: 5;
+}
+
+.preview-box {
+  position: relative;
+  background: var(--bg-main);
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-image {
+  max-height: 80px;
+  max-width: 100px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.preview-file {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 80px;
+  font-size: 0.75rem;
+  color: var(--text-main);
+  text-align: center;
+}
+
+.remove-attachment-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--text-muted); /* Or a danger color */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.remove-attachment-btn:hover {
+  background: #ef4444; /* Red on hover */
 }

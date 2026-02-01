@@ -10,7 +10,7 @@ const Channel = require("../models/channel.model");
 const sendMessage = async (req, res) => {
   console.log("sendMessage called with body:", req.body);
   try {
-    const { content, image, channelId } = req.body;
+    const { content, attachment, attachmentType, channelId } = req.body;
 
     if (!channelId) {
       console.log("Invalid data passed into request, channelId missing");
@@ -22,7 +22,8 @@ const sendMessage = async (req, res) => {
       newMessage = await Message.create({
         sender: req.user._id,
         content: content,
-        image: image,
+        attachment: attachment,
+        attachmentType: attachmentType,
         channel: channelId,
       });
 

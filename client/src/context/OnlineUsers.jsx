@@ -31,7 +31,6 @@ export const OnlineUsersProvider = ({ children }) => {
 
   // Helper function to check specific user
   const isUserOnline = (userId) => {
-    console.log("Checking online status for userId:", userId, "Online users:", onlineUserIds);
     return onlineUserIds.has(userId);
   };
 
