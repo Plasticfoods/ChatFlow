@@ -89,7 +89,7 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
   }
 
   const handleQRScanSuccess = async (decodedText, decodedResult) => {
-    setShowQRScanner(false);
+    //setShowQRScanner(false);
     const data = JSON.parse(decodedText);
     if (data.action === 'add_user' && data.user) {
       handleAddUser(data.user);
