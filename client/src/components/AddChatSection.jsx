@@ -155,6 +155,7 @@ const QRScanner = ({ onScanSuccess, onClose }) => {
 
     scanner.render(onScanSuccess, (error) => {
       // Internal library errors (usually just "QR not found in frame")
+      onClose(); // Close scanner on any error to avoid trapping user
       console.warn("QR Scan Error:", error);
       showSnackbar("Failed to scan QR code", "error");
     });
