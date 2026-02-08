@@ -15,7 +15,7 @@ const MessageBubble = ({ text, attachment, time, isOwnMessage, username, isGroup
         {attachment && (
           attachmentType != 'file' ? (<div className="message-attachment">
             <a href={attachment} target="_blank" rel="noopener noreferrer" className="file-attachment-link">
-              <img src={attachment} alt="Attachment" />
+              <img src={attachment} alt="image" />
             </a>
           </div>) : (
             <div className="file-preview-box">

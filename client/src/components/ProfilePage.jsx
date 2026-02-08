@@ -14,6 +14,8 @@ import { useUser } from '../context/User.jsx';
 import Menu from './Menu.jsx';
 import { Button } from '@mui/material';
 import './Settings.css'; // Reusing settings styles for consistency
+import { QRCodeSVG } from 'qrcode.react'; 
+
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState(''); // 'info' or 'qr'
@@ -39,19 +41,19 @@ export default function ProfilePage() {
 
       <div className="settings-section">
         {/* Unified Card Container - Simplified */}
-        <div style={{ 
+        <div style={{
           backgroundColor: 'var(--bg-surface)',
           borderRadius: 'var(--radius-lg)',
-        //   border: '1px solid var(--border-color)',
+          //   border: '1px solid var(--border-color)',
           overflow: 'hidden',
           padding: '2rem'
         }}>
-          
+
           {/* Combined Header & Status */}
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             textAlign: 'center',
             marginBottom: '2rem'
           }}>
@@ -83,9 +85,9 @@ export default function ProfilePage() {
               {user?.name || "User Name"}
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1rem' }}>@{user?.username || "username"}</p>
-            
+
             {/* Status Pill */}
-            <div style={{ 
+            <div style={{
               padding: '0.5rem 1rem',
               backgroundColor: 'var(--bg-main)',
               borderRadius: '999px',
@@ -101,17 +103,17 @@ export default function ProfilePage() {
           {/* Details Section - Merged directly below */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {/* Email Item */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              padding: '0.75rem', 
-              borderRadius: 'var(--radius-md)', 
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0.75rem',
+              borderRadius: 'var(--radius-md)',
               border: '1px solid var(--border-color)'
             }}>
-              <div style={{ 
-                padding: '0.5rem', 
-                borderRadius: '50%', 
-                backgroundColor: 'var(--bg-main)', 
+              <div style={{
+                padding: '0.5rem',
+                borderRadius: '50%',
+                backgroundColor: 'var(--bg-main)',
                 marginRight: '1rem',
                 display: 'flex',
                 alignItems: 'center',
@@ -128,17 +130,17 @@ export default function ProfilePage() {
             </div>
 
             {/* Role Item */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              padding: '0.75rem', 
-              borderRadius: 'var(--radius-md)', 
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0.75rem',
+              borderRadius: 'var(--radius-md)',
               border: '1px solid var(--border-color)'
             }}>
-              <div style={{ 
-                padding: '0.5rem', 
-                borderRadius: '50%', 
-                backgroundColor: 'var(--bg-main)', 
+              <div style={{
+                padding: '0.5rem',
+                borderRadius: '50%',
+                backgroundColor: 'var(--bg-main)',
                 marginRight: '1rem',
                 display: 'flex',
                 alignItems: 'center',
@@ -162,15 +164,16 @@ export default function ProfilePage() {
 
   // --- SUB-COMPONENT: QR CODE ---
   const QRCodeSection = () => {
+    const { user } = useUser();
     const [copied, setCopied] = useState(false);
     // Using a reliable public API to generate QR code without installing extra libraries
-    const qrValue = user?._id || "user-id-placeholder";
-    const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${qrValue}&bgcolor=ffffff`;
+    // const qrValue = `${window.location.origin}/add/${user?._id}`;
+    const qrValue = JSON.stringify({ action: 'add_user', userId: user._id });
 
     const handleCopyId = () => {
       navigator.clipboard.writeText(qrValue);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), 3000); // Reset after 2 seconds
     };
 
     return (
@@ -190,10 +193,16 @@ export default function ProfilePage() {
             padding: '2rem',
             backgroundColor: 'white', // QR codes usually scan best on white
             borderRadius: '1rem',
-            marginBottom: '2rem',
+            marginBottom: '1rem',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
           }}>
-            <img src={qrImage} alt="User QR Code" style={{ width: '250px', height: '250px', display: 'block' }} />
+            {/* <img src={qrImage} alt="User QR Code" style={{ width: '250px', height: '250px', display: 'block' }} /> */}
+            <QRCodeSVG 
+              value={qrValue} 
+              size={250} 
+              style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+              level="H" // High error correction level
+            />
           </div>
 
           <div className="section-header" style={{ textAlign: 'center' }}>
@@ -201,19 +210,18 @@ export default function ProfilePage() {
             <p>Scan the code above or copy your ID below</p>
           </div>
 
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
             gap: '0.5rem',
             backgroundColor: 'var(--bg-surface)',
             padding: '0.5rem 1rem',
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--border-color)',
-            marginTop: '1rem'
           }}>
-            <code style={{ fontSize: '0.9rem', color: 'var(--primary-color)' }}>{qrValue}</code>
+            <code style={{ fontSize: '0.9rem', color: 'var(--primary-color)' }}>{`@${user?.username || 'user'}`}</code>
             <div onClick={handleCopyId} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', marginLeft: '0.5rem' }}>
-              {copied ? <Check size={18} color="var(--success-color)" /> : <Copy size={18} color="var(--text-secondary)" />}
+              {copied ? <Check size={20} /> : <Copy size={20} />}
             </div>
           </div>
         </div>
@@ -221,8 +229,9 @@ export default function ProfilePage() {
     );
   };
 
-  // --- RENDER CONTENT SECTIONS ---
-  const renderContent = () => {
+  // The RenderContent Word is Capital for a reason
+  // It looks like you are calling a function like renderContent() inside your component, and that function is trying to render the QR code. In React, if a function starts with a lowercase letter and you call it like a regular function (e.g., {renderContent()}), React doesn't treat it as a component, which messes up the "Hook" context that qrcode.react needs.
+  const RenderContent = () => {
     switch (activeTab) {
       case 'info':
         return <ProfileInfo />;
@@ -235,7 +244,7 @@ export default function ProfilePage() {
 
   return (
     <div className="settings page-layout"> {/* Reuse 'settings' class for consistent styling */}
-      
+
       {/* 1. MENU (Far Left Navigation) */}
       <Menu />
 
@@ -244,7 +253,7 @@ export default function ProfilePage() {
         <div className="sidebar-header" style={{ marginBottom: '1rem' }}>
           <h2>My Profile</h2>
         </div>
-        
+
         <div className="sidebar-menu">
           {menuItems.map((item) => (
             <div
@@ -261,17 +270,17 @@ export default function ProfilePage() {
 
         {/* LOGOUT BUTTON AT THE BOTTOM OF SIDEBAR */}
         <div style={{ padding: '1rem', marginTop: 'auto', borderTop: '1px solid var(--border-color)' }}>
-          <Button 
-            color="error" 
-            variant="outlined" 
-            onClick={logout} 
+          <Button
+            color="error"
+            variant="outlined"
+            onClick={logout}
             fullWidth
-            style={{ 
-              textTransform: 'none', 
+            style={{
+              textTransform: 'none',
               fontWeight: '600',
               justifyContent: 'flex-start',
               padding: '0.75rem'
-            }} 
+            }}
           >
             <LogOut size={20} style={{ marginRight: '0.75rem' }} />
             Logout
@@ -281,7 +290,7 @@ export default function ProfilePage() {
 
       {/* 3. SECTION (Content Area) */}
       <div className={`settings-content section-right ${activeTab ? 'active' : 'hidden-on-mobile'}`}>
-        {renderContent()}
+        <RenderContent />
       </div>
     </div>
   );
