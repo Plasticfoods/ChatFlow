@@ -168,7 +168,7 @@ export default function ProfilePage() {
     const [copied, setCopied] = useState(false);
     // Using a reliable public API to generate QR code without installing extra libraries
     // const qrValue = `${window.location.origin}/add/${user?._id}`;
-    const qrValue = JSON.stringify({ action: 'add_user', userId: user._id });
+    const qrValue = JSON.stringify({ action: 'add_user', user : user });
 
     const handleCopyId = () => {
       navigator.clipboard.writeText(qrValue);

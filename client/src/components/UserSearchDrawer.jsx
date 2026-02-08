@@ -73,7 +73,6 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
   };
 
   const handleAddUser = async (user) => {
-    console.log("Adding user:", user);
     setError(null);
     setIsAddingUser(true);
     try {

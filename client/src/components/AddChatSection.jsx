@@ -11,6 +11,11 @@ import UserSearchDrawer from './UserSearchDrawer.jsx';
 import CreateGroupDrawer from './CreateGroupDrawer.jsx';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { useEffect } from 'react';
+import { useSnackbar } from '../context/Snackbar.jsx';
+import axios from 'axios';
+import ErrorPage from './ErrorPage.jsx';
+import { useChat } from '../context/Chat.jsx';
+import Loader from './Loader.jsx';
 
 export default function AddChatSection({ chats, setShowAddChatSection }) {
 
@@ -18,6 +23,18 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
   const [openUserSearchDrawer, setOpenUserSearchDrawer] = useState(false);
   const [oepnGroupDrawer, setOpenGroupDrawer] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const { showSnackbar } = useSnackbar();
+  const [error, setError] = useState(null);
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const { setNewChatAdded } = useChat();
+
+  if (error) {
+    return <ErrorPage error={error} />;
+  }
+
+  if(isAddingUser) {
+    return <Loader message="Adding user to contacts..." />;
+  }
 
   // const [filterType, setFilterType] = useState('all'); // 'all', 'unread', 'groupchat'
 
@@ -42,19 +59,43 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
   //     return matchesSearch;
   // });
 
-  const handleQRScanSuccess = (decodedText, decodedResult) => {
+  const handleAddUser = async (otherUser) => {
+    setError(null);
+    setIsAddingUser(true);
     try {
-      const data = JSON.parse(decodedText);
-      if (data.action === 'add_user' && data.userId) {
-        // Here you would typically make an API call to add the user as a contact or start a chat
-        console.log("Scanned User ID:", data.userId);
-        alert(`Scanned User ID: ${data.userId}`);
-        setShowQRScanner(false);
-      } else {
-        alert("Invalid QR code format");
+      const { data } = await axios.post('/api/channel', { otherUser });
+      setOpenUserSearchDrawer(false);
+      showSnackbar(`${data.message}`, "success");
+      setNewChatAdded(true); // Trigger chat list refresh
+    } catch (err) {
+      if (err.response && err.response.status >= 500) {
+        // Catch 500, 502, 503, 504, etc.
+        setError(err);
+        return;
       }
-    } catch (error) {
-      console.error("Error processing QR code data:", error);
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate('/login');
+        showSnackbar("Session expired. Please log in again.", "info");
+        return;
+      }
+      if (err.response && err.status != "404") {
+        showSnackbar(err.response.statusText, "info");
+      } else {
+        setError(err);
+      }
+    } finally {
+      setIsAddingUser(false);
+    }
+  }
+
+  const handleQRScanSuccess = async (decodedText, decodedResult) => {
+    setShowQRScanner(false);
+    const data = JSON.parse(decodedText);
+    if (data.action === 'add_user' && data.user) {
+      handleAddUser(data.user);
+    } else {
+      console.warn("Invalid QR code data:", data);
+      showSnackbar("Something Went Wrong", "info");
     }
   }
 
@@ -102,6 +143,8 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
 }
 
 const QRScanner = ({ onScanSuccess, onClose }) => {
+  const { showSnackbar } = useSnackbar();
+
   useEffect(() => {
     // Note: 'reader' matches the ID in the HTML below
     const scanner = new Html5QrcodeScanner("reader", {
@@ -113,6 +156,7 @@ const QRScanner = ({ onScanSuccess, onClose }) => {
     scanner.render(onScanSuccess, (error) => {
       // Internal library errors (usually just "QR not found in frame")
       console.warn("QR Scan Error:", error);
+      showSnackbar("Failed to scan QR code", "error");
     });
 
     return () => {
@@ -124,7 +168,7 @@ const QRScanner = ({ onScanSuccess, onClose }) => {
     <div className="scanner-overlay">
       <div className="text-center mb-4">
         <h2 className="text-xl font-bold">Scan QR Code</h2>
-        <p className="text-sm opacity-80">Align the code inside the box</p>
+        <p className="text-sm opacity-80">Align the QR code inside the scanning box</p>
       </div>
 
       {/* This is where the camera feed injects */}
