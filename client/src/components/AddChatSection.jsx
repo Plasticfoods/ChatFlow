@@ -90,6 +90,7 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
 
   const handleQRScanSuccess = async (decodedText, decodedResult) => {
     //setShowQRScanner(false);
+    console.log("QR Code Scanned:", decodedText);
     const data = JSON.parse(decodedText);
     if (data.action === 'add_user' && data.user) {
       handleAddUser(data.user);
@@ -155,7 +156,6 @@ const QRScanner = ({ onScanSuccess, onClose }) => {
 
     scanner.render(onScanSuccess, (error) => {
       // Internal library errors (usually just "QR not found in frame")
-      onClose(); // Close scanner on any error to avoid trapping user
       console.warn("QR Scan Error:", error);
       showSnackbar("Failed to scan QR code", "error");
     });
@@ -163,7 +163,7 @@ const QRScanner = ({ onScanSuccess, onClose }) => {
     return () => {
       scanner.clear().catch(err => console.error("Failed to clear scanner", err));
     };
-  }, [onScanSuccess]);
+  }, []);
 
   return (
     <div className="scanner-overlay">
