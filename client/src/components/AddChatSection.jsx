@@ -33,7 +33,7 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
   }
 
   if (isAddingUser) {
-    return <Loader message="Adding user to contacts..." />;
+    return <Loader message="Adding user to contacts..." overlay={true} />;
   }
 
   // const [filterType, setFilterType] = useState('all'); // 'all', 'unread', 'groupchat'
@@ -88,7 +88,7 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
   }
 
   const handleQRScanSuccess = async (decodedText, decodedResult) => {
-    //setShowQRScanner(false);
+    setShowQRScanner(false);
     console.log("QR Code Scanned:", decodedText);
     const data = JSON.parse(decodedText);
     if (data.action === 'add_user' && data.user) {
@@ -163,6 +163,7 @@ const QRScanner = ({ onScanSuccess, onClose }) => {
       // Only show snackbar for actual hardware failures
       console.error("Critical Scanner Error:", error);
       showSnackbar("Camera access denied or unavailable. Please ensure you have a camera and have granted permission.", "error");
+      onClose();
     });
 
     return () => {
