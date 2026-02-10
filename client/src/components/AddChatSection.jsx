@@ -64,7 +64,6 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
     setIsAddingUser(true);
     try {
       const { data } = await axios.post('/api/channel', { otherUser });
-      setOpenUserSearchDrawer(false);
       showSnackbar(`${data.message}`, "success");
       setNewChatAdded(true); // Trigger chat list refresh
     } catch (err) {
