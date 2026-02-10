@@ -32,7 +32,7 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
     return <ErrorPage error={error} />;
   }
 
-  if(isAddingUser) {
+  if (isAddingUser) {
     return <Loader message="Adding user to contacts..." />;
   }
 
@@ -155,9 +155,15 @@ const QRScanner = ({ onScanSuccess, onClose }) => {
     });
 
     scanner.render(onScanSuccess, (error) => {
-      // Internal library errors (usually just "QR not found in frame")
-      console.warn("QR Scan Error:", error);
-      showSnackbar("Failed to scan QR code", "error");
+      //In this library, the error callback inside .render() doesn't mean the camera failed; it means "it looked at the current frame, but it didn't see a QR code yet."
+      // Optional: Log only if it's NOT a 'NotFound' error
+      if (error?.includes("NotFoundException")) {
+        return; // Ignore these, they are normal
+      }
+
+      // Only show snackbar for actual hardware failures
+      console.error("Critical Scanner Error:", error);
+      showSnackbar("Camera access denied or unavailable. Please ensure you have a camera and have granted permission.", "error");
     });
 
     return () => {

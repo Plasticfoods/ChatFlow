@@ -108,7 +108,6 @@ export const ChatProvider = ({ children }) => {
         try {
             const { data } = await axios.get('/api/channel');
             const processedData = filterChatUsers(data);
-            processedData.forEach(chat => console.log("Fetched chat:", chat));
             setChats(processedData);
         } catch (err) {
             if (err.response && (err.response.status == "401" || err.response.status == "403")) {
