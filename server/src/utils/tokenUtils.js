@@ -53,9 +53,12 @@ const setAuthCookie = (res, userId) => {
 };
 
 const clearAuthCookie = (res) => {
-  res.cookie("acess_token", "", {
+  res.clearCookie("acess_token", {
+    path: "/",
     httpOnly: true,
-    expires: new Date(0), // Set expiration to the past to immediately delete it
+    expires: new Date(0), // Force expiration to the start of time
+    secure: true, // Set to true if using HTTPS/Production
+    sameSite: "None", // Match your original config
   });
 };
 
