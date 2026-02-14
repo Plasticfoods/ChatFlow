@@ -16,7 +16,7 @@ const ChatItemSkeleton = () => (
       variant="circular"
       width={48}
       height={48}
-      sx={{ mr: 2, flexShrink: 0, bgcolor: 'rgba(0, 0, 0, 0.08)' }} // Slightly visible grey
+      sx={{ mr: 2, flexShrink: 0, bgcolor: 'var(--secondary)' }} // Slightly visible grey
     />
 
     <Box sx={{ flexGrow: 1, minWidth: 0 }}>
@@ -26,14 +26,14 @@ const ChatItemSkeleton = () => (
             variant="text" 
             width="60%" 
             height={20} 
-            sx={{ bgcolor: 'rgba(0, 0, 0, 0.08)' }} 
+            sx={{ bgcolor: 'var(--border-color)' }} 
         />
         {/* Time Skeleton */}
         <Skeleton 
             variant="text" 
             width={40} 
             height={16} 
-            sx={{ bgcolor: 'rgba(0, 0, 0, 0.04)' }} 
+            sx={{ bgcolor: 'var(--border-color)' }} 
         />
       </Box>
       
@@ -42,7 +42,7 @@ const ChatItemSkeleton = () => (
         variant="text" 
         width="85%" 
         height={16} 
-        sx={{ bgcolor: 'rgba(0, 0, 0, 0.04)' }} 
+        sx={{ bgcolor: 'var(--border-color)' }} 
       />
     </Box>
   </Box>

@@ -155,4 +155,21 @@ export const themes = [
       '--radius-full': '999px',
     },
   },
+  {
+    label: 'Rose',
+    colors: {
+      '--primary': '#E11D48',       // Rose Red
+      '--primary-hover': '#BE123C', // Darker Rose
+      '--secondary': '#FFE4E6',     // Pale Pink
+      '--bg-main': '#FFF1F2',       // Very light rose background
+      '--bg-surface': '#FFFFFF',    // White
+      '--border-color': '#FECDD3',  // Soft Pink Border
+      '--text-main': '#881337',     // Dark Red/Maroon
+      '--text-dim': '#9F1239',      // Muted Red
+      '--text-muted': '#FDA4AF',
+      '--text-inverse': '#FFFFFF',
+      '--radius-md': '12px',
+      '--radius-full': '999px',
+    },
+  },
 ];

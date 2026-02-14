@@ -35,7 +35,7 @@ export default function ChatInfoDrawer({ open, onClose, chat }) {
   const { user: currentUser } = useUser();
   const { showSnackbar } = useSnackbar();
   // Using this as a refresh chat list after deletion.
-  const { newChatsAdded } = useChat();
+  const { setNewChatAdded } = useChat();
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
@@ -76,7 +76,7 @@ export default function ChatInfoDrawer({ open, onClose, chat }) {
       const { data } = await axios.delete(`/api/channel/${chat._id}`);
       showSnackbar("Chat deleted successfully", "success");
       onClose(); // Close the drawer after successful deletion
-      newChatsAdded(); // Trigger refresh of chat list in parent component
+      setNewChatAdded(true); // Trigger refresh of chat list in parent component
     } catch (error) {
       if(error.response && (error.response.status === 403 || error.response.status === 401)) {
         navigate('/login');
@@ -85,6 +85,7 @@ export default function ChatInfoDrawer({ open, onClose, chat }) {
       }
       setError(error.message);
       showSnackbar("Failed to delete chat", "error");
+      console.log("Error deleting chat:", error);
     } finally {
       setLoading(false);
     }
