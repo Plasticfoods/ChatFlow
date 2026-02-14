@@ -36,7 +36,7 @@ export default function ChatWindow() {
   }
 
   if (messagesLoading) {
-    return <Loader message='fetching messages...' />;
+    return <Loader message='fetching messages...' overlay={false} className='section-right active' />;
   }
 
   if (messagesError) {
