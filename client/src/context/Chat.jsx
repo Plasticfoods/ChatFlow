@@ -124,6 +124,8 @@ export const ChatProvider = ({ children }) => {
 
     // Remove the current user from the 'users' array in the response
     const filterChatUsers = (list) => {
+        // First, filter out deleted chats for now
+        list = list.filter(chat => chat.isDeleted === false);
         return list.map(chat => {
             chat.users = chat.users.filter(c => c._id.toString() !== user._id.toString());
             return chat;

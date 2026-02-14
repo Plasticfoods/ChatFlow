@@ -14,7 +14,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
+  padding: .8rem;
   background-color: var(--bg-surface); /* White */
   border-bottom: 1px solid var(--border-color);
   height: 72px; /* Fixed height for consistency */

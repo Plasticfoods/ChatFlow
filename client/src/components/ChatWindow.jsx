@@ -131,7 +131,7 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
       const fileUrl = res[0].url;
       const fileName = res[0].name || fileUrl;
       const isImage = fileName.match(/\.(jpeg|jpg|gif|png|webp)$/i) != null;
-      
+
       setAttachment(fileUrl);
       setAttachmentType(isImage ? 'image' : 'file');
       setInputValue("Sent an attachment");
@@ -156,10 +156,17 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
             alt="image"
             className="chat-header-avatar"
           />
-          <div className="chat-header-text">
-            <h3>{activeChat?.users[0]?.name}</h3>
-            <div>@{activeChat?.users[0]?.username}</div>
-          </div>
+          {activeChat.isGroupChannel ? (
+            <div className="chat-header-text">
+              <h3>{activeChat?.channelName || "Group Chat"}</h3>
+              <p>{activeChat?.users?.length + 1} members</p>
+            </div>
+          ) : (
+            <div className="chat-header-text">
+              <h3>{activeChat?.users[0]?.name}</h3>
+              <div>@{activeChat?.users[0]?.username}</div>
+            </div>
+          )}
         </div>
         <div className="chat-header-actions">
           <Info className="header-icon" size={20} onClick={handleOpenChatInfo} />
@@ -199,7 +206,7 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
                   <span>Document attached</span>
                 </div>
               )}
-              <button 
+              <button
                 className="remove-attachment-btn"
                 onClick={() => { setAttachment(null); setAttachmentType(null); }}
               >
@@ -210,35 +217,35 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
         )}
 
         <div className="input-wrapper">
-          
+
           {/* Upload Button Integration */}
           <div style={{ display: 'flex', alignItems: 'center', marginRight: '8px' }}>
-             {isUploading ? (
-                <span style={{ fontSize: '15px', color: 'var(--text-muted)', fontWeight: 600 }}>Uploading...</span>
-             ) : (
-                <UploadButton
-                  endpoint="chatAttachment"
-                  onUploadBegin={() => setIsUploading(true)}
-                  onClientUploadComplete={handleUploadComplete}
-                  onUploadError={handleUploadError}
-                  appearance={{
-                    button: {
-                      background: 'transparent',
-                      color: 'var(--text-muted)',
-                      padding: 0,
-                      width: 'auto',
-                      height: 'auto',
-                      fontSize: '0', // Hide text
-                    },
-                    allowedContent: { display: 'none' } // Hide "Images up to 4MB"
-                  }}
-                  content={{
-                    button: <Paperclip className="header-icon" size={20} style={{ cursor: 'pointer' }} />
-                  }}
-                />
-             )}
-             {/* Attachment preview after attachment is selected */}
-             {/* {attachment && (
+            {isUploading ? (
+              <span style={{ fontSize: '15px', color: 'var(--text-muted)', fontWeight: 600 }}>Uploading...</span>
+            ) : (
+              <UploadButton
+                endpoint="chatAttachment"
+                onUploadBegin={() => setIsUploading(true)}
+                onClientUploadComplete={handleUploadComplete}
+                onUploadError={handleUploadError}
+                appearance={{
+                  button: {
+                    background: 'transparent',
+                    color: 'var(--text-muted)',
+                    padding: 0,
+                    width: 'auto',
+                    height: 'auto',
+                    fontSize: '0', // Hide text
+                  },
+                  allowedContent: { display: 'none' } // Hide "Images up to 4MB"
+                }}
+                content={{
+                  button: <Paperclip className="header-icon" size={20} style={{ cursor: 'pointer' }} />
+                }}
+              />
+            )}
+            {/* Attachment preview after attachment is selected */}
+            {/* {attachment && (
                 <div className="attachment-preview">
                   <img src={attachment} alt="attachment preview" className="attachment-preview-image" />
                 </div>
@@ -367,25 +374,25 @@ export function GroupChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
 
       <footer className="chat-input-area">
         <div className="input-wrapper">
-           {/* Upload Button for Group Chat */}
-           <div style={{ display: 'flex', alignItems: 'center', marginRight: '10px' }}>
-             {isUploading ? (
-                <span style={{ fontSize: '10px', color: 'var(--primary)' }}>Uploading...</span>
-             ) : (
-                <UploadButton
-                  endpoint="chatAttachment"
-                  onUploadBegin={() => setIsUploading(true)}
-                  onClientUploadComplete={handleUploadComplete}
-                  onUploadError={handleUploadError}
-                  appearance={{
-                    button: { background: 'transparent', color: 'var(--text-muted)', padding: 0, width: 'auto', height: 'auto', fontSize: '0' },
-                    allowedContent: { display: 'none' }
-                  }}
-                  content={{
-                    button: <Paperclip className="header-icon" size={20} style={{ cursor: 'pointer' }} />
-                  }}
-                />
-             )}
+          {/* Upload Button for Group Chat */}
+          <div style={{ display: 'flex', alignItems: 'center', marginRight: '10px' }}>
+            {isUploading ? (
+              <span style={{ fontSize: '10px', color: 'var(--primary)' }}>Uploading...</span>
+            ) : (
+              <UploadButton
+                endpoint="chatAttachment"
+                onUploadBegin={() => setIsUploading(true)}
+                onClientUploadComplete={handleUploadComplete}
+                onUploadError={handleUploadError}
+                appearance={{
+                  button: { background: 'transparent', color: 'var(--text-muted)', padding: 0, width: 'auto', height: 'auto', fontSize: '0' },
+                  allowedContent: { display: 'none' }
+                }}
+                content={{
+                  button: <Paperclip className="header-icon" size={20} style={{ cursor: 'pointer' }} />
+                }}
+              />
+            )}
           </div>
 
           <form style={{ display: 'flex', flex: 1, alignItems: 'center' }} onSubmit={handleSend}>

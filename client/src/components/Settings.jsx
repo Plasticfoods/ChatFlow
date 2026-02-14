@@ -32,11 +32,12 @@ export default function Settings() {
     { label: 'Forest', color: '#10B981', bg: '#ECFDF5' },
     { label: 'Midnight', color: '#C084FC', bg: '#000000' },
     { label: 'Sunset Orange', color: '#F97316', bg: '#FFEDD5' },
+    { label: 'Rose', color: '#E11D48', bg: '#FFE4E6' },
   ];
 
   const menuItems = [
     { id: 'account', icon: <User size={20} />, label: 'Account' },
-    { id: 'privacy & Security', icon: <Lock size={20} />, label: 'Privacy' },
+    { id: 'privacy & security', icon: <Lock size={20} />, label: 'Privacy' },
     { id: 'appearance', icon: <Palette size={20} />, label: 'Appearance' },
     { id: 'notifications', icon: <Bell size={20} />, label: 'Notifications' },
     { id: 'help', icon: <HelpCircle size={20} />, label: 'Help' },

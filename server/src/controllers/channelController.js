@@ -100,7 +100,6 @@ const fetchChannels = async (req, res) => {
 
     let results = await Channel.find({
       users: { $elemMatch: { $eq: req.user._id } },
-      isDeleted: false
     })
       .populate("users", "-password")
       .populate("groupAdmin", "-password")
@@ -188,7 +187,7 @@ const deleteChannel = async (req, res) => {
     // remove the user from the channel's users list
     const updatedChannel = await Channel.findByIdAndUpdate(
       channelId,
-      { $pull: { users: req.user._id }, $addToSet: { deletedBy: req.user._id }, isDeleted: true },
+      { $addToSet: { deletedBy: req.user._id }, isDeleted: true },
       { new: true }
     );
     console.log("Updated channel after deletion: ", updatedChannel);
