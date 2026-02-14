@@ -6,6 +6,7 @@ import { formatTime } from '../utils/formatTime';
 import defaultUserAvatar from '../assets/default_user_avatar.jpg';
 import { deepOrange, deepPurple } from '@mui/material/colors';
 import { useOnlineUsers } from '../context/OnlineUsers';
+import { SkeletonChatLoader } from './SkeletonLoader';
 
 export default function ChatListItems({ chats }) {
   const { activeChat, chatLoading, chatError } = useChat();
@@ -18,20 +19,24 @@ export default function ChatListItems({ chats }) {
   //   console.log("Chat is null");
   // }
 
+  // if (chatLoading) {
+  //   return (
+  //     <div className="chat-list-items" style={{
+  //       flex: 1,
+  //       overflowY: 'auto',
+  //       display: 'flex',
+  //       justifyContent: 'center',
+  //       alignItems: 'center',
+  //     }}>
+  //       <Typography variant="body1" sx={{ color: 'var(--text-dim)', marginTop: '3rem' }}>
+  //         Loading chats...
+  //       </Typography>
+  //     </div>
+  //   )
+  // }
+
   if (chatLoading) {
-    return (
-      <div className="chat-list-items" style={{
-        flex: 1,
-        overflowY: 'auto',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-        <Typography variant="body1" sx={{ color: 'var(--text-dim)', marginTop: '3rem' }}>
-          Loading chats...
-        </Typography>
-      </div>
-    )
+    return <SkeletonChatLoader />
   }
 
   if (chatError) {

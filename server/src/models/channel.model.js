@@ -20,6 +20,13 @@ const channelSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    isDeleted: { type: Boolean, default: false },
+    deletedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ]
   },
   { timestamps: true } // Manages createdAt and updatedAt automatically
 );

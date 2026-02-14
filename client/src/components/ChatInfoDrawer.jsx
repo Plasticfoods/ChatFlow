@@ -25,9 +25,20 @@ import {
   Mail
 } from 'lucide-react';
 import { useUser } from '../context/User'; 
+import axios from 'axios';
+import { useSnackbar } from '../context/Snackbar';
+import Loader from './Loader';
+import { useNavigate } from 'react-router-dom';
+import { useChat } from '../context/Chat';
 
 export default function ChatInfoDrawer({ open, onClose, chat }) {
   const { user: currentUser } = useUser();
+  const { showSnackbar } = useSnackbar();
+  // Using this as a refresh chat list after deletion.
+  const { newChatsAdded } = useChat();
+  const navigate = useNavigate();
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
   if (!chat) return null;
 
@@ -57,20 +68,39 @@ export default function ChatInfoDrawer({ open, onClose, chat }) {
   const isAdmin = isGroup && chat.groupAdmin?._id === currentUser?._id;
 
   // --- Handlers ---
-  const handleDeleteChat = () => {
-    console.log("Deleting chat:", chat._id);
-    // Add API call logic here
+  const handleDeleteChat = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data } = await axios.delete(`/api/channel/${chat._id}`);
+      showSnackbar("Chat deleted successfully", "success");
+      onClose(); // Close the drawer after successful deletion
+      newChatsAdded(); // Trigger refresh of chat list in parent component
+    } catch (error) {
+      if(error.response && (error.response.status === 403 || error.response.status === 401)) {
+        navigate('/login');
+        showSnackbar("Session expired. Please log in again.", "error");
+        return;
+      }
+      setError(error.message);
+      showSnackbar("Failed to delete chat", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleExitGroup = () => {
-    console.log("Exiting group:", chat._id);
     // Add API call logic here
   };
 
   const handleDeleteGroup = () => {
-    console.log("Deleting group (Admin action):", chat._id);
     // Add API call logic here
   };
+
+  if(loading) {
+    return <Loader overlay={true} message="Deleting chat..." />;
+  }
 
   return (
     <Drawer

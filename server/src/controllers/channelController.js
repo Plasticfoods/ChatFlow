@@ -95,8 +95,12 @@ const accessChannel = async (req, res) => {
  */
 const fetchChannels = async (req, res) => {
   try {
+    // check if the isDeleted flag is present in the channel.
+    console.log(await Channel.find({ users: { $elemMatch: { $eq: req.user._id } } }));
+
     let results = await Channel.find({
       users: { $elemMatch: { $eq: req.user._id } },
+      isDeleted: false
     })
       .populate("users", "-password")
       .populate("groupAdmin", "-password")
@@ -181,17 +185,15 @@ const createGroupChannel = async (req, res) => {
 const deleteChannel = async (req, res) => {
   try {
     const { channelId } = req.params;
-    const deletedChannel = await Channel.findByIdAndDelete(channelId);
-    console.log("Deleted channel:", deletedChannel);
-
-    // Delete associated messages here as well
-    const deletedMessages = await Message.deleteMany({ channel: channelId });
-    console.log(
-      "Deleted messages associated with channel:",
-      deletedMessages.length
+    // remove the user from the channel's users list
+    const updatedChannel = await Channel.findByIdAndUpdate(
+      channelId,
+      { $pull: { users: req.user._id }, $addToSet: { deletedBy: req.user._id }, isDeleted: true },
+      { new: true }
     );
+    console.log("Updated channel after deletion: ", updatedChannel);
 
-    res.status(200).json({ message: "Channel deleted successfully" });
+    res.status(200).json({ message: "Channel deleted successfully", channel: updatedChannel });
   } catch (error) {
     console.error("Error deleting channel:", error);
     res.status(500).json({ message: "Failed to delete channel" });

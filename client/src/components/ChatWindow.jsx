@@ -21,6 +21,7 @@ import { useSnackbar } from '../context/Snackbar.jsx';
 // Import UploadThing Button
 import { UploadButton } from "../utils/uploadthing";
 import "@uploadthing/react/styles.css";
+import { ChatWindowSkeleton } from './SkeletonLoader.jsx';
 
 export default function ChatWindow() {
   const { activeChat, setActiveChatId, messagesLoading, messagesError } = useChat();
@@ -35,7 +36,7 @@ export default function ChatWindow() {
   }
 
   if (messagesLoading) {
-    return <Loader message="Loading Conversation..." overlay={false} className='chat-window active' />;
+    return <Loader message='fetching messages...' />;
   }
 
   if (messagesError) {
