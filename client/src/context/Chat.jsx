@@ -147,6 +147,10 @@ export const ChatProvider = ({ children }) => {
 
     const sendMessage = async (message) => {
         try {
+            // Changes for sending message
+            message.sender = user;
+            setMessages((prev) => [...prev, message]);
+
             const { data } = await axios.post("/api/message", message);
             console.log("Message sent:", data);
 
@@ -154,7 +158,7 @@ export const ChatProvider = ({ children }) => {
             socket.emit("new_message", data);
 
             const { newMessage, channel } = data;
-            setMessages((prev) => [...prev, newMessage]);
+            //setMessages((prev) => [...prev, newMessage]);
             updateChatListOnMessage(channel);
         } catch (error) {
             showSnackbar("Failed to send message", "error");

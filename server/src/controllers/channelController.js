@@ -142,8 +142,9 @@ const createGroupChannel = async (req, res) => {
   }
 
   // Assuming 'users' is sent as a JSON array of IDs from the frontend
-  var users = req.body.users;
-
+  const users = req.body.users;
+  // Add current user to the group list
+  users.push(req.user);
   // Note: If you send stringified JSON from frontend, use JSON.parse(req.body.users)
   // For now, assuming Axios sends a real array.
 
@@ -152,9 +153,6 @@ const createGroupChannel = async (req, res) => {
       .status(400)
       .send("More than 2 users are required to form a group chat");
   }
-
-  // Add current user to the group list
-  users.push(req.user);
 
   try {
     const groupChannel = await Channel.create({
