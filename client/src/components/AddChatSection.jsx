@@ -154,15 +154,22 @@ const QRScanner = ({ onScanSuccess, onClose }) => {
     });
 
     scanner.render(onScanSuccess, (error) => {
-      //In this library, the error callback inside .render() doesn't mean the camera failed; it means "it looked at the current frame, but it didn't see a QR code yet."
-      // Optional: Log only if it's NOT a 'NotFound' error
-      if (error?.includes("NotFoundException")) {
-        return; // Ignore these, they are normal
+      // 1. Identify "harmless" errors. 
+      // These occur 15 times a second when the camera is just looking at a face or a wall.
+      const isNoQRCodeFound =
+        error?.includes("NotFoundException") ||
+        error?.includes("No MultiFormat Readers") ||
+        error?.includes("index out of bounds");
+
+      if (isNoQRCodeFound) {
+        return; // Do absolutely nothing. Just keep scanning the next frame.
       }
 
-      // Only show snackbar for actual hardware failures
+      // 2. Identify "Critical" errors (Camera blocked, disconnected, etc.)
       console.error("Critical Scanner Error:", error);
-      showSnackbar("Camera access denied or unavailable. Please ensure you have a camera and have granted permission.", "error");
+
+      // We only show the snackbar if it's NOT one of the common frame errors
+      showSnackbar("Camera issue detected. Please check permissions.", "error");
       onClose();
     });
 
