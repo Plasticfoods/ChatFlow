@@ -171,7 +171,7 @@ export default function ProfilePage() {
     const qrValue = JSON.stringify({ action: 'add_user', user : user });
 
     const handleCopyId = () => {
-      navigator.clipboard.writeText(qrValue);
+      navigator.clipboard.writeText(user.username);
       setCopied(true);
       setTimeout(() => setCopied(false), 3000); // Reset after 2 seconds
     };

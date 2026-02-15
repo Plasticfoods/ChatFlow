@@ -170,7 +170,7 @@ const QRScanner = ({ onScanSuccess, onClose }) => {
 
       // We only show the snackbar if it's NOT one of the common frame errors
       showSnackbar("Camera issue detected. Please check permissions.", "error");
-      onClose();
+      //onClose();
     });
 
     return () => {
