@@ -154,23 +154,7 @@ const QRScanner = ({ onScanSuccess, onClose }) => {
     });
 
     scanner.render(onScanSuccess, (error) => {
-      // 1. Identify "harmless" errors. 
-      // These occur 15 times a second when the camera is just looking at a face or a wall.
-      const isNoQRCodeFound =
-        error?.includes("NotFoundException") ||
-        error?.includes("No MultiFormat Readers") ||
-        error?.includes("index out of bounds");
-
-      if (isNoQRCodeFound) {
-        return; // Do absolutely nothing. Just keep scanning the next frame.
-      }
-
-      // 2. Identify "Critical" errors (Camera blocked, disconnected, etc.)
-      console.error("Critical Scanner Error:", error);
-
-      // We only show the snackbar if it's NOT one of the common frame errors
-      showSnackbar("Camera issue detected. Please check permissions.", "error");
-      //onClose();
+      // No need to log error here.
     });
 
     return () => {
