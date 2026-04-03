@@ -2,7 +2,7 @@ import { Check, CheckCheck } from 'lucide-react'; // Import icons
 import './MessageBubble.css'; // Import the styles
 import { formatTime } from "../utils/formatTime.js";
 
-const MessageBubble = ({ text, attachment, time, isOwnMessage, username, isGroupChat, attachmentType }) => {
+const MessageBubble = ({ text, attachment, time, isOwnMessage, username, isGroupChat, attachmentType, isDelivered }) => {
   const containerClass = isOwnMessage ? 'sent' : 'received';
 
   return (
@@ -32,20 +32,20 @@ const MessageBubble = ({ text, attachment, time, isOwnMessage, username, isGroup
         {/* The Main Message Text */}
         {text && <div className="message-text">{text}</div>}
 
-        {/* Timestamp */}
+        {/* Timestamp & Delivery Status */}
         <div className="message-meta">
           <span className="timestamp">{formatTime(time)}</span>
 
-          {/* Only show read receipts on MY messages */}
-          {/* {isOwnMessage && (
-            <span className="read-receipt">
-              {isRead ? (
-                <CheckCheck size={14} /> 
+          {/* Delivery tick — only on own messages */}
+          {isOwnMessage && (
+            <span className={`read-receipt ${isDelivered ? 'delivered' : 'pending'}`}>
+              {isDelivered ? (
+                <CheckCheck size={14} />
               ) : (
-                <Check size={14} color="var(--text-dim)" />
+                <Check size={14} />
               )}
             </span>
-          )} */}
+          )}
         </div>
 
       </div>

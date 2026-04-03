@@ -19,6 +19,7 @@ export const SocketProvider = ({ children }) => {
   const { user } = useUser();
 
   useEffect(() => {
+    console.log("Endpoint for socket connection: ", ENDPOINT);
     // 1. If user is logged in, connect socket
     if (user) {
       const newSocket = io(ENDPOINT, {

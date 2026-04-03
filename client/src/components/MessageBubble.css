@@ -6,51 +6,61 @@
 .message-bubble-container {
   display: flex;
   flex-direction: column;
-  margin-bottom: 12px; /* Space between messages */
+  margin-bottom: 12px;
+  /* Space between messages */
   width: 100%;
   /* max-width: 70%; */
 }
 
 .message-username {
   font-size: 13px;
-  color: var(--text-dim, #6B7280); /* Gray color */
+  color: var(--text-dim, #6B7280);
+  /* Gray color */
   font-weight: 600;
   margin-bottom: 3px;
   padding-left: 10px;
 }
 
 .message-bubble {
-  max-width: 70%; /* Don't let bubbles get too wide */
-  padding: 12px 16px; /* Comfortable spacing inside */
-  border-radius: var(--radius-md, 12px); /* Rounded corners */
+  max-width: 70%;
+  /* Don't let bubbles get too wide */
+  padding: 12px 16px;
+  /* Comfortable spacing inside */
+  border-radius: var(--radius-md, 12px);
+  /* Rounded corners */
   position: relative;
-  word-wrap: break-word; /* Ensures long text wraps */
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Subtle depth */
+  word-wrap: break-word;
+  /* Ensures long text wraps */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  /* Subtle depth */
   font-size: 15px;
   line-height: 1.5;
 }
 
 .message-text {
-  word-break: break-word; /* Break long words/URLs */
+  word-break: break-word;
+  /* Break long words/URLs */
 }
 
 /* STYLES FOR "MY" MESSAGES (Sent) */
 .message-bubble-container.sent {
-  align-items: flex-end; /* Pushes bubble to the RIGHT */
+  align-items: flex-end;
+  /* Pushes bubble to the RIGHT */
 }
 
 .message-bubble-container.sent .message-bubble {
   /* Soft Blue Background */
-  background-color: var(--secondary, #E3F2FF); 
+  background-color: var(--secondary, #E3F2FF);
   /* Dark Text */
   color: var(--text-main, #1C1F26);
   /* Rounded corners, but slightly less sharp on the bottom right */
-  border-bottom-right-radius: 4px; 
+  border-bottom-right-radius: 4px;
 }
 
 /* STYLES FOR "THEIR" MESSAGES (Received) */
 .message-bubble-container.received {
-  align-items: flex-start; /* Pushes bubble to the LEFT */
+  align-items: flex-start;
+  /* Pushes bubble to the LEFT */
 }
 
 .message-bubble-container.received .message-bubble {
@@ -66,24 +76,36 @@
 .message-meta {
   display: flex;
   align-items: center;
-  justify-content: flex-end; /* Pushes time to the right end of bubble */
-  gap: 4px; /* Space between time and checkmarks */
+  justify-content: flex-end;
+  /* Pushes time to the right end of bubble */
+  gap: 4px;
+  /* Space between time and checkmarks */
   margin-top: 4px;
 }
 
 .timestamp {
   font-size: 11px;
-  color: var(--text-dim, #6B7280); /* Gray color */
+  color: var(--text-dim, #6B7280);
+  /* Gray color */
 }
 
-/* The Read Receipt Icon */
+/* The Read Receipt / Delivery Status Icon */
 .read-receipt {
   display: flex;
   align-items: center;
-  color: var(--primary, #2F80ED); /* Blue color for "Read" status */
+  transition: color 0.3s ease;
 }
-.read-receipt.unread {
-  color: var(--text-dim, #6B7280); /* Gray color for "Unread" status */
+
+/* Pending — single gray check (message sent but not confirmed) */
+.read-receipt.pending {
+  color: var(--text-dim, #6B7280);
+}
+
+/* Delivered — double green check (server confirmed save & delivery) */
+.read-receipt.delivered {
+  /* color: #10B981;  */
+  /* Emerald Green — matches ChatList online status dot */
+  color: var(--text-primary);
 }
 
 .file-attachment-link {
@@ -97,7 +119,8 @@
   align-items: center;
   gap: 12px;
   padding: 10px;
-  background-color: rgba(0, 0, 0, 0.05); /* Slight tint overlay */
+  background-color: rgba(0, 0, 0, 0.05);
+  /* Slight tint overlay */
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   transition: background-color 0.2s;

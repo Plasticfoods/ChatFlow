@@ -22,6 +22,7 @@ import { useSnackbar } from '../context/Snackbar.jsx';
 import { UploadButton } from "../utils/uploadthing";
 import "@uploadthing/react/styles.css";
 import { ChatWindowSkeleton } from './SkeletonLoader.jsx';
+import { useOnlineUsers } from '../context/OnlineUsers.jsx';
 
 export default function ChatWindow() {
   const { activeChat, setActiveChatId, messagesLoading, messagesError } = useChat();
@@ -89,6 +90,7 @@ const EmptyChatState = () => {
 export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
   const { activeChat, messages, messagesLoading, sendMessage, activeChatId } = useChat();
   const { user } = useUser();
+  const { isUserOnline } = useOnlineUsers();
   const [inputValue, setInputValue] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [attachment, setAttachment] = useState(null); // URL of uploaded file
@@ -114,7 +116,7 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
       content: inputValue,
       attachment: attachment,
       attachmentType: attachmentType,
-      sender: user._id,
+      sender: user,
       channelId: activeChatId,
     };
 
@@ -151,11 +153,16 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
           <div type="button" className="back-button hidden-on-desktop" onClick={handleSetActiveChat}>
             <ArrowLeft />
           </div>
-          <img
-            src={activeChat?.users[0]?.avatar || "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"}
-            alt="image"
-            className="chat-header-avatar"
-          />
+          <div className="chat-header-avatar-wrapper">
+            <img
+              src={activeChat?.users[0]?.avatar || "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"}
+              alt="image"
+              className="chat-header-avatar"
+            />
+            {!activeChat.isGroupChannel && isUserOnline(activeChat?.users[0]?._id) && (
+              <span className="header-online-dot"></span>
+            )}
+          </div>
           {activeChat.isGroupChannel ? (
             <div className="chat-header-text">
               <h3>{activeChat?.channelName || "Group Chat"}</h3>
@@ -176,7 +183,7 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
       <div className="chat-messages">
         {messages?.length > 0 ? (messages?.map((msg, index) => (
           <MessageBubble
-            key={index}
+            key={msg._id || index}
             text={msg.content}
             attachment={msg.attachment} // Pass the attachment prop
             time={msg.createdAt}
@@ -184,6 +191,7 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
             username={msg.sender.username}
             isGroupChat={activeChat.isGroupChannel}
             attachmentType={msg.attachmentType}
+            isDelivered={!!msg._id}
           />
         ))) : (
           <div className='date-divider'>

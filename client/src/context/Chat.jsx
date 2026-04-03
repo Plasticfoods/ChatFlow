@@ -49,8 +49,10 @@ export const ChatProvider = ({ children }) => {
             updateChatListOnMessage(channel);
         };
 
+        // Register the handler directly (not via anonymous wrapper)
+        // so that socket.off can correctly remove it during cleanup.
         socket.on("receive_message", messageHandler);
-        
+
         // CLEANUP: This is critical. It removes the old listener so a new one 
         // with the FRESH activeChatId can be created.
         return () => {
@@ -146,24 +148,24 @@ export const ChatProvider = ({ children }) => {
     };
 
     const sendMessage = async (message) => {
-        try {
-            // Changes for sending message
-            message.sender = user;
-            setMessages((prev) => [...prev, message]);
+        // Optimistically show the message immediately
+        setMessages((prev) => [...prev, message]);
 
-            const { data } = await axios.post("/api/message", message);
-            console.log("Message sent:", data);
-
-            // B. Emit to Socket (so others see it)
-            socket.emit("new_message", data);
-
-            const { newMessage, channel } = data;
-            //setMessages((prev) => [...prev, newMessage]);
-            updateChatListOnMessage(channel);
-        } catch (error) {
-            showSnackbar("Failed to send message", "error");
-            console.error("Error sending message", error);
-        }
+        // Emit with acknowledgment callback
+        socket.emit("new_message", message, (response) => {
+            if (response && response.success) {
+                // Replace the optimistic message with the confirmed one from the DB
+                setMessages((prev) =>
+                    prev.map((m) => (m === message ? response.newMessage : m))
+                );
+                // Update chat list so this chat moves to the top
+                updateChatListOnMessage(response.channel);
+            } else {
+                // Remove the optimistic message and show error
+                showSnackbar("Message failed to deliver", "error");
+                setMessages((prev) => prev.filter((m) => m !== message));
+            }
+        });
     }
 
     return (
