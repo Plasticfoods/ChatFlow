@@ -96,17 +96,23 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
   const [attachment, setAttachment] = useState(null); // URL of uploaded file
   const [attachmentType, setAttachmentType] = useState(null); // 'image' or 'pdf'
   const messagesEndRef = useRef(null);
+  const lastChatIdRef = useRef(null);
   const { showSnackbar } = useSnackbar();
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
   };
 
   useEffect(() => {
     if (!messagesLoading) {
-      scrollToBottom();
+      if (lastChatIdRef.current !== activeChatId) {
+        scrollToBottom("auto");
+        lastChatIdRef.current = activeChatId;
+      } else {
+        scrollToBottom("smooth");
+      }
     }
-  }, [messagesLoading, messages]);
+  }, [messagesLoading, messages, activeChatId]);
 
   const handleSend = async (e) => {
     e?.preventDefault();
@@ -285,16 +291,22 @@ export function GroupChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
   const [inputValue, setInputValue] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef(null);
+  const lastChatIdRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
   };
 
   useEffect(() => {
     if (!messagesLoading) {
-      scrollToBottom();
+      if (lastChatIdRef.current !== activeChat._id) {
+        scrollToBottom("auto");
+        lastChatIdRef.current = activeChat._id;
+      } else {
+        scrollToBottom("smooth");
+      }
     }
-  }, [messagesLoading, messages]);
+  }, [messagesLoading, messages, activeChat]);
 
   const handleSend = async (e) => {
     e.preventDefault();
