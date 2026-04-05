@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Contacts from './components/Contacts';
 import Settings from './components/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
-import { LoginPage, RegisterPage } from './components/AuthenticationPage';
+import { LoginPage, RegisterPage } from './components/AuthenticationPage2';
 import ProfilePage from './components/ProfilePage';
 import './App.css';
 import axios from 'axios';

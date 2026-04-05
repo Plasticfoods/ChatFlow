@@ -33,18 +33,18 @@ export const ThemeProvider = ({ children }) => {
 
   // Helper to jump to a specific theme (useful for a settings dropdown)
   const setSpecificTheme = (themeIndex, themeLabel) => {
-    if(themeIndex !== null && themeIndex < themes.length) {
+    if (themeIndex !== null && themeIndex < themes.length) {
       setThemeIndex(themeIndex);
     }
     themes.forEach((theme, index) => {
-      if(theme.label === themeLabel) {
+      if (theme.label === themeLabel) {
         setThemeIndex(index);
       }
     })
   };
 
   return (
-    <ThemeContext.Provider 
+    <ThemeContext.Provider
       value={{
         themeIndex: themeIndex,    // The current index
         themeLabel: currentTheme.label, // The current display name
@@ -74,6 +74,7 @@ export const themes = [
     label: 'Light',
     colors: {
       '--primary': '#2F80ED',
+      '--primary-rgb': '47, 128, 237',
       '--primary-hover': '#1F7AE0',
       '--secondary': '#E3F2FF',
       '--bg-main': '#F5F7FB',
@@ -91,6 +92,7 @@ export const themes = [
     label: 'Dark',
     colors: {
       '--primary': '#60A5FA',
+      '--primary-rgb': '96, 165, 250',
       '--primary-hover': '#3B82F6',
       '--secondary': '#1E3A8A',
       '--bg-main': '#0F172A',
@@ -108,6 +110,7 @@ export const themes = [
     label: 'Forest',
     colors: {
       '--primary': '#10B981',
+      '--primary-rgb': '16, 185, 129',
       '--primary-hover': '#059669',
       '--secondary': '#D1FAE5',
       '--bg-main': '#ECFDF5',
@@ -122,9 +125,28 @@ export const themes = [
     },
   },
   {
+    label: 'Cyber Yellow',
+    colors: {
+      '--primary': '#F59E0B',       // Amber-500
+      '--primary-rgb': '245, 158, 11',
+      '--primary-hover': '#D97706', // Amber-600
+      '--secondary': '#451A03',     // Dark Amber
+      '--bg-main': '#171717',       // Neutral 900 (Dark background)
+      '--bg-surface': '#262626',    // Neutral 800 (Dark surface)
+      '--border-color': '#404040',  // Neutral 700 (Clean grey borders)
+      '--text-main': '#FEF3C7',     // Amber-100 (Pale, readable yellow-white text)
+      '--text-dim': '#D4D4D4',      // Neutral 300 (Grey text)
+      '--text-muted': '#A3A3A3',    // Neutral 400 (Muted grey)
+      '--text-inverse': '#000000',  // Pure black
+      '--radius-md': '12px',
+      '--radius-full': '999px',
+    },
+  },
+  {
     label: 'Midnight',
     colors: {
       '--primary': '#C084FC',
+      '--primary-rgb': '192, 132, 252',
       '--primary-hover': '#A855F7',
       '--secondary': '#4C1D95',
       '--bg-main': '#000000',
@@ -142,6 +164,7 @@ export const themes = [
     label: 'Sunset Orange',
     colors: {
       '--primary': '#F97316',       // Vibrant Orange
+      '--primary-rgb': '249, 115, 22',
       '--primary-hover': '#EA580C', // Darker Orange
       '--secondary': '#FFEDD5',     // Pale Orange (Bubbles)
       '--bg-main': '#F5F7FB',       // Very light warm background
@@ -159,6 +182,7 @@ export const themes = [
     label: 'Rose',
     colors: {
       '--primary': '#E11D48',       // Rose Red
+      '--primary-rgb': '225, 29, 72',
       '--primary-hover': '#BE123C', // Darker Rose
       '--secondary': '#FFE4E6',     // Pale Pink
       '--bg-main': '#FFF1F2',       // Very light rose background

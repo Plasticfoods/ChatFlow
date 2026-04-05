@@ -33,6 +33,7 @@ export default function Settings() {
     { label: 'Midnight', color: '#C084FC', bg: '#000000' },
     { label: 'Sunset Orange', color: '#F97316', bg: '#FFEDD5' },
     { label: 'Rose', color: '#E11D48', bg: '#FFE4E6' },
+    { label: 'Cyber Yellow', color: '#F59E0B', bg: '#171717' },
   ];
 
   const menuItems = [
