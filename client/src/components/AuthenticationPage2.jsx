@@ -33,7 +33,7 @@ const AuthLayout = ({ children, title, subtitle, linkText, linkAction, linkLabel
         bgcolor: 'var(--bg-main)',
         alignItems: 'center',
         justifyContent: 'center',
-        p: { xs: 2, md: 4 },
+        p: { xs: 4, md: 4 },
         position: 'relative'
       }}
     >
@@ -53,7 +53,7 @@ const AuthLayout = ({ children, title, subtitle, linkText, linkAction, linkLabel
       >
         {/* Conditional Logo Section */}
         {!hideLogo && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3, mt: 2, alignSelf: 'center', marginLeft: '-50px' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3, mt: 2, alignSelf: 'center', paddingLeft: '200px' }}>
             <Box sx={{
               p: 1.2,
               borderRadius: '14px',
@@ -165,7 +165,7 @@ export const LoginPage = () => {
     <AuthLayout
       hideLogo={true}
       title={
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5, mb: 1.2, paddingLeft: '-30px' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5, mb: 1.2, paddingRight: '10px' }}>
           <Box sx={{
             p: 1.5,
             borderRadius: '16px',
@@ -193,7 +193,7 @@ export const LoginPage = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           InputProps={{
-            startAdornment: <InputAdornment position="start"><Mail size={20} color="var(--text-dim)" /></InputAdornment>,
+            startAdornment: <InputAdornment position="start"><Mail size={22} color="var(--text-dim)" /></InputAdornment>,
           }}
           sx={inputStyles}
         />
@@ -207,7 +207,7 @@ export const LoginPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             InputProps={{
-              startAdornment: <InputAdornment position="start"><Lock size={20} color="var(--text-dim)" /></InputAdornment>,
+              startAdornment: <InputAdornment position="start"><Lock size={24} color="var(--text-dim)" /></InputAdornment>,
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton onClick={() => setShowPassword(!showPassword)} disableRipple sx={{ '&:hover': { bgcolor: 'transparent' } }}>
@@ -233,7 +233,7 @@ export const LoginPage = () => {
             bgcolor: 'var(--primary)',
             color: 'white',
             borderRadius: '12px',
-            py: 1.6,
+            py: 1.2,
             mt: 2,
             fontWeight: 700,
             textTransform: 'none',
@@ -262,7 +262,7 @@ export const LoginPage = () => {
             borderColor: 'var(--text-muted)',
             color: 'var(--text-main)',
             borderRadius: '12px',
-            py: 1.5,
+            py: 1.2,
             fontWeight: 600,
             textTransform: 'none',
             fontSize: '1rem',
