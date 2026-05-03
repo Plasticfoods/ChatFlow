@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Box, Typography, Button, Paper } from '@mui/material';
 import {
   AlertTriangle,
@@ -7,6 +7,7 @@ import {
   WifiOff,
   ServerCrash,
   Lock,
+  Timer,
   FileQuestion // Added for Unknown errors
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -50,13 +51,17 @@ const getErrorDetails = (error) => {
         details.message = "You don't have permission to view this page.";
         details.Icon = Lock;
         break;
+      case 429:
+        details.title = 'Too Many Requests';
+        details.message = "You're sending requests too fast. Please slow down and try again in a moment.";
+        details.Icon = Timer;
+        break;
       case 503:
         details.title = 'Service Unavailable';
         details.message = "The service is currently unavailable. Please check back later.";
         details.Icon = ServerCrash;
         break;
       default:
-        // Generic handling for other status codes (e.g. 418, 429)
         details.title = error.response.statusText || 'Server Error';
         details.message = error.response.data?.message || 'The server returned an unexpected response.';
         details.Icon = AlertTriangle;
@@ -64,10 +69,19 @@ const getErrorDetails = (error) => {
   }
   // 2. Network Error (No response received)
   else if (error.request) {
-    details.code = 'Network';
-    details.title = 'Connection Error';
-    details.message = 'Unable to reach the server. Please check your internet connection.';
-    details.Icon = WifiOff;
+    if (navigator.onLine) {
+      // Browser has internet, but server didn't respond
+      details.code = 'Unreachable';
+      details.title = 'No Response from Server';
+      details.message = 'The server is currently down for maintenance. We will be back soon. Please try again later.';
+      details.Icon = ServerCrash;
+    } else {
+      // Browser is actually offline
+      details.code = 'Network';
+      details.title = 'No Internet Connection';
+      details.message = 'You appear to be offline. Please check your internet connection and try again.';
+      details.Icon = WifiOff;
+    }
   }
 
   return details;
@@ -77,7 +91,7 @@ const ErrorPage = ({
   error,          // The raw error object from your API catch block
   onRetry,
   onRetryPath,
-  onHome,         // Function to run when clicking "Go Home"
+  onHome,         // Optional callback when clicking "Go Home"
   // Overrides (optional) - if you want to force a specific message
   code: propCode,
   title: propTitle,
@@ -99,11 +113,11 @@ const ErrorPage = ({
   }, [error, propCode, propTitle, propMessage]);
 
   const handleHome = () => {
-    // if (onHome) {
-    //   onHome();
-    //   return;
-    // }
     setUserError(null);
+    if (onHome) {
+      onHome();
+      return;
+    }
     navigate("/");
   };
 
@@ -113,11 +127,15 @@ const ErrorPage = ({
       return;
     }
     setUserError(null);
-    navigate(onRetryPath);
-  }
+    if (onRetryPath) {
+      navigate(onRetryPath);
+    }
+  };
 
   return (
     <Box
+      role="alert"
+      aria-live="assertive"
       sx={{
         position: 'fixed', // Fix: Break out of parent container
         top: 0,
@@ -125,10 +143,10 @@ const ErrorPage = ({
         width: '100vw',    // Full viewport width
         height: '100vh',   // Full viewport height
         zIndex: 9999,      // Ensure it sits on top of all other elements
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        bgcolor: 'var(--bg-main)', 
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: 'var(--bg-main)',
         color: 'var(--text-main)',
         p: 2,
         // Subtle animated gradient background effect
@@ -260,7 +278,7 @@ const ErrorPage = ({
                   bgcolor: 'var(--primary-hover)',
                   transform: 'translateY(-1px)'
                 },
-                transition: 'all 0.2s'
+                transition: 'background-color 0.2s, transform 0.2s'
               }}
             >
               Try Again
