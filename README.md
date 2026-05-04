@@ -8,7 +8,6 @@ A modern, full-stack real-time chat application built with **React** and **Node.
 - **Real-time messaging** via Socket.IO with instant delivery
 - **One-on-one chats** and **group conversations**
 - **File attachments** — share images and PDFs (via UploadThing)
-- **Read receipts** — see when your messages are read
 - **Message delivery confirmation** with server acknowledgment
 
 ### User Experience
@@ -37,66 +36,6 @@ A modern, full-stack real-time chat application built with **React** and **Node.
 | **File Uploads** | UploadThing |
 | **Routing** | React Router v7 |
 | **HTTP Client** | Axios |
-
-## 📁 Project Structure
-
-```
-ChatFlow/
-├── client/                     # React frontend (Vite)
-│   ├── src/
-│   │   ├── components/         # UI components
-│   │   │   ├── AuthenticationPage2.jsx   # Login & Register pages
-│   │   │   ├── Home.jsx                  # Main layout (Menu + ChatList + ChatWindow)
-│   │   │   ├── ChatList.jsx              # Sidebar chat list
-│   │   │   ├── ChatListItems.jsx         # Individual chat preview cards
-│   │   │   ├── ChatWindow.jsx            # Active chat view with messages
-│   │   │   ├── MessageBubble.jsx         # Single message display
-│   │   │   ├── Menu.jsx                  # Navigation sidebar/bottom bar
-│   │   │   ├── Settings.jsx              # User settings & theme switcher
-│   │   │   ├── ProfilePage.jsx           # User profile editor
-│   │   │   ├── UserSearchDrawer.jsx      # Search & add new contacts
-│   │   │   ├── CreateGroupDrawer.jsx     # Group chat creation UI
-│   │   │   ├── ChatInfoDrawer.jsx        # Chat/group details panel
-│   │   │   ├── ErrorPage.jsx             # Dynamic error display
-│   │   │   └── Loader.jsx                # Loading spinner
-│   │   ├── context/            # React context providers
-│   │   │   ├── User.jsx                  # Auth state & user data
-│   │   │   ├── Chat.jsx                  # Chat state management
-│   │   │   ├── Socket.jsx                # Socket.IO connection
-│   │   │   ├── Theme.jsx                 # Theme management (7 themes)
-│   │   │   ├── OnlineUsers.jsx           # Online presence tracking
-│   │   │   └── Snackbar.jsx              # Toast notifications
-│   │   ├── hooks/              # Custom React hooks
-│   │   ├── utils/              # Utility functions
-│   │   ├── App.jsx             # Route definitions
-│   │   └── main.jsx            # App entry point with providers
-│   └── vite.config.js          # Vite config with API proxy
-│
-├── server/                     # Node.js backend
-│   ├── src/
-│   │   ├── app.js              # Express app entry point
-│   │   ├── config/
-│   │   │   └── db.js           # MongoDB connection
-│   │   ├── models/
-│   │   │   ├── user.model.js   # User schema (name, email, avatar, etc.)
-│   │   │   ├── channel.model.js # Channel schema (DM & group chats)
-│   │   │   └── message.model.js # Message schema (text, attachments, read receipts)
-│   │   ├── controllers/
-│   │   │   ├── authController.js    # Login, Register, Logout
-│   │   │   ├── userController.js    # User search, profile update
-│   │   │   ├── channelController.js # CRUD for chats & groups
-│   │   │   └── messageController.js # Send & fetch messages
-│   │   ├── routes/             # Express route definitions
-│   │   ├── middlewares/
-│   │   │   └── auth.js         # JWT verification middleware
-│   │   ├── socket/
-│   │   │   └── socketHandler.js # Real-time event handlers
-│   │   └── utils/
-│   │       └── tokenUtils.js   # JWT token generation
-│   └── package.json
-│
-└── README.md
-```
 
 ## 🚀 Getting Started
 
@@ -175,52 +114,3 @@ npm run dev
 ```
 
 The client will be available at **http://localhost:5173** and the server at **http://localhost:7070**.
-
-## 🔌 API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/auth/register` | Register a new user |
-| `POST` | `/api/auth/login` | Log in and receive JWT cookie |
-| `POST` | `/api/auth/logout` | Log out and clear cookie |
-| `GET` | `/api/user` | Search users by name/username |
-| `PUT` | `/api/user/update` | Update user profile |
-| `POST` | `/api/channel` | Create or access a DM channel |
-| `GET` | `/api/channel` | Fetch all user's channels |
-| `POST` | `/api/channel/group` | Create a group channel |
-| `PUT` | `/api/channel/rename` | Rename a group channel |
-| `PUT` | `/api/channel/groupadd` | Add member to group |
-| `PUT` | `/api/channel/groupremove` | Remove member from group |
-| `DELETE` | `/api/channel/:channelId` | Delete a channel |
-| `GET` | `/api/message/:channelId` | Fetch messages for a channel |
-| `POST` | `/api/message` | Send a message |
-| `POST` | `/api/uploadthing` | Upload file attachments |
-
-## 🔄 Socket Events
-
-| Event | Direction | Description |
-|-------|-----------|-------------|
-| `setup` | Client → Server | Initialize user's socket room |
-| `user_connected` | Server → Client | Confirm connection established |
-| `new_message` | Client → Server | Send a new message |
-| `receive_message` | Server → Client | Deliver message to recipients |
-| `user_status_change` | Server → All | Broadcast online users list |
-| `disconnect` | Auto | Cleanup on user disconnect |
-
-## 🎨 Themes
-
-ChatFlow comes with 7 built-in themes that can be switched from the Settings page:
-
-| Theme | Primary Color | Style |
-|-------|--------------|-------|
-| Light | `#2F80ED` | Clean blue on white |
-| Dark | `#60A5FA` | Blue on dark slate |
-| Forest | `#10B981` | Green on mint |
-| Cyber Yellow | `#F59E0B` | Amber on dark neutral |
-| Midnight | `#C084FC` | Purple on pure black |
-| Sunset Orange | `#F97316` | Orange on warm white |
-| Rose | `#E11D48` | Red-pink on soft rose |
-
-## 📄 License
-
-This project is licensed under the ISC License.
