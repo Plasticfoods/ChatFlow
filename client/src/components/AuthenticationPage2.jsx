@@ -13,7 +13,7 @@ import {
   Lock,
   User,
   Chrome,
-  MessageSquare,
+  MessageCircleCode,
   ArrowRight,
   Eye,
   EyeOff
@@ -53,17 +53,9 @@ const AuthLayout = ({ children, title, subtitle, linkText, linkAction, linkLabel
       >
         {/* Conditional Logo Section */}
         {!hideLogo && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3, mt: 2, alignSelf: 'center', paddingLeft: '200px' }}>
-            <Box sx={{
-              p: 1.2,
-              borderRadius: '14px',
-              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary) 100%)',
-              display: 'flex',
-              boxShadow: '0 8px 20px rgba(0,0,0,0.15)'
-            }}>
-              <MessageSquare size={20} color="white" />
-            </Box>
-            <Typography variant="h5" sx={{ fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.5px' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5, mb: 1, paddingRight: '30px' }}>
+            <MessageCircleCode size={40} color="var(--primary)" />
+            <Typography variant="h4" sx={{ fontWeight: 700, color: 'var(--text-main)', letterSpacing: '-1px' }}>
               ChatFlow
             </Typography>
           </Box>
@@ -73,7 +65,7 @@ const AuthLayout = ({ children, title, subtitle, linkText, linkAction, linkLabel
         {title && (
           <Box sx={{ mb: 1, textAlign: 'center' }}>
             {typeof title === 'string' ? (
-              <Typography variant="h3" sx={{ fontWeight: 800, color: 'var(--text-main)', fontSize: { xs: '1.75rem', md: '2.25rem' } }}>
+              <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--text-main)', fontSize: { xs: '1.75rem', md: '2.25rem' } }}>
                 {title}
               </Typography>
             ) : (
@@ -165,16 +157,8 @@ export const LoginPage = () => {
     <AuthLayout
       hideLogo={true}
       title={
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5, mb: 1.2, paddingRight: '10px' }}>
-          <Box sx={{
-            p: 1.5,
-            borderRadius: '16px',
-            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary) 100%)',
-            display: 'flex',
-            boxShadow: '0 8px 20px rgba(0,0,0,0.15)'
-          }}>
-            <MessageSquare size={28} color="white" />
-          </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5, mb: 1, paddingRight: '10px' }}>
+          <MessageCircleCode size={40} color="var(--primary)" />
           <Typography variant="h4" sx={{ fontWeight: 900, color: 'var(--text-main)', letterSpacing: '-1px' }}>
             ChatFlow
           </Typography>

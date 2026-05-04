@@ -73,7 +73,7 @@ const getErrorDetails = (error) => {
       // Browser has internet, but server didn't respond
       details.code = 'Unreachable';
       details.title = 'No Response from Server';
-      details.message = 'The server is currently down for maintenance. We will be back soon. Please try again later.';
+      details.message = 'The server is unreachable right now. Please try again later.';
       details.Icon = ServerCrash;
     } else {
       // Browser is actually offline
@@ -122,13 +122,20 @@ const ErrorPage = ({
   };
 
   const handleOnRetry = () => {
-    if (onRetry) {
-      onRetry();
-      return;
-    }
-    setUserError(null);
-    if (onRetryPath) {
-      navigate(onRetryPath);
+    // if (onRetry) {
+    //   onRetry();
+    //   return;
+    // }
+    // setUserError(null);
+    // if (onRetryPath) {
+    //   navigate(onRetryPath);
+    // }
+    // Check the current path and navigate to it
+    const currentPath = window.location.pathname;
+    if (currentPath === "/login" || currentPath === "/register") {
+      navigate("/");
+    } else {
+      navigate(currentPath);
     }
   };
 
