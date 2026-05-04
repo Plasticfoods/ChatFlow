@@ -48,7 +48,7 @@ A modern, full-stack real-time chat application built with **React** and **Node.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/ChatFlow.git
+git clone https://github.com/Plasticfoods/ChatFlow.git
 cd ChatFlow
 ```
 
