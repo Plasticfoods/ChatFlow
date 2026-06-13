@@ -2,30 +2,103 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 import axios from 'axios';
 import { useUser } from './User';
 import { useNavigate } from 'react-router-dom';
+import { useSocket } from './Socket';
+import { useSnackbar } from './Snackbar';
 
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
+    const { socket } = useSocket();
+    const { showSnackbar } = useSnackbar();
     const [chats, setChats] = useState(null);
+    const [activeChatId, setActiveChatId] = useState(null);
     const [activeChat, setActiveChat] = useState(null);
     const [chatLoading, setChatLoading] = useState(false);
     const [chatError, setChatError] = useState(null);
-    const [newUserAdded, setNewUserAdded] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [messagesLoading, setMessagesLoading] = useState(false);
+    const [messagesError, setMessagesError] = useState(null);
+    const [newChatAdded, setNewChatAdded] = useState(false);
     const navigate = useNavigate();
-
     const { user } = useUser();
 
-    // 2. AUTOMATIC TRIGGER: Fetch when User logs in
+    // This runs immediately when 'user' becomes available (login/reload) or when a new chat is added
     useEffect(() => {
-        if (user || newUserAdded) {
-            // This runs immediately when 'user' becomes available (login/reload)
+        if (user || newChatAdded) {
             fetchChats();
         } else {
-            // Optional: Clear chats on logout
             setChats([]);
             setActiveChat(null);
+            setActiveChatId(null);
         }
-    }, [user, newUserAdded]);
+    }, [user, newChatAdded]);
+
+    // Set up socket listener for incoming messages
+    useEffect(() => {
+        if (!socket) return;
+        console.log("ChatWindow - Setting up socket listener for incoming messages", activeChatId);
+
+        const messageHandler = (data) => {
+            console.log("Socket received new message: ", activeChatId);
+            const { newMessage, channel } = data;
+            // Only append if the message belongs to the CURRENTLY opened chat
+            if (activeChatId && channel._id === activeChatId) {
+                setMessages(prevMessages => [...prevMessages, newMessage]);
+            }
+            // Update the chats list to reflect the latest message
+            updateChatListOnMessage(channel);
+        };
+
+        // Register the handler directly (not via anonymous wrapper)
+        // so that socket.off can correctly remove it during cleanup.
+        socket.on("receive_message", messageHandler);
+
+        // CLEANUP: This is critical. It removes the old listener so a new one 
+        // with the FRESH activeChatId can be created.
+        return () => {
+            socket.off("receive_message", messageHandler);
+            console.log("ChatWindow - Removed socket listener for incoming messages");
+        }
+    }, [socket, activeChatId]);
+
+    // 3. Fetch Messages when Active Chat changes and set Active Chat Object
+    useEffect(() => {
+        if (!activeChatId || !chats) {
+            setActiveChat(null);
+            setMessages(null);
+            return;
+        };
+
+        for (const chat of chats) {
+            if (chat._id === activeChatId) {
+                setActiveChat(chat);
+                break;
+            }
+        }
+
+        const fetchMessages = async () => {
+            if (!activeChatId) return;
+            setMessagesLoading(true);
+            try {
+                console.log("Fetching messages for chat:", activeChatId);
+                const { data } = await axios.get(`/api/message/${activeChatId}`);
+                setMessages(data);
+                // --- SOCKET LOGIC: JOIN ROOM ---
+                // if (socket) {
+                //   socket.emit("join_chat", activeChat._id);
+                // }
+            } catch (error) {
+                showSnackbar("Failed to load messages", "error");
+                console.error("Error fetching messages:", error);
+                setMessagesError(error);
+                setMessages(null);
+            } finally {
+                setMessagesLoading(false);
+            }
+        };
+
+        fetchMessages();
+    }, [activeChatId]);
 
     // 1. Fetch Chats (Optimized with useCallback to prevent infinite loops)
     const fetchChats = useCallback(async () => {
@@ -36,7 +109,6 @@ export const ChatProvider = ({ children }) => {
         setChatLoading(true);
         try {
             const { data } = await axios.get('/api/channel');
-            console.log("Fetched Chats:", data);
             const processedData = filterChatUsers(data);
             setChats(processedData);
         } catch (err) {
@@ -48,50 +120,25 @@ export const ChatProvider = ({ children }) => {
             }
         } finally {
             setChatLoading(false);
-            setNewUserAdded(false); // Reset the flag after fetching
+            setNewChatAdded(false); // Reset the flag after fetching
         }
     }, [user]);
 
-    // 2. Helper: Update the 'Latest Message' in real-time
-    // Call this when a socket message arrives to bump the chat to the top
-    const updateLatestMessage = (newMessage) => {
-        const channelId = newMessage.channel._id || newMessage.channel;
-
-        setChats(prevChats => {
-            // Find the chat that received the message
-            const updatedChatIndex = prevChats.findIndex(c => c._id === channelId);
-
-            if (updatedChatIndex === -1) {
-                // Option: You might want to fetchChats() here if it's a brand new conversation
-                return prevChats;
-            }
-
-            const updatedChat = {
-                ...prevChats[updatedChatIndex],
-                latestMessage: newMessage,
-                updatedAt: new Date().toISOString() // Update time for sorting
-            };
-
-            // Remove the old version and put the updated one at the top (Index 0)
-            const otherChats = prevChats.filter(c => c._id !== channelId);
-            return [updatedChat, ...otherChats];
-        });
-    };
-
     // Remove the current user from the 'users' array in the response
     const filterChatUsers = (list) => {
+        // First, filter out deleted chats for now
+        list = list.filter(chat => chat.isDeleted === false);
         return list.map(chat => {
             chat.users = chat.users.filter(c => c._id.toString() !== user._id.toString());
             return chat;
         })
     }
 
-    // update chats when new message arrives via socket
-    const updateChatsOnMessage = (updatedChannel) => {
+    // update chat list with updated chat when new message arrives via socket
+    const updateChatListOnMessage = (updatedChannel) => {
         setChats(prevChats => {
             const tempChats = [...prevChats];
             const index = tempChats.findIndex(c => c._id === updatedChannel._id);
-
             if (index !== -1) {
                 tempChats.splice(index, 1);
             }
@@ -100,20 +147,45 @@ export const ChatProvider = ({ children }) => {
         });
     };
 
+    const sendMessage = async (message) => {
+        // Optimistically show the message immediately
+        setMessages((prev) => [...prev, message]);
+
+        // Emit with acknowledgment callback
+        socket.emit("new_message", message, (response) => {
+            if (response && response.success) {
+                // Replace the optimistic message with the confirmed one from the DB
+                setMessages((prev) =>
+                    prev.map((m) => (m === message ? response.newMessage : m))
+                );
+                // Update chat list so this chat moves to the top
+                updateChatListOnMessage(response.channel);
+            } else {
+                // Remove the optimistic message and show error
+                showSnackbar("Message failed to deliver", "error");
+                setMessages((prev) => prev.filter((m) => m !== message));
+            }
+        });
+    }
+
     return (
         <ChatContext.Provider
             value={{
                 chats,
-                setChats,
                 activeChat,
                 setActiveChat,
                 chatLoading,
                 chatError,
-                fetchChats,
-                updateLatestMessage,
-                newUserAdded,
-                setNewUserAdded,
-                updateChatsOnMessage
+
+                activeChatId,
+                setActiveChatId,
+                messages,
+                messagesLoading,
+                messagesError,
+                updateChatListOnMessage,
+                sendMessage,
+                newChatAdded,
+                setNewChatAdded,
             }}
         >
             {children}

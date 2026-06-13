@@ -30,7 +30,7 @@ import { useSnackbar } from '../context/Snackbar.jsx';
 import Loader from './Loader.jsx';
 import { useNavigate } from 'react-router-dom';
 import { useChat } from '../context/Chat.jsx';
-
+import { DEFAULT_AVATAR } from '../utils/avatarUtils';
 
 export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSearchDrawer, onStartChat }) {
   const [query, setQuery] = useState('');
@@ -40,7 +40,7 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [error, setError] = useState(null);
   const { showSnackbar } = useSnackbar();
-  const { setNewUserAdded } = useChat();
+  const { setNewChatAdded } = useChat();
   const navigate = useNavigate();
 
   const handleUserSearch = async () => {
@@ -73,14 +73,13 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
   };
 
   const handleAddUser = async (user) => {
-    console.log("Adding user:", user);
     setError(null);
     setIsAddingUser(true);
     try {
       const { data } = await axios.post('/api/channel', { otherUser: user });
       setOpenUserSearchDrawer(false);
       showSnackbar(`${data.message}`, "success");
-      setNewUserAdded(true); // Trigger chat list refresh
+      setNewChatAdded(true); // Trigger chat list refresh
     } catch (err) {
       if (err.response && err.response.status >= 500) {
         // Catch 500, 502, 503, 504, etc.
@@ -241,7 +240,8 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
                   }}
                 >
                   <Avatar
-                    src={user.avatar}
+                    src={user.avatar || DEFAULT_AVATAR}
+                    imgProps={{ onError: (e) => { e.currentTarget.src = DEFAULT_AVATAR; } }}
                     sx={{ width: 48, height: 48, bgcolor: 'var(--bg-main)', mr: 2 }}
                   />
                   <Box sx={{ flex: 1, overflow: 'hidden' }}>

@@ -5,14 +5,36 @@ import {
   ListItemText, Avatar, Modal, Box, Typography, Drawer
 } from '@mui/material';
 import { useState } from 'react';
-import { MessageCircleCode, MessageSquarePlus, ChevronLeft, AtSign, Users, Mail, ChevronRight } from 'lucide-react';
+import { MessageCircleCode, MessageSquarePlus, ChevronLeft, AtSign, Users, Mail, ChevronRight, Camera } from 'lucide-react';
 import { ChatListSearch } from './ChatList.jsx';
 import UserSearchDrawer from './UserSearchDrawer.jsx';
+import CreateGroupDrawer from './CreateGroupDrawer.jsx';
+import { Html5QrcodeScanner } from 'html5-qrcode';
+import { useEffect } from 'react';
+import { useSnackbar } from '../context/Snackbar.jsx';
+import axios from 'axios';
+import ErrorPage from './ErrorPage.jsx';
+import { useChat } from '../context/Chat.jsx';
+import Loader from './Loader.jsx';
 
 export default function AddChatSection({ chats, setShowAddChatSection }) {
 
   const [searchTerm, setSearchTerm] = useState('')
   const [openUserSearchDrawer, setOpenUserSearchDrawer] = useState(false);
+  const [oepnGroupDrawer, setOpenGroupDrawer] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
+  const { showSnackbar } = useSnackbar();
+  const [error, setError] = useState(null);
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const { setNewChatAdded } = useChat();
+
+  if (error) {
+    return <ErrorPage error={error} />;
+  }
+
+  if (isAddingUser) {
+    return <Loader message="Adding user to contacts..." overlay={true} />;
+  }
 
   // const [filterType, setFilterType] = useState('all'); // 'all', 'unread', 'groupchat'
 
@@ -37,6 +59,46 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
   //     return matchesSearch;
   // });
 
+  const handleAddUser = async (otherUser) => {
+    setError(null);
+    setIsAddingUser(true);
+    try {
+      const { data } = await axios.post('/api/channel', { otherUser });
+      showSnackbar(`${data.message}`, "success");
+      setNewChatAdded(true); // Trigger chat list refresh
+    } catch (err) {
+      if (err.response && err.response.status >= 500) {
+        // Catch 500, 502, 503, 504, etc.
+        setError(err);
+        return;
+      }
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate('/login');
+        showSnackbar("Session expired. Please log in again.", "info");
+        return;
+      }
+      if (err.response && err.status != "404") {
+        showSnackbar(err.response.statusText, "info");
+      } else {
+        setError(err);
+      }
+    } finally {
+      setIsAddingUser(false);
+    }
+  }
+
+  const handleQRScanSuccess = async (decodedText, decodedResult) => {
+    setShowQRScanner(false);
+    console.log("QR Code Scanned:", decodedText);
+    const data = JSON.parse(decodedText);
+    if (data.action === 'add_user' && data.user) {
+      handleAddUser(data.user);
+    } else {
+      console.warn("Invalid QR code data:", data);
+      showSnackbar("Something Went Wrong", "info");
+    }
+  }
+
   return (
     <div className="chat-list new-chat-section" style={{
       display: 'flex',
@@ -54,7 +116,8 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
         {[
           { icon: AtSign, label: "Find by Username", onClick: () => setOpenUserSearchDrawer(true) },
           { icon: Mail, label: "Find by Email", onClick: () => setOpenUserSearchDrawer(true) },
-          { icon: Users, label: "Create Group" },
+          { icon: Users, label: "Create Group", onClick: () => setOpenGroupDrawer(true) },
+          { icon: Camera, label: "Scan QR Code", onClick: () => setShowQRScanner(true) },
         ].map((opt, idx) => (
           <ListItemButton
             key={idx}
@@ -73,7 +136,45 @@ export default function AddChatSection({ chats, setShowAddChatSection }) {
       </List>
 
       <UserSearchDrawer openUserSearchDrawer={openUserSearchDrawer} setOpenUserSearchDrawer={setOpenUserSearchDrawer} />
+      <CreateGroupDrawer open={oepnGroupDrawer} onClose={() => setOpenGroupDrawer(false)} />
+      {showQRScanner && <QRScanner onScanSuccess={handleQRScanSuccess} onClose={() => setShowQRScanner(false)} />}
     </div>
   )
 }
 
+const QRScanner = ({ onScanSuccess, onClose }) => {
+  const { showSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    // Note: 'reader' matches the ID in the HTML below
+    const scanner = new Html5QrcodeScanner("reader", {
+      fps: 15,
+      qrbox: { width: 250, height: 250 },
+      aspectRatio: 1.0,
+    });
+
+    scanner.render(onScanSuccess, (error) => {
+      // No need to log error here.
+    });
+
+    return () => {
+      scanner.clear().catch(err => console.error("Failed to clear scanner", err));
+    };
+  }, []);
+
+  return (
+    <div className="scanner-overlay">
+      <div className="text-center mb-4">
+        <h2 className="text-xl font-bold">Scan QR Code</h2>
+        <p className="text-sm opacity-80">Align the QR code inside the scanning box</p>
+      </div>
+
+      {/* This is where the camera feed injects */}
+      <div id="reader"></div>
+
+      <button className="close-scanner-btn" onClick={onClose}>
+        Cancel
+      </button>
+    </div>
+  );
+};

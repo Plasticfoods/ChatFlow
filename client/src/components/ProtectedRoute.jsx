@@ -5,7 +5,7 @@ import Loader from './Loader.jsx';
 const ProtectedRoute = ({ children }) => {
   const { user, userLoading } = useUser();
   const location = useLocation();
-  console.log("ProtectedRoute - ", user, userLoading);
+  // console.log("ProtectedRoute - ", user, userLoading);
 
   if (userLoading) {
     return (

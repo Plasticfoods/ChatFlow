@@ -2,19 +2,34 @@ import Home from './components/Home'
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Contacts from './components/Contacts';
 import Settings from './components/Settings';
-import Profile from './components/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
-import { LoginPage, RegisterPage } from './components/AuthenticationPage';
+import { LoginPage, RegisterPage } from './components/AuthenticationPage2';
+import ProfilePage from './components/ProfilePage';
 import './App.css';
+import axios from 'axios';
+
 
 function App() {
+  console.log("Client Env Mode", import.meta.env.MODE);
+  let apiUrl;
+  if (import.meta.env.MODE === 'development') {
+    apiUrl = import.meta.env.VITE_API_URL_LOCAL;
+  } else {
+    apiUrl = import.meta.env.VITE_API_URL;
+  }
+  console.log("API URL: ", apiUrl);
+
+  // Set default axios configuration
+  axios.defaults.baseURL = apiUrl;
+  axios.defaults.withCredentials = true;
+
   const routes = [
-    { path:"/" , element:<Home />, isProtected:true },
-    { path:"/contacts" , element:<Contacts /> , isProtected:true },
-    { path:"/settings" , element:<Settings /> , isProtected:true },
-    { path:"/profile" , element:<Profile /> , isProtected:true },
-    { path:"/login" , element:<LoginPage /> , isProtected:false },
-    { path:"/register" , element:<RegisterPage /> , isProtected:false },
+    { path: "/", element: <Home />, isProtected: true },
+    { path: "/contacts", element: <Contacts />, isProtected: true },
+    { path: "/settings", element: <Settings />, isProtected: true },
+    { path: "/profile", element: <ProfilePage />, isProtected: true },
+    { path: "/login", element: <LoginPage />, isProtected: false },
+    { path: "/register", element: <RegisterPage />, isProtected: false },
   ];
 
   return (

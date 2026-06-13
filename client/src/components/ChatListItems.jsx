@@ -2,11 +2,14 @@ import { Box, Typography, Avatar } from '@mui/material';
 import { Check, CheckCheck, Paperclip } from 'lucide-react'; // Icons
 import { useChat } from '../context/Chat';
 import ErrorPage from './ErrorPage';
-import { useEffect } from 'react';
 import { formatTime } from '../utils/formatTime';
+import { deepOrange, deepPurple } from '@mui/material/colors';
+import { useOnlineUsers } from '../context/OnlineUsers';
+import { SkeletonChatLoader } from './SkeletonLoader';
+import { DEFAULT_AVATAR } from '../utils/avatarUtils';
 
-export default function ChatListItems() {
-  const { chats, activeChat, setActiveChat, chatLoading, chatError } = useChat();
+export default function ChatListItems({ chats }) {
+  const { activeChat, chatLoading, chatError } = useChat();
   // console.log("ChatListItems - chats ", chatLoading);
   // if (chats) {
   //   chats.forEach(chat => {
@@ -16,20 +19,24 @@ export default function ChatListItems() {
   //   console.log("Chat is null");
   // }
 
+  // if (chatLoading) {
+  //   return (
+  //     <div className="chat-list-items" style={{
+  //       flex: 1,
+  //       overflowY: 'auto',
+  //       display: 'flex',
+  //       justifyContent: 'center',
+  //       alignItems: 'center',
+  //     }}>
+  //       <Typography variant="body1" sx={{ color: 'var(--text-dim)', marginTop: '3rem' }}>
+  //         Loading chats...
+  //       </Typography>
+  //     </div>
+  //   )
+  // }
+
   if (chatLoading) {
-    return (
-      <div className="chat-list-items" style={{
-        flex: 1,
-        overflowY: 'auto',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-        <Typography variant="body1" sx={{ color: 'var(--text-dim)', marginTop: '3rem' }}>
-          Loading chats...
-        </Typography>
-      </div>
-    )
+    return <SkeletonChatLoader />
   }
 
   if (chatError) {
@@ -67,7 +74,7 @@ export default function ChatListItems() {
             key={index}
             chat={contact}
             isActive={contact._id === activeChat?._id}
-            setActiveChat={setActiveChat}
+            // setActiveChat={setActiveChat}
           />
         )
       })}
@@ -75,15 +82,21 @@ export default function ChatListItems() {
   )
 }
 
+export const ChatListItem = ({ chat, isActive }) => {
+  const { setActiveChatId } = useChat();
+  const { isUserOnline } = useOnlineUsers();
+  
+  const handleSetActiveChat = () => {
+    setActiveChatId(chat._id);
+  };
 
-export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
   // Helper to determine if we should show bold text
   const isUnread = 0;
   let isTyping = false;
 
   return (
     <Box
-      onClick={() => setActiveChat(chat)}
+      onClick={handleSetActiveChat}
       sx={{
         display: 'flex',
         alignItems: 'center',
@@ -102,18 +115,23 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
     >
       {/* LEFT: AVATAR & ONLINE STATUS */}
       <Box sx={{ position: 'relative', marginRight: '16px' }}>
-        <Avatar
-          src={chat.users[0].avatar}
-          alt={chat.name}
+        {chat.isGroupChannel ? (
+          <Avatar sx={{ bgcolor: deepPurple[500], width: 48, height: 48, border: '1px solid var(--border-color)' }}>G</Avatar>
+        ) : (
+          <Avatar
+          src={chat.users[0]?.avatar || DEFAULT_AVATAR}
+          imgProps={{ onError: (e) => { e.currentTarget.src = DEFAULT_AVATAR; } }}
+          alt={chat.icon}
           sx={{ width: 48, height: 48, border: '1px solid var(--border-color)' }}
         />
+        )}
         {/* Online Status Dot */}
-        {/* {chat.status === 'online' && (
+        {isUserOnline(chat.users[0]?._id) && !chat.isGroupChannel && (
           <Box
             sx={{
               position: 'absolute',
-              bottom: 2,
-              right: 2,
+              bottom: 0,
+              right: 0,
               width: 12,
               height: 12,
               backgroundColor: '#10B981', // Emerald Green
@@ -121,7 +139,7 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
               border: '2px solid white',
             }}
           />
-        )} */}
+        )}
       </Box>
 
       {/* MIDDLE: NAME & MESSAGE PREVIEW */}
@@ -136,7 +154,7 @@ export const ChatListItem = ({ chat, isActive, setActiveChat }) => {
             marginBottom: '4px'
           }}
         >
-          {chat.users[0].name}
+          {chat.isGroupChannel ? chat.channelName : chat.users[0].name}
         </Typography>
 
         {/* Message Preview Row or Latest message */}

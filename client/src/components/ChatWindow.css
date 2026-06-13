@@ -1,9 +1,11 @@
 /* MAIN CONTAINER */
-.chat-window, .section-right {
+.chat-window,
+.section-right {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: var(--bg-main); /* The light gray background #F5F7FB */
+  background-color: var(--bg-main);
+  /* The light gray background #F5F7FB */
   position: relative;
 }
 
@@ -14,11 +16,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
-  background-color: var(--bg-surface); /* White */
+  padding: .8rem;
+  background-color: var(--bg-surface);
+  /* White */
   border-bottom: 1px solid var(--border-color);
-  height: 72px; /* Fixed height for consistency */
-  flex-shrink: 0; /* Never shrink */
+  height: 72px;
+  /* Fixed height for consistency */
+  flex-shrink: 0;
+  /* Never shrink */
 }
 
 .back-button:hover {
@@ -39,6 +44,23 @@
   object-fit: cover;
 }
 
+.chat-header-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.header-online-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background-color: #10B981;
+  /* Emerald Green — matches ChatList online status */
+  border-radius: 50%;
+  border: 2px solid var(--bg-surface, #fff);
+}
+
 .chat-header-text h3 {
   margin: 0;
   font-size: 16px;
@@ -55,19 +77,22 @@
 .chat-header-text p {
   margin: 0;
   font-size: 13px;
-  color: #10B981; /* Online Green */
+  color: #10B981;
+  /* Online Green */
   font-weight: 500;
 }
 
 .chat-header-actions {
   display: flex;
   gap: 20px;
-  color: var(--primary); /* Blue Icons */
+  color: var(--primary);
+  /* Blue Icons */
 }
 
 .header-icon {
   cursor: pointer;
-  color: var(--text-muted); /* Default Gray */
+  color: var(--text-muted);
+  /* Default Gray */
   transition: color 0.2s;
 }
 
@@ -79,13 +104,18 @@
    2. MESSAGES AREA (Body)
    ============================ */
 .chat-messages {
-  flex: 1;             /* Takes all available space */
-  overflow-y: auto;    /* Enables scrolling */
-  padding: 2rem 1.8rem;  /* Generous padding for readability */
+  flex: 1;
+  /* Takes all available space */
+  overflow-y: auto;
+  /* Enables scrolling */
+  padding: 2rem 1.8rem;
+  /* Generous padding for readability */
   display: flex;
   flex-direction: column;
-  gap: 5px;            /* Gap between bubbles */
-  min-height: 0;       /* Fix for flex scrolling bug */
+  gap: 5px;
+  /* Gap between bubbles */
+  min-height: 0;
+  /* Fix for flex scrolling bug */
   background-color: var(--bg-main);
 }
 
@@ -109,24 +139,31 @@
    3. INPUT AREA (Footer)
    ============================ */
 .chat-input-area {
-  padding: 16px 24px;
-  background-color: var(--bg-surface); /* White */
+  /* padding: 16px 24px; */
+  /* flex-shrink: 0; */
+  padding: 12px 16px;
+  background-color: var(--bg-surface);
   border-top: 1px solid var(--border-color);
-  flex-shrink: 0; /* Never shrink */
+  position: relative;
+  /* Needed for preview positioning */
 }
 
 .input-wrapper {
   display: flex;
   align-items: center;
   gap: 12px;
-  background-color: var(--bg-main); /* Light Gray Pill Background */
-  border-radius: 24px; /* Fully rounded pill */
-  padding: 8px 8px 8px 20px; /* Padding for text */
+  background-color: var(--bg-main);
+  /* Light Gray Pill Background */
+  border-radius: 24px;
+  /* Fully rounded pill */
+  padding: 8px 8px 8px 20px;
+  /* Padding for text */
   transition: box-shadow 0.2s;
 }
 
 .input-wrapper:focus-within {
-  box-shadow: 0 0 0 2px var(--secondary); /* Blue Focus Ring */
+  box-shadow: 0 0 0 2px var(--secondary);
+  /* Blue Focus Ring */
 }
 
 .chat-input {
@@ -171,4 +208,72 @@
 
 .send-button:active {
   transform: scale(0.95);
+}
+
+/* Attachment Preview */
+.attachment-preview-container {
+  position: absolute;
+  bottom: 100%;
+  /* Sit exactly on top of the input area */
+  left: 0;
+  width: 100%;
+  padding: 10px 16px;
+  background-color: var(--bg-surface);
+  /* Match input background or slightly different */
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  z-index: 5;
+}
+
+.preview-box {
+  position: relative;
+  background: var(--bg-main);
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-image {
+  max-height: 80px;
+  max-width: 100px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.preview-file {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 80px;
+  font-size: 0.75rem;
+  color: var(--text-main);
+  text-align: center;
+}
+
+.remove-attachment-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--text-muted);
+  /* Or a danger color */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.remove-attachment-btn:hover {
+  background: #ef4444;
+  /* Red on hover */
 }

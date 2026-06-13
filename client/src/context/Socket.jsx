@@ -5,22 +5,33 @@ import { useUser } from './User';
 const SocketContext = createContext();
 
 // Define your backend URL (or use environment variable)
-const ENDPOINT = "http://localhost:7070"; 
+let ENDPOINT;
+if (import.meta.env.MODE === 'development') {
+  ENDPOINT = import.meta.env.VITE_API_URL_LOCAL;
+} else {
+  ENDPOINT = import.meta.env.VITE_API_URL;
+}
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [socketConnected, setSocketConnected] = useState(false);
-  
+
   const { user } = useUser();
 
   useEffect(() => {
+    console.log("Endpoint for socket connection: ", ENDPOINT);
     // 1. If user is logged in, connect socket
     if (user) {
-      const newSocket = io();
-      
+      const newSocket = io(ENDPOINT, {
+        withCredentials: true,
+        extraHeaders: {
+          "my-custom-header": "chatflow",
+        },
+      });
+
       // 2. Identification: Tell backend who this socket belongs to
       newSocket.emit("setup", user);
-      
+
       newSocket.on("user_connected", () => setSocketConnected(true));
       newSocket.on("disconnect", () => setSocketConnected(false));
 

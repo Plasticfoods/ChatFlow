@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const channelSchema = new mongoose.Schema(
   {
     channelName: { type: String, trim: true }, // For group channels; null for DM
+    avatar: { type: String, default: null },
     isGroupChannel: { type: Boolean, default: false },
     users: [
       {
@@ -19,6 +20,13 @@ const channelSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    isDeleted: { type: Boolean, default: false },
+    deletedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ]
   },
   { timestamps: true } // Manages createdAt and updatedAt automatically
 );

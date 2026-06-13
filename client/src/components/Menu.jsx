@@ -6,19 +6,23 @@ import {
   Settings,
   Moon,
   Sun,
-  User
+  User,
+  LogOut
 } from 'lucide-react';
 import './Navbar.css'; // Import the styles above
 import { useTheme } from '../context/Theme';
+import { useUser } from '../context/User';
 
 export default function Menu() {
   const { switchTheme } = useTheme();
+  const { logout } = useUser();
   const iconSize = 24;
 
   // Define your navigation items here
   const navItems = [
     { path: '/', icon: <MessageSquare size={iconSize} />, label: '' },
-    { path: '/contacts', icon: <Users size={iconSize} />, label: 'Contacts' },
+    // { path: '/contacts', icon: <Users size={iconSize} />, label: 'Contacts' },
+    { path: null, icon: <Sun size={iconSize} />, label: 'Theme' },
     { path: '/settings', icon: <Settings size={iconSize} />, label: 'Settings' },
     { path: '/profile', icon: <User size={iconSize} />, label: 'Profile' },
   ];
@@ -28,18 +32,34 @@ export default function Menu() {
 
       {/* --- TOP SECTION: APP NAV --- */}
       <div className="nav-section">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              `nav-link ${isActive ? 'active' : ''}`
-            }
-            title={item.label} // Tooltip on hover
-          >
-            {item.icon}
-          </NavLink>
-        ))}
+        {navItems.map((item) => {
+          if (item.path) {
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  `nav-link ${isActive ? 'active' : ''}`
+                }
+                title={item.label} // Tooltip on hover
+              >
+                {item.icon}
+              </NavLink>
+            );
+          } else {
+            return (
+              <button
+                key={item.label}
+                className="nav-link"
+                title={item.label}
+                onClick={switchTheme}
+                style={{ border: 'none', background: 'none', cursor: 'pointer' }}
+              >
+                {item.icon}
+              </button>
+            );
+          }
+        })}
       </div>
 
       {/* --- BOTTOM SECTION: UTILITIES --- */}
@@ -51,9 +71,9 @@ export default function Menu() {
           title="Toggle Theme"
           style={{ border: 'none', background: 'none', cursor: 'pointer' }}
           size={iconSize}
-          onClick={switchTheme}
+          onClick={logout}
         >
-          <Sun />
+          <LogOut />
         </button>
       </div>
     </nav>

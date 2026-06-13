@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   User,
   Bell,
@@ -6,10 +6,8 @@ import {
   Palette,
   HelpCircle,
   LogOut,
-  MessageSquare,
   ChevronRight,
-  ChevronLeft,
-  ArrowLeft
+  ChevronLeft
 } from 'lucide-react';
 import { useUser } from '../context/User.jsx';
 import './Settings.css';
@@ -20,11 +18,12 @@ import ErrorPage from './ErrorPage.jsx';
 import { useTheme } from '../context/Theme.jsx';
 import axios from 'axios';
 import { useSnackbar } from '../context/Snackbar.jsx';
-
+import { UploadButton } from "../utils/uploadthing";
+import "@uploadthing/react/styles.css";
+import { DEFAULT_AVATAR } from '../utils/avatarUtils';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('');
-  // const { user, userError } = useUser();
   const { setSpecificTheme } = useTheme();
 
   // Your Theme Data (For the Appearance Tab)
@@ -34,14 +33,13 @@ export default function Settings() {
     { label: 'Forest', color: '#10B981', bg: '#ECFDF5' },
     { label: 'Midnight', color: '#C084FC', bg: '#000000' },
     { label: 'Sunset Orange', color: '#F97316', bg: '#FFEDD5' },
-    { label: 'Forest', color: '#10B981', bg: '#ECFDF5' },
-    { label: 'Midnight', color: '#C084FC', bg: '#000000' },
-    { label: 'Sunset Orange', color: '#F97316', bg: '#FFEDD5' },
+    { label: 'Rose', color: '#E11D48', bg: '#FFE4E6' },
+    { label: 'Cyber Yellow', color: '#F59E0B', bg: '#171717' },
   ];
 
   const menuItems = [
     { id: 'account', icon: <User size={20} />, label: 'Account' },
-    { id: 'privacy & Security', icon: <Lock size={20} />, label: 'Privacy' },
+    { id: 'privacy & security', icon: <Lock size={20} />, label: 'Privacy' },
     { id: 'appearance', icon: <Palette size={20} />, label: 'Appearance' },
     { id: 'notifications', icon: <Bell size={20} />, label: 'Notifications' },
     { id: 'help', icon: <HelpCircle size={20} />, label: 'Help' },
@@ -110,8 +108,16 @@ export default function Settings() {
 
       default:
         return (
-          <div className="settings-detail-view tab-section fade-in hidden-on-mobile">
-            <h2 className="content-title">{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
+          <div className="settings-detail-view tab-section fade-in">
+            <header className="tab-section-header">
+              <div type="button" className="back-button hidden-on-desktop" onClick={() => setActiveTab('')}>
+                <ChevronLeft size={36} color='var(--text-main)' />
+              </div>
+              <div>
+                <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
+                <p>Manage your {activeTab} settings</p>
+              </div>
+            </header>
             <div className="settings-section">
               <p className="placeholder-text">Settings for tabs will appear here.</p>
             </div>
@@ -120,147 +126,12 @@ export default function Settings() {
     }
   };
 
-  const renderContent2 = () => {
-    switch (activeTab) {
-      case 'account':
-        return (
-          <div className="settings-detail-view tab-section fade-in">
-            <h2 className="content-title">Account</h2>
-
-            {/* Section 1: Profile Card */}
-            <div className="settings-section">
-              <div className="section-header">
-                <h3>Profile</h3>
-                <p>Manage your public profile information</p>
-              </div>
-
-              <div className="profile-card">
-                <div className="profile-avatar-wrapper">
-                  <img
-                    src={user?.avatar || "https://i.pravatar.cc/150?u=default"}
-                    alt="Profile"
-                    className="profile-avatar-lg"
-                  />
-                  <div className="avatar-overlay">Change</div>
-                </div>
-                <div className="profile-info">
-                  <h3>{user?.name || "User Name"}</h3>
-                  <p>{user?.email || "user@example.com"}</p>
-                  <span className="badge">
-                    {user?.role === 'admin' ? 'Administrator' : 'Free Plan'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Section 2: Personal Details */}
-            <div className="settings-section">
-              <div className="section-header">
-                <h3>Personal Details</h3>
-                <p>Edit your name and status</p>
-              </div>
-
-              <div className="form-group">
-                <label>Display Name</label>
-                <input type="text" value={user?.name} placeholder="Your name" />
-              </div>
-
-              <div className="form-group">
-                <label>Status Message</label>
-                <input type="text" value={user?.about || "Available"} placeholder="What's happening?" />
-              </div>
-
-              <div className="form-actions">
-                <button className="btn-primary">Save Changes</button>
-              </div>
-            </div>
-
-            {/* Section 3: Danger Zone */}
-            <div className="settings-section danger-zone">
-              <h3>Danger Zone</h3>
-              <button className="btn-danger" onClick={handleLogout}>
-                <LogOut size={22} />
-                Logout
-              </button>
-            </div>
-          </div>
-        );
-
-      case 'appearance':
-        return (
-          <div className="settings-detail-view fade-in">
-            <h2 className="content-title">Appearance</h2>
-
-            {/* Section 1: Theme Selection */}
-            <div className="settings-section">
-              <div className="section-header">
-                <h3>Theme</h3>
-                <p>Customize the look and feel of the application</p>
-              </div>
-
-              <div className="theme-grid">
-                {themes.map((theme) => (
-                  <div key={theme.label} className="theme-card">
-                    <div
-                      className="theme-preview"
-                      style={{ backgroundColor: theme.bg, borderColor: theme.color }}
-                    >
-                      <div className="theme-bubble-1" style={{ backgroundColor: theme.color }}></div>
-                      <div className="theme-bubble-2" style={{ backgroundColor: theme.color, opacity: 0.5 }}></div>
-                    </div>
-                    <span>{theme.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Section 2: Display Options */}
-            <div className="settings-section">
-              <div className="section-header">
-                <h3>Display Options</h3>
-                <p>Adjust layout and density</p>
-              </div>
-              <div className="toggle-row">
-                <div className="toggle-info">
-                  <h4>Dark Mode</h4>
-                  <p>Reduce eye strain with a dark interface</p>
-                </div>
-                <label className="switch">
-                  <input type="checkbox" />
-                  <span className="slider round"></span>
-                </label>
-              </div>
-            </div>
-          </div>
-        );
-
-      default:
-        return (
-          <div className="settings-detail-view fade-in">
-            <h2 className="content-title">{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
-            <div className="settings-section">
-              <p className="placeholder-text">Settings for {activeTab} will appear here.</p>
-            </div>
-          </div>
-        );
-    }
-  };
-
-  // if(userError) {
-  //   return <ErrorPage 
-  //     title="Unable to Load Settings" 
-  //     message="There was an issue loading your settings. Please try again later." 
-  //     onRetry={() => window.location.reload()} 
-  //   />;
-  // }
-
   return (
-    <div className="settings page-layout"> {/* Uses App.css grid layout */}
-
-      {/* 1. MENU (Far Left Navigation) */}
+    <div className="settings page-layout">
+      {/* 1. MENU */}
       <Menu />
 
-      {/* 2. SIDEBAR (Settings Categories) */}
+      {/* 2. SIDEBAR */}
       <div className="settings-sidebar section-middle">
         <div className="sidebar-header">
           <h2>Settings</h2>
@@ -280,7 +151,7 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* 3. SECTION (Content Area) */}
+      {/* 3. SECTION */}
       <div className={`settings-content section-right ${activeTab ? 'active' : 'hidden-on-mobile'}`}>
         {renderContent()}
       </div>
@@ -288,30 +159,35 @@ export default function Settings() {
   );
 };
 
-
 export function UserProfileSection({ setActiveTab }) {
   const { user, logout, userError, setUserError, setUser } = useUser();
   const { showSnackbar } = useSnackbar();
+
   const [isEditing, setIsEditing] = useState(false);
   const [tempUserData, setTempUserData] = useState(user);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const defaultUserAvatar = DEFAULT_AVATAR;
 
-  // 5. Update Profile Function
+  // 5. Update Profile Function (Simplified for UploadThing)
   const updateUserProfile = async () => {
     setUserError(null);
     setIsLoading(true);
+
     try {
+      // Since UploadThing handles the file upload separately and gives us a URL,
+      // we can just send the updated tempUserData (which contains the new avatar URL) as JSON.
       const { data } = await axios.put('/api/user/profile', tempUserData);
+
       setUser(data);
       setIsEditing(false);
       showSnackbar("User profile updated successfully!!", "success");
     } catch (err) {
       if (err.response && err.response.status >= 500) {
-        // Catch 500, 502, 503, 504, etc.
         setUserError(err);
         return;
       }
-      if (err.response && err.status != "404") {
+      if (err.response && err.status !== "404") {
         showSnackbar(err.response.statusText, "info");
       } else {
         console.log(err);
@@ -328,11 +204,35 @@ export function UserProfileSection({ setActiveTab }) {
       ...prevUser,
       [name]: value,
     }));
-  }
+  };
 
   const handleCancel = () => {
-    setTempUserData(user); // Revert changes
+    setTempUserData(user); // Revert all changes
     setIsEditing(false);
+  };
+
+  // --- UploadThing Handlers ---
+  const handleAvatarUploadComplete = (res) => {
+    if (res && res.length > 0) {
+      const fileUrl = res[0].url;
+      console.log("Avatar Uploaded:", fileUrl);
+
+      // Update local state to show the new image immediately
+      setTempUserData(prev => ({ ...prev, avatar: fileUrl }));
+      setIsUploading(false);
+      setIsEditing(true); // Switch to edit mode to allow saving
+      showSnackbar("Image uploaded. Click 'Save Changes' to confirm.", "success");
+    }
+  };
+
+  const handleAvatarUploadError = (error) => {
+    showSnackbar(`Upload failed: ${error.message}`, "error");
+    setIsUploading(false);
+  };
+
+  const handleRemoveAvatar = () => {
+    setTempUserData(prev => ({ ...prev, avatar: defaultUserAvatar }));
+    setIsEditing(true); // Switch to edit mode to allow saving
   }
 
   if (isLoading) {
@@ -344,7 +244,7 @@ export function UserProfileSection({ setActiveTab }) {
   }
 
   return (
-    <div className='user-profile-section tab-section fade-in'>
+    <div className='user-profile-section tab-section fade-in' style={{ paddingBottom: '5rem' }}>
       <header className="tab-section-header">
         <div type="button" className="back-button hidden-on-desktop" onClick={() => setActiveTab('')}>
           <ChevronLeft size={36} color='var(--text-main)' />
@@ -361,15 +261,59 @@ export function UserProfileSection({ setActiveTab }) {
           <p className="section-subtitle">Update your profile picture to personalize your account</p>
         </div>
         <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-          <div className="profile-avatar-wrapper">
+
+          {/* --- AVATAR WRAPPER --- */}
+          <div
+            className="profile-avatar-wrapper"
+            title="Click to upload new image"
+          >
             <img
-              src={user?.avatar || "https://i.pravatar.cc/150?u=default"}
+              // Show temp avatar if changed, otherwise current user avatar, otherwise fallback
+              src={tempUserData?.avatar || user?.avatar || DEFAULT_AVATAR}
+              onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR; }}
               alt="Profile"
               className="profile-avatar-lg"
             />
-            <div className="avatar-overlay">Change</div>
+
+            {/* Overlay with UploadButton */}
+            <div className="avatar-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {isUploading ? (
+                <span style={{ fontSize: '12px', color: 'white' }}>Uploading...</span>
+              ) : (
+                <UploadButton
+                  endpoint="chatAttachment" // Using your existing endpoint (images allowed)
+                  onUploadBegin={() => setIsUploading(true)}
+                  onClientUploadComplete={handleAvatarUploadComplete}
+                  onUploadError={handleAvatarUploadError}
+                  appearance={{
+                    button: {
+                      background: 'transparent',
+                      color: 'white',
+                      padding: 0,
+                      width: '100%',
+                      height: '100%',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      border: 'none',
+                      cursor: 'pointer',
+                    },
+                    allowedContent: { display: 'none' },
+                    container: { width: '100%', height: '100%' }
+                  }}
+                  content={{
+                    button: "Change" // Text inside the overlay
+                  }}
+                />
+              )}
+            </div>
           </div>
-          <Button variant="outlined" color="error">
+
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={handleRemoveAvatar}
+            disabled={!tempUserData?.avatar && !user?.avatar}
+          >
             Remove
           </Button>
         </div>
@@ -382,46 +326,42 @@ export function UserProfileSection({ setActiveTab }) {
         </div>
         <div className="form-groups">
           <div className="form-group">
-            <label>First Name</label>
-            <input type="text" value={tempUserData?.name} placeholder="Your name" name='name' onChange={handleUserInfoChange} style={{ backgroundColor: `${isEditing ? 'var(--bg-surface)' : 'var(--bg-main)'}` }} disabled={!isEditing} />
-          </div>
-          <div className="form-group">
-            <label>Last Name</label>
-            <input type="text" value={tempUserData?.name} placeholder="Your last name" name='name' disabled={!isEditing} style={{ backgroundColor: `${isEditing ? 'var(--bg-surface)' : 'var(--bg-main)'}` }} />
+            <label>Name</label>
+            <input
+              type="text"
+              value={tempUserData?.name || ''}
+              placeholder="Your name"
+              name='name'
+              onChange={handleUserInfoChange}
+              style={{ backgroundColor: `${isEditing ? 'var(--bg-surface)' : 'var(--bg-main)'}` }}
+              disabled={!isEditing}
+            />
           </div>
           <div className="form-group">
             <label>Username</label>
-            <input type="text" value={tempUserData?.username} placeholder="@username" name='username' onChange={handleUserInfoChange} disabled={true} />
+            <input type="text" value={tempUserData?.username || ''} placeholder="@username" name='username' onChange={handleUserInfoChange} disabled={true} />
           </div>
           <div className="form-group">
             <label>Email</label>
-            <input type="text" value={tempUserData?.email} placeholder="Your email" name='email' onChange={handleUserInfoChange} style={{ backgroundColor: `${isEditing ? 'var(--bg-surface)' : 'var(--bg-main)'}` }} disabled={!isEditing} />
+            <input type="text" value={tempUserData?.email || ''} placeholder="Your email" name='email' onChange={handleUserInfoChange} style={{ backgroundColor: `${isEditing ? 'var(--bg-surface)' : 'var(--bg-main)'}` }} disabled={!isEditing} />
           </div>
           <div className="form-group about-me">
             <label>Bio</label>
-            <textarea rows={6} value={tempUserData?.about} placeholder="Your bio" name='about' onChange={handleUserInfoChange} style={{ backgroundColor: `${isEditing ? 'var(--bg-surface)' : 'var(--bg-main)'}` }} disabled={!isEditing} />
+            <textarea rows={6} value={tempUserData?.about || ''} placeholder="Your bio" name='about' onChange={handleUserInfoChange} style={{ backgroundColor: `${isEditing ? 'var(--bg-surface)' : 'var(--bg-main)'}` }} disabled={!isEditing} />
           </div>
-        </div>
-        <div className="form-actions">
-          {isEditing ? (
-            <>
-              <button className="btn-primary" style={{ fontWeight: '600', marginRight: '1.2rem' }} onClick={updateUserProfile}>Save Changes</button>
-              <button className="btn-secondary" onClick={handleCancel}>Cancel</button>
-            </>
-          ) : (
-            <button className="btn-primary" onClick={() => setIsEditing(true)}>Edit Profile</button>
-          )}
         </div>
       </div>
 
       <div>
-        <Button color="error" variant="outlined" onClick={logout} style={{ textTransform: 'none', fontWeight: '600' }} >
-          <LogOut size={22} style={{ marginRight: '.5rem', }} />
-          Logout
-        </Button>
+        {isEditing ? (
+          <>
+            <button className="btn-primary" style={{ fontWeight: '600', marginRight: '1.2rem' }} onClick={updateUserProfile}>Save Changes</button>
+            <button className="btn-secondary" onClick={handleCancel}>Cancel</button>
+          </>
+        ) : (
+          <button className="btn-primary" onClick={() => setIsEditing(true)}>Edit Profile</button>
+        )}
       </div>
     </div>
   );
 }
-
-

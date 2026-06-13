@@ -10,28 +10,32 @@ import { chatData } from './tempData.js';
 
 export default function ChatList({ setShowAddChatSection }) {
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterType, setFilterType] = useState('all'); // 'all', 'unread', 'groupchat'
+    const [filterType, setFilterType] = useState('all'); // 'all', 'contacts', 'groupchat'
+    const { chats } = useChat();
+    let filteredChats = chats;
 
     // 1. Handle Tab Change
     const handleTabChange = (event, newValue) => {
         setFilterType(newValue);
     };
 
-    // 2. The Smart Filter Logic
-    // const filteredChats = allChats?.filter(chat => {
-    //     // First, check if it matches the search text
-    //     const matchesSearch = chat.users[0].name.toLowerCase().includes(searchTerm.toLowerCase());
+    const filterChats = (chats, type) => {
+        if(type == "all") {
+            filteredChats = chats.filter(chat => chat.isDeleted === false);
+        } else if(type == "groupchat") { 
+            filteredChats = chats.filter(chat => chat.isGroupChannel === true && chat.isDeleted === false);
+        } else if(type == "contacts") {
+            filteredChats = chats.filter(chat => chat.isGroupChannel === false && chat.isDeleted === false);
+        }
 
-    //     // Then, check if it matches the active Tab
-    //     if (filterType === 'unread') {
-    //         return matchesSearch && chat.unreadCount > 0;
-    //     }
-    //     if (filterType === 'groupchat') {
-    //         return matchesSearch && chat.isGroup === true;
-    //     }
-    //     // Default 'all'
-    //     return matchesSearch;
-    // });
+        filteredChats = filteredChats.filter(chat => {
+            const otherUser = chat.users[0];
+            return otherUser.name.toLowerCase().includes(searchTerm.toLowerCase()) || chat.channelName.toLowerCase().includes(searchTerm.toLowerCase()); 
+        });
+    }
+
+    filterChats(chats, filterType);
+    console.log("Filtered Chats: ", filteredChats);
 
     return (
         <div className="chat-list section-middle" style={{
@@ -69,8 +73,8 @@ export default function ChatList({ setShowAddChatSection }) {
                     sx={tabStyle}
                 />
                 <Tab
-                    label="Unread"
-                    value="unread"
+                    label="Contacts"
+                    value="contacts"
                     disableRipple
                     sx={tabStyle}
                 />
@@ -81,7 +85,7 @@ export default function ChatList({ setShowAddChatSection }) {
                     sx={tabStyle}
                 />
             </Tabs>
-            <ChatListItems />
+            <ChatListItems chats={filteredChats} />
         </div>
     )
 }
