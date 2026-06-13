@@ -23,6 +23,7 @@ import { UploadButton } from "../utils/uploadthing";
 import "@uploadthing/react/styles.css";
 import { ChatWindowSkeleton } from './SkeletonLoader.jsx';
 import { useOnlineUsers } from '../context/OnlineUsers.jsx';
+import { DEFAULT_AVATAR } from '../utils/avatarUtils';
 
 export default function ChatWindow() {
   const { activeChat, setActiveChatId, messagesLoading, messagesError } = useChat();
@@ -161,7 +162,8 @@ export function SingleChatWindow({ handleSetActiveChat, handleOpenChatInfo }) {
           </div>
           <div className="chat-header-avatar-wrapper">
             <img
-              src={activeChat?.users[0]?.avatar || "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"}
+              src={activeChat?.users[0]?.avatar || DEFAULT_AVATAR}
+              onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR; }}
               alt="image"
               className="chat-header-avatar"
             />

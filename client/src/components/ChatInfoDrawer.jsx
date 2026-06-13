@@ -30,6 +30,7 @@ import { useSnackbar } from '../context/Snackbar';
 import Loader from './Loader';
 import { useNavigate } from 'react-router-dom';
 import { useChat } from '../context/Chat';
+import { DEFAULT_AVATAR } from '../utils/avatarUtils';
 
 export default function ChatInfoDrawer({ open, onClose, chat }) {
   const { user: currentUser } = useUser();
@@ -150,7 +151,8 @@ export default function ChatInfoDrawer({ open, onClose, chat }) {
             borderBottom: '1px solid var(--border-color)'
           }}>
             <Avatar 
-              src={chatImage} 
+              src={chatImage || DEFAULT_AVATAR} 
+              imgProps={{ onError: (e) => { e.currentTarget.src = DEFAULT_AVATAR; } }}
               alt={chatName}
               sx={{ 
                 width: 120, 
@@ -242,7 +244,7 @@ export default function ChatInfoDrawer({ open, onClose, chat }) {
                   {chat.users.map((member) => (
                     <ListItem key={member._id} sx={{ borderRadius: 'var(--radius-md)', '&:hover': { bgcolor: 'var(--bg-main)' } }}>
                       <ListItemAvatar>
-                        <Avatar src={member.avatar} />
+                        <Avatar src={member.avatar || DEFAULT_AVATAR} imgProps={{ onError: (e) => { e.currentTarget.src = DEFAULT_AVATAR; } }} />
                       </ListItemAvatar>
                       <ListItemText 
                         primary={

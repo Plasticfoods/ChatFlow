@@ -3,10 +3,10 @@ import { Check, CheckCheck, Paperclip } from 'lucide-react'; // Icons
 import { useChat } from '../context/Chat';
 import ErrorPage from './ErrorPage';
 import { formatTime } from '../utils/formatTime';
-import defaultUserAvatar from '../assets/default_user_avatar.jpg';
 import { deepOrange, deepPurple } from '@mui/material/colors';
 import { useOnlineUsers } from '../context/OnlineUsers';
 import { SkeletonChatLoader } from './SkeletonLoader';
+import { DEFAULT_AVATAR } from '../utils/avatarUtils';
 
 export default function ChatListItems({ chats }) {
   const { activeChat, chatLoading, chatError } = useChat();
@@ -119,7 +119,8 @@ export const ChatListItem = ({ chat, isActive }) => {
           <Avatar sx={{ bgcolor: deepPurple[500], width: 48, height: 48, border: '1px solid var(--border-color)' }}>G</Avatar>
         ) : (
           <Avatar
-          src={chat.users[0]?.avatar || defaultUserAvatar}
+          src={chat.users[0]?.avatar || DEFAULT_AVATAR}
+          imgProps={{ onError: (e) => { e.currentTarget.src = DEFAULT_AVATAR; } }}
           alt={chat.icon}
           sx={{ width: 48, height: 48, border: '1px solid var(--border-color)' }}
         />

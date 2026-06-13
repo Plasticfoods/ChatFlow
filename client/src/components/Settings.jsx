@@ -20,6 +20,7 @@ import axios from 'axios';
 import { useSnackbar } from '../context/Snackbar.jsx';
 import { UploadButton } from "../utils/uploadthing";
 import "@uploadthing/react/styles.css";
+import { DEFAULT_AVATAR } from '../utils/avatarUtils';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('');
@@ -166,7 +167,7 @@ export function UserProfileSection({ setActiveTab }) {
   const [tempUserData, setTempUserData] = useState(user);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const defaultUserAvatar = "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg";
+  const defaultUserAvatar = DEFAULT_AVATAR;
 
   // 5. Update Profile Function (Simplified for UploadThing)
   const updateUserProfile = async () => {
@@ -268,7 +269,8 @@ export function UserProfileSection({ setActiveTab }) {
           >
             <img
               // Show temp avatar if changed, otherwise current user avatar, otherwise fallback
-              src={tempUserData?.avatar || user?.avatar}
+              src={tempUserData?.avatar || user?.avatar || DEFAULT_AVATAR}
+              onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR; }}
               alt="Profile"
               className="profile-avatar-lg"
             />

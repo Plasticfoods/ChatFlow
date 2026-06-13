@@ -26,6 +26,7 @@ import { useChat } from '../context/Chat';
 import axios from 'axios';
 import { useSnackbar } from '../context/Snackbar';
 import Loader from './Loader';
+import { DEFAULT_AVATAR } from '../utils/avatarUtils';
 
 export default function CreateGroupDrawer({ open, onClose }) {
   const [groupName, setGroupName] = useState('');
@@ -205,7 +206,7 @@ export default function CreateGroupDrawer({ open, onClose }) {
                 return (
                   <Chip
                     key={userId}
-                    avatar={<Avatar src={user.avatar} />}
+                    avatar={<Avatar src={user.avatar || DEFAULT_AVATAR} imgProps={{ onError: (e) => { e.currentTarget.src = DEFAULT_AVATAR; } }} />}
                     label={user.name}
                     onDelete={() => handleToggleUser(userId)}
                     sx={{
@@ -267,7 +268,7 @@ export default function CreateGroupDrawer({ open, onClose }) {
                 >
                   <ListItemAvatar>
                     <Box sx={{ position: 'relative' }}>
-                      <Avatar src={user.avatar} sx={{ width: 40, height: 40 }} />
+                      <Avatar src={user.avatar || DEFAULT_AVATAR} imgProps={{ onError: (e) => { e.currentTarget.src = DEFAULT_AVATAR; } }} sx={{ width: 40, height: 40 }} />
                       {isSelected && (
                         <Box sx={{
                           position: 'absolute',

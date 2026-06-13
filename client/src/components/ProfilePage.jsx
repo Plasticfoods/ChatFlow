@@ -15,6 +15,7 @@ import Menu from './Menu.jsx';
 import { Button } from '@mui/material';
 import './Settings.css'; // Reusing settings styles for consistency
 import { QRCodeSVG } from 'qrcode.react'; 
+import { DEFAULT_AVATAR } from '../utils/avatarUtils';
 
 
 export default function ProfilePage() {
@@ -59,7 +60,8 @@ export default function ProfilePage() {
           }}>
             <div style={{ position: 'relative', marginBottom: '1rem' }}>
               <img
-                src={user?.avatar || "https://i.pravatar.cc/150?u=default"}
+                src={user?.avatar || DEFAULT_AVATAR}
+                onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR; }}
                 alt="Profile"
                 style={{
                   width: '100px',

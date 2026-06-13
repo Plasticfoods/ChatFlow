@@ -30,7 +30,7 @@ import { useSnackbar } from '../context/Snackbar.jsx';
 import Loader from './Loader.jsx';
 import { useNavigate } from 'react-router-dom';
 import { useChat } from '../context/Chat.jsx';
-
+import { DEFAULT_AVATAR } from '../utils/avatarUtils';
 
 export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSearchDrawer, onStartChat }) {
   const [query, setQuery] = useState('');
@@ -240,7 +240,8 @@ export default function UserSearchDrawer({ openUserSearchDrawer, setOpenUserSear
                   }}
                 >
                   <Avatar
-                    src={user.avatar}
+                    src={user.avatar || DEFAULT_AVATAR}
+                    imgProps={{ onError: (e) => { e.currentTarget.src = DEFAULT_AVATAR; } }}
                     sx={{ width: 48, height: 48, bgcolor: 'var(--bg-main)', mr: 2 }}
                   />
                   <Box sx={{ flex: 1, overflow: 'hidden' }}>
